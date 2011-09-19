@@ -1,3 +1,6 @@
 [submodule "vendor/curlyqueue"]
 	path = vendor/curlyqueue
 	url = git://github.com/codeactual/curlyqueue.git
+[submodule "vendor/htmlpurifier"]
+	path = vendor/htmlpurifier
+	url = git://github.com/ezyang/htmlpurifier.git
