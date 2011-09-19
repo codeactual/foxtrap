@@ -1,0 +1,3 @@
+[submodule "vendor/curlyqueue"]
+	path = vendor/curlyqueue
+	url = git://github.com/codeactual/curlyqueue.git
