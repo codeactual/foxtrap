@@ -16,17 +16,23 @@ use \Mysqli as Db;
 class Mysqli implements DbInterface
 {
   /**
-   * @var Db Connection instance.
+   * @var DbInterface Connection instance.
    */
   protected $link;
 
-  public function __construct(Db $link = null)
+  /**
+   * @var string
+   */
+  protected $table;
+
+  /**
+   * @param DbInterface $link
+   * @param array $config
+   */
+  public function __construct(DbInterface $link, array $config)
   {
-    if ($link) {
-      $this->link = $link;
-    } else {
-      $this->link = $this->createLink($config);
-    }
+    $this->link = $link;
+    $this->table = $config['db']['table'];
   }
 
   public static function createLink()
@@ -49,12 +55,42 @@ class Mysqli implements DbInterface
   {
     // If the URI (hash) already exists, still update the tags and title in case
     // they've been updated (e.g. 'nosave' added or title enhanced)
-    $sql = 'INSERT INTO `foxtrap` (`title`, `uri`, `uri_hash`, `tags`, `body`, `body_clean`, `last_err`, `modified`) VALUES (?, ?, ?, ?, "", "", ?, FROM_UNIXTIME(?)) ON DUPLICATE KEY UPDATE `tags` = VALUES(`tags`), `title` = VALUES(`title`)';
+    $sql = "
+      INSERT INTO `{$this->table}`
+      (
+        `title`,
+        `uri`,
+        `uri_hash`,
+        `tags`,
+        `body`,
+        `body_clean`,
+        `last_err`,
+        `modified`
+      )
+      VALUES
+      (
+        ?,
+        ?,
+        ?,
+        ?,
+        '',
+        '',
+        ?,
+        FROM_UNIXTIME(?)
+      )
+      ON DUPLICATE KEY UPDATE
+        `tags` = VALUES(`tags`),
+        `title` = VALUES(`title`)";
     $stmt = $this->link->prepare($sql);
 
     $stmt->bind_param(
       'sssssd',
-      $fields['title'], $fields['uri'], $fields['uri_hash_without_frag'], $fields['page_tags_str'], $fields['last_err'], $fields['time']
+      $fields['title'],
+      $fields['uri'],
+      $fields['uri_hash_without_frag'],
+      $fields['page_tags_str'],
+      $fields['last_err'],
+      $fields['time']
     );
     $stmt->execute();
 
@@ -73,14 +109,21 @@ class Mysqli implements DbInterface
    */
   public function saveSuccess($raw, $clean, $id)
   {
-$sql = 'UPDATE `foxtrap` SET `body` = ?, `body_clean` = ?,`saved` = 1, `last_err` = "" WHERE `id` = ?';
-$success_stmt = $mysqli->prepare($sql);
-          if (1 != $success_stmt->affected_rows) {
-            $error = sprintf(
-              '%d: %s',
-              $success_stmt->errno, $success_stmt->error
-            );
-          }
+    $sql = "
+      UPDATE `{$this->table}`
+      SET
+        `body` = ?,
+        `body_clean` = ?,
+        `saved` = 1,
+        `last_err` = ''
+      WHERE `id` = ?";
+    $stmt = $mysqli->prepare($sql);
+    if (1 != $stmt->affected_rows) {
+      $error = sprintf(
+        '%d: %s',
+        $stmt->errno, $stmt->error
+      );
+    }
   }
 
   /**
@@ -88,14 +131,14 @@ $success_stmt = $mysqli->prepare($sql);
    */
   public function saveError($message, $id)
   {
-$sql = 'UPDATE `foxtrap` SET `last_err` = ? WHERE `id` = ?';
-$error_stmt = $mysqli->prepare($sql);
-          if (1 != $success_stmt->affected_rows) {
-            $error = sprintf(
-              '%d: %s',
-              $success_stmt->errno, $success_stmt->error
-            );
-          }
+    $sql = "UPDATE `{$this->table}` SET `last_err` = ? WHERE `id` = ?";
+    $stmt = $mysqli->prepare($sql);
+    if (1 != $stmt->affected_rows) {
+      $error = sprintf(
+        '%d: %s',
+        $stmt->errno, $stmt->error
+      );
+    }
   }
 
   /**
@@ -103,16 +146,16 @@ $error_stmt = $mysqli->prepare($sql);
    */
   public function flagNonDownloadable()
   {
-    $sql = '
-      UPDATE `foxtrap`
+    $sql = "
+      UPDATE `{$this->table}`
       SET
-        `body` = "",
-        `body_clean` = "",
+        `body` = '',
+        `body_clean` = '',
         `saved` = 0,
-        `last_err` = "nosave"
+        `last_err` = 'nosave'
       WHERE
-        (`last_err` = "nosave" OR `tags` LIKE "%nosave%")
-        AND `body` != ""';
+        (`last_err` = 'nosave' OR `tags` LIKE '%nosave%')
+        AND `body` != ''";
     $this->link->prepare($sql)->execute();
     error_log("bmclean: {$stmt->affected_rows} affected");
   }
@@ -134,13 +177,13 @@ $error_stmt = $mysqli->prepare($sql);
    */
   public function getMarksToDownload()
   {
-    $sql = '
+    $sql = "
       SELECT
         `id`, `uri`
-      FROM `foxtrap`
+      FROM `{$this->table}`
       WHERE
         `saved` = 0
-        AND `last_err` = ""';
+        AND `last_err` = ''";
     $result = $this->link->prepare($sql)->execute()->get_result();
 
     $queue = array();
@@ -154,10 +197,10 @@ $error_stmt = $mysqli->prepare($sql);
    */
   public function getMarkVersion($id)
   {
-    $sql = '
+    $sql = "
       SELECT `version`
-      FROM `foxtrap`
-      WHERE `id` = ?';
+      FROM `{$this->table}`
+      WHERE `id` = ?";
     $stmt = $this->link->prepare($sql);
     $stmt->bind_param('s', $id);
     $result = $stmt->execute()->get_result();

@@ -37,10 +37,10 @@ $markDownloader = new CurlyQueue(
 );
 
 // new Foxtrap() dependency
-$db = new {$dbClass}($link);
 $dbClass = "\\Foxtrap\\Db\\{$config['db']['class']}";
 $dbLink = call_user_func_array(array($dbClass, 'createLink'), $config['db']['opts']);
 require_once __DIR__ . "/../src/Db/{$dbClass}.php";
+$db = new {$dbClass}($dbLink);
 
 // new Foxtrap() dependency
 $config = HTMLPurifier_Config::createDefault();
