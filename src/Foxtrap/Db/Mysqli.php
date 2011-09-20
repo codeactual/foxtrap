@@ -51,7 +51,7 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
-  public function register(array $fields)
+  public function register(array $mark)
   {
     // If the URI (hash) already exists, still update the tags and title in case
     // they've been updated (e.g. 'nosave' added or title enhanced)
@@ -85,23 +85,20 @@ class Mysqli implements Api
 
     $stmt->bind_param(
       'sssssd',
-      $fields['title'],
-      $fields['uri'],
-      $fields['uri_hash_without_frag'],
-      $fields['page_tags_str'],
-      $fields['last_err'],
-      $fields['time']
+      $mark['title'],
+      $mark['uri'],
+      $mark['uriHashWithoutFrag'],
+      $mark['pageTagsStr'],
+      $mark['lastErr'],
+      $mark['time']
     );
     $stmt->execute();
 
     if (1 == $stmt->affected_rows) {
-      error_log("bmprepare: new {$fields['uri']}");
+      error_log("bmprepare: new {$mark['uri']}");
     } else if ($stmt->error) {
-      error_log("bmprepare: err ({$stmt->error}) {$fields['uri']}");
+      error_log("bmprepare: err ({$stmt->error}) {$mark['uri']}");
     }
-
-    $this->pruneRemovedMarks();
-    $this->flagNonDownloadable();
   }
 
   /**

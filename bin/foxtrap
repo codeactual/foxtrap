@@ -13,10 +13,12 @@
 use \CurlyQueue;
 use \Flow;
 use \Foxtrap;
+use \Foxtrap\Db\Factory;
 use \HTMLPurifier;
 use \HTMLPurifier_Config;
 
 require_once __DIR__ . '/../src/Foxtrap.php';
+require_once __DIR__ . '/../src/Foxtrap/Db/Factory.php';
 
 $opts = getopt('', array('file:'));
 
@@ -27,40 +29,14 @@ if (!is_readable($configFile)) {
 }
 require_once $configFile;
 
-// new Foxtrap() dependency
-$markDownloader = new CurlyQueue(
-  array(
-    CURLOPT_RETURNTRANSFER => 1,
-    CURLOPT_CONNECTTIMEOUT => 10,
-    CURLOPT_MAXREDIRS => 5,
-    CURLOPT_FOLLOWLOCATION => 1
-  )
-);
-
-// new Foxtrap() dependency
-$dbClass = "\\Foxtrap\\Db\\{$config['db']['class']}";
-$dbLink = call_user_func_array(
-  array($dbClass, 'createLink'),
-  $config['db']['opts']
-);
-require_once __DIR__ . "/../src/Db/{$dbClass}.php";
-$db = new {$dbClass}($dbLink);
-
-// new Foxtrap() dependency
-$config = HTMLPurifier_Config::createDefault();
-$config->set('HTML.TidyLevel', 'none');
-$config->set('HTML.Allowed', '');
-$config->set('Cache.SerializerPath', '/tmp');
-$purifier = HTMLPurifier($config);
-
-$foxtrap = new Foxtrap($markDownloader, $db, $purifier);
+$factory = new Factory();
+$foxtrap = $factory->createInstance($config);
 
 // Extract (unsorted) bookmarks from JSON file
 $imported = $foxtrap->import($opts['file']);
 
 // Call $db->register() for each bookmark
 $foxtrap->registerMarks($imported['marks'], $imported['tags'], $db);
-  $db->pruneRemovedMarks($latestVer);
 
 // Enqueue marks awaiting download
 $marks = $foxtrap->getMarksToDownload();
@@ -73,6 +49,7 @@ if ($marks) {
   }
   Flow::setMaxRuntime($markDownloader, 2 * count($marks));
   $latestVer = $db->getMarkVersion($lastIdSeen);
+  $db->pruneRemovedMarks($latestVer);
 
   $markDownloader->exec();
 }

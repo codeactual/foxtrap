@@ -17,6 +17,13 @@ interface Api
    * Add or refresh URIs and related fields based on bookmarks in source
    * source JSON from Firefox.
    *
+   * @param array $mark
+   * - string 'title'
+   * - string 'uri'
+   * - string 'uriHashWithoutFrag'
+   * - string 'pageTagsStr'
+   * - string 'lastErr'
+   * - string 'time'
    * @return void
    * @throws Exception
    * - on write error
