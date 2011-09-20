@@ -1,5 +1,13 @@
 #!/usr/bin/php
 <?php
+/**
+ * @TODO error checks / exceptions
+ * @TODO add schema to repo (no table/database name)
+ * @TODO config.php sets the table name (so tests can use diff table)
+ * @TODO remove error_log use (some sort of loggable iface?)
+ * @TODO all CurlyQueue options come from config.php
+ * @TODO tests (use diff table)
+ */
 
 use \CurlyQueue;
 use \Flow;
@@ -19,7 +27,7 @@ if (!is_readable($configFile)) {
 require_once $configFile;
 
 // new Foxtrap() dependency
-$queue = new CurlyQueue(
+$markDownloader = new CurlyQueue(
   array(
     CURLOPT_RETURNTRANSFER => 1,
     CURLOPT_CONNECTTIMEOUT => 10,
@@ -41,72 +49,26 @@ $config->set('HTML.Allowed', '');
 $config->set('Cache.SerializerPath', '/tmp');
 $purifier = HTMLPurifier($config);
 
-$foxtrap = new Foxtrap($queue, $db, $purifier);
+$foxtrap = new Foxtrap($markDownloader, $db, $purifier);
 
 // Extract (unsorted) bookmarks from JSON file
 $imported = $foxtrap->import($opts['file']);
 
 // Call $db->register() for each bookmark
 $foxtrap->registerMarks($imported['marks'], $imported['tags'], $db);
+  $db->pruneRemovedMarks($latestVer);
 
-$db->saveSuccess($raw, $clean, $id);
-// Queue up all pending saves
-while (($row = $result->fetch_array(MYSQLI_ASSOC))) {
-  error_log("+ {$row['uri']}");
-  $queue->add($row['uri'], $row);
+// Enqueue marks awaiting download
+$marks = $foxtrap->getMarksToDownload();
+if ($marks) {
+  $lastIdSeen = null;
+  foreach ($marks as $mark) {
+    error_log("+ {$mark['uri']}");
+    $markDownloader->add($mark['uri'], $mark);
+    $lastIdSeen = $mark['id'];
+  }
+  Flow::setMaxRuntime($markDownloader, 2 * count($marks));
+  $latestVer = $db->getMarkVersion($lastIdSeen);
+
+  $markDownloader->exec();
 }
-Flow::setMaxRuntime($queue, 2 * $result->num_rows);
-$db->unregister();
-
-// Set event handlers
-$queue->setResponseCallback(function ($ch, $content, $requestObj) use (, $uri_total, &$uri_done, $purifier) {
-  $errno = curl_errno($ch);
-  $error = '';
-
-  $uri_done++;
-
-  if (0 === $errno) {
-    $info = curl_getinfo($ch);
-    if (200 == $info['http_code'] && strlen($content)) {
-      if (!mb_check_encoding($content, 'UTF-8')) {
-        $content = utf8_encode($content);
-      }
-      $content_clean = preg_replace('/\s{2,}/', ' ', trim($content));
-      $content_clean = $purifier->purify($content_clean);
-      $success_stmt->bind_param('ssd', $content, $content_clean, $requestObj['id']);
-      $success_stmt->execute();
-      if (1 != $success_stmt->affected_rows) {
-        $error = sprintf(
-          '%d: %s',
-          $success_stmt->errno, $success_stmt->error
-        );
-      }
-    } else {
-      $error = json_encode($info);
-    }
-  } else {
-    $error = curl_error($ch);
-  }
-
-  if ($error) {
-    $db->saveError($error_stmt, $requestObj['id']);
-    $error = $error ? "({$error})" : '';
-  }
-
-  $mem = memory_get_usage(true) / 1024;
-  $symbol = $error ? '!' : '$';
-  error_log("{$symbol} {$requestObj['uri']} {$uri_done}/{$uri_total} mem {$mem}K id {$requestObj['id']} {$error}");
-});
-$queue->setErrorCallback(function($ch, $requestObj) use ($uri_total, &$uri_done) {
-  $uri_done++;
-
-  $mem = memory_get_usage(true) / 1024;
-  $error = sprintf(
-    'error callback: %s %s',
-    curl_error($ch), json_encode(curl_getinfo($ch))
-  );
-  error_log("! {$requestObj['uri']} {$uri_done}/{$uri_total} mem {$mem}K id {$requestObj['id']} {$error}");
-  $db->saveError($error, $requestObj['id']);
-});
-
-$queue->exec();

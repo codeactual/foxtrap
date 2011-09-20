@@ -219,10 +219,6 @@ class Foxtrap
    */
   public function registerMarks(array $marks, array $pageTags)
   {
-    // collect so we can prune the bookmarks that have since been removed from ff
-    $keptUriHashes = array();
-
-    // import all new pages/tags
     foreach ($marks as $mark) {
       $time = (int) substr($mark['lastmodified'], 0, 10);
       $uriHash = md5($mark['uri']);
@@ -232,11 +228,11 @@ class Foxtrap
         $pageTagsStr = '';
       }
 
-      // make sure bmsave ignores pages tagged as 'nosave'
-      if (false !== strpos($pageTagsStr, 'nosave')) {
-        $lastErr = 'nosave';
-      } else {
+      // For marks tagged as 'nosave', set an error state to prevent download
+      if (false === strpos($pageTagsStr, 'nosave')) {
         $lastErr = '';
+      } else {
+        $lastErr = 'nosave';
       }
 
       // multiple bookmarks may point to the same base uri but different fragments,
@@ -244,8 +240,6 @@ class Foxtrap
       $uriHashWithoutFrag = md5(
         preg_replace('/#[^!].*$/','', $mark['uri'])
       );
-
-      $keptUriHashes[] = "'{$uriHashWithoutFrag}'";
 
       $this->db->register(
         $mark['title'],

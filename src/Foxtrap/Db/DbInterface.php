@@ -46,7 +46,7 @@ interface DbInterface
    * @throws Exception
    * - on write error
    */
-  public function stopContentSave();
+  public function flagNonDownloadable();
 
   /**
    * Remove URIs and related fields based on bookmarks which are no longer
@@ -56,14 +56,26 @@ interface DbInterface
    * @throws Exception
    * - on write error
    */
-  public function unregister();
+  public function pruneRemovedMarks();
 
   /**
    * Get URIs and related fields of bookmarks awaiting download.
    *
-   * @return iterable
+   * @return array An array for each mark with:
+   * - mixed 'id'
+   * - string 'uri'
    * @throws Exception
    * - on read error
    */
-  public function getDownloadQueue();
+  public function getMarksToDownload();
+
+  /**
+   * Get the 'version' field of the identified mark.
+   *
+   * @param mixed $id
+   * @return mixed
+   * @throws Exception
+   * - on read error
+   */
+  public function getMarkVersion($id);
 }

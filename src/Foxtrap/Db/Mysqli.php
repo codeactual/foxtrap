@@ -31,7 +31,6 @@ class Mysqli implements DbInterface
 
   public static function createLink()
   {
-    //$link = mysqli_connec('localhost', 'rw', 'rw', 'stash');
     $link = call_user_func('mysqli_connect', func_get_args());(
     if ($link->connect_errno) {
       throw new Exception(
@@ -50,7 +49,7 @@ class Mysqli implements DbInterface
   {
     // If the URI (hash) already exists, still update the tags and title in case
     // they've been updated (e.g. 'nosave' added or title enhanced)
-    $sql = 'INSERT INTO `stash`.`bmsave` (`title`, `uri`, `uri_hash`, `tags`, `body`, `body_clean`, `last_err`, `modified`) VALUES (?, ?, ?, ?, "", "", ?, FROM_UNIXTIME(?)) ON DUPLICATE KEY UPDATE `tags` = VALUES(`tags`), `title` = VALUES(`title`)';
+    $sql = 'INSERT INTO `foxtrap` (`title`, `uri`, `uri_hash`, `tags`, `body`, `body_clean`, `last_err`, `modified`) VALUES (?, ?, ?, ?, "", "", ?, FROM_UNIXTIME(?)) ON DUPLICATE KEY UPDATE `tags` = VALUES(`tags`), `title` = VALUES(`title`)';
     $stmt = $this->link->prepare($sql);
 
     $stmt->bind_param(
@@ -65,8 +64,8 @@ class Mysqli implements DbInterface
       error_log("bmprepare: err ({$stmt->error}) {$fields['uri']}");
     }
 
-    //
-    $this->stopContentSave();
+    $this->pruneRemovedMarks();
+    $this->flagNonDownloadable();
   }
 
   /**
@@ -74,7 +73,7 @@ class Mysqli implements DbInterface
    */
   public function saveSuccess($raw, $clean, $id)
   {
-$sql = 'UPDATE `stash`.`bmsave` SET `body` = ?, `body_clean` = ?,`saved` = 1, `last_err` = "" WHERE `id` = ?';
+$sql = 'UPDATE `foxtrap` SET `body` = ?, `body_clean` = ?,`saved` = 1, `last_err` = "" WHERE `id` = ?';
 $success_stmt = $mysqli->prepare($sql);
           if (1 != $success_stmt->affected_rows) {
             $error = sprintf(
@@ -89,7 +88,7 @@ $success_stmt = $mysqli->prepare($sql);
    */
   public function saveError($message, $id)
   {
-$sql = 'UPDATE `stash`.`bmsave` SET `last_err` = ? WHERE `id` = ?';
+$sql = 'UPDATE `foxtrap` SET `last_err` = ? WHERE `id` = ?';
 $error_stmt = $mysqli->prepare($sql);
           if (1 != $success_stmt->affected_rows) {
             $error = sprintf(
@@ -102,10 +101,10 @@ $error_stmt = $mysqli->prepare($sql);
   /**
    * {@inheritdoc}
    */
-  protected function stopContentSave() // bmclean
+  public function flagNonDownloadable()
   {
     $sql = '
-      UPDATE `bmsave`
+      UPDATE `foxtrap`
       SET
         `body` = "",
         `body_clean` = "",
@@ -115,33 +114,53 @@ $error_stmt = $mysqli->prepare($sql);
         (`last_err` = "nosave" OR `tags` LIKE "%nosave%")
         AND `body` != ""';
     $this->link->prepare($sql)->execute();
-    error_log("bmclean: {$stmt->affected_rows} affected"); // TODO REMOVE
+    error_log("bmclean: {$stmt->affected_rows} affected");
   }
 
   /**
    * {@inheritdoc}
    */
-  public function unregister($version)
+  public function pruneRemovedMarks($version)
   {
     // new process: during each 'register', a version number is incremented
     // we get the current version number using the ID of the last URI prepared
     // we delete all rows that do now have the same version number
 
-    error_log("bmprepare: pruned {$stmt->affected_rows}"); // TODO REMOVE
+    error_log("bmprepare: pruned {$stmt->affected_rows}");
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDownloadQueue()
+  public function getMarksToDownload()
   {
     $sql = '
       SELECT
         `id`, `uri`
-      FROM `stash`.`bmsave`
+      FROM `foxtrap`
       WHERE
         `saved` = 0
         AND `last_err` = ""';
-    return $this->link->prepare($sql)->execute()->get_result();
+    $result = $this->link->prepare($sql)->execute()->get_result();
+
+    $queue = array();
+    while (($row = $result->fetch_array(MYSQLI_ASSOC))) {
+      $queue[] = $row;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMarkVersion($id)
+  {
+    $sql = '
+      SELECT `version`
+      FROM `foxtrap`
+      WHERE `id` = ?';
+    $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('s', $id);
+    $result = $stmt->execute()->get_result();
+    return $result['version';
   }
 }
