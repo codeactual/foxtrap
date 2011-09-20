@@ -1,6 +1,7 @@
 #!/usr/bin/php
 <?php
 /**
+ * @TODO HTMLPurifier SerializerPath in $config
  * @TODO error checks / exceptions
  * @TODO add schema to repo (no table/database name)
  * @TODO config.php sets the table name (so tests can use diff table)
@@ -38,7 +39,10 @@ $markDownloader = new CurlyQueue(
 
 // new Foxtrap() dependency
 $dbClass = "\\Foxtrap\\Db\\{$config['db']['class']}";
-$dbLink = call_user_func_array(array($dbClass, 'createLink'), $config['db']['opts']);
+$dbLink = call_user_func_array(
+  array($dbClass, 'createLink'),
+  $config['db']['opts']
+);
 require_once __DIR__ . "/../src/Db/{$dbClass}.php";
 $db = new {$dbClass}($dbLink);
 

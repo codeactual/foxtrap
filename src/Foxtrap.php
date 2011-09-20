@@ -8,17 +8,17 @@
 namespace Foxtrap;
 
 use \CurlyQueue;
-use \Foxtrap\Db\DbInterface;
+use \Foxtrap\Db\Api;
 use \HTMLPurifier;
 
-require_once __DIR__ . '/../src/Db/DbInterface.php';
+require_once __DIR__ . '/../src/Db/Api.php';
 require_once __DIR__ . '/../vendor/curlyqueue/src/CurlyQueue.php';
 require_once __DIR__ . '/../vendor/htmlpurifier/library/HTMLPurifier.auto.php';
 
 class Foxtrap
 {
   /**
-   * @var DbInterface Implementation interface, e.g. Db\Mysqli.
+   * @var Api Implementation interface, e.g. Db\Mysqli.
    */
   protected $db;
 
@@ -42,7 +42,7 @@ class Foxtrap
    */
   protected $uriDownloaded;
 
-  public function __construct(CurlyQueue $queue, DbInterface $db, HTMLPurifier $purifier)
+  public function __construct(CurlyQueue $queue, Api $db, HTMLPurifier $purifier)
   {
     $this->db = $db;
     $this->purifier = $purifier;

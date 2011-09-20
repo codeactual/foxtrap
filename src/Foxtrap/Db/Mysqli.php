@@ -7,16 +7,16 @@
 
 namespace \Foxtrap\Db;
 
-use \Foxtrap\Db\DbInterface;
+use \Foxtrap\Db\Api;
 use \Mysqli as Db;
 
 /**
  * Contract for concretes like Db\Mysqli.
  */
-class Mysqli implements DbInterface
+class Mysqli implements Api
 {
   /**
-   * @var DbInterface Connection instance.
+   * @var Api Connection instance.
    */
   protected $link;
 
@@ -26,10 +26,10 @@ class Mysqli implements DbInterface
   protected $table;
 
   /**
-   * @param DbInterface $link
+   * @param Api $link
    * @param array $config
    */
-  public function __construct(DbInterface $link, array $config)
+  public function __construct(Api $link, array $config)
   {
     $this->link = $link;
     $this->table = $config['db']['table'];
@@ -41,8 +41,8 @@ class Mysqli implements DbInterface
     if ($link->connect_errno) {
       throw new Exception(
         'mysqli_connect() error %d: %s',
-        $mysqli->connect_errno,
-        $mysqli->connect_error
+        $link->connect_errno,
+        $link->connect_error
       );
     }
     return $link;
@@ -117,7 +117,7 @@ class Mysqli implements DbInterface
         `saved` = 1,
         `last_err` = ''
       WHERE `id` = ?";
-    $stmt = $mysqli->prepare($sql);
+    $stmt = $this->link->prepare($sql);
     if (1 != $stmt->affected_rows) {
       $error = sprintf(
         '%d: %s',
@@ -132,7 +132,7 @@ class Mysqli implements DbInterface
   public function saveError($message, $id)
   {
     $sql = "UPDATE `{$this->table}` SET `last_err` = ? WHERE `id` = ?";
-    $stmt = $mysqli->prepare($sql);
+    $stmt = $this->link->prepare($sql);
     if (1 != $stmt->affected_rows) {
       $error = sprintf(
         '%d: %s',

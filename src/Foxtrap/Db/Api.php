@@ -1,6 +1,9 @@
 <?php
+
+namespace Foxtrap\Db;
+
 /**
- * DbInterface contract.
+ * Api contract.
  *
  * @package Foxtrap
  */
@@ -8,7 +11,7 @@
 /**
  * Contract for concretes like Db\Mysqli which further describes requirements.
  */
-interface DbInterface
+interface Api
 {
   /**
    * Add or refresh URIs and related fields based on bookmarks in source
