@@ -1,0 +1,112 @@
+#!/usr/bin/php
+<?php
+
+use \CurlyQueue;
+use \Flow;
+use \Foxtrap;
+use \HTMLPurifier;
+use \HTMLPurifier_Config;
+
+require_once __DIR__ . '/../src/Foxtrap.php';
+
+$opts = getopt('', array('file:'));
+
+// Add $config to namespace
+$configFile = __DIR__ . '/../config.php';
+if (!is_readable($configFile)) {
+  exit("\n{$configFile} missing or unreadable.\n");
+}
+require_once $configFile;
+
+// new Foxtrap() dependency
+$queue = new CurlyQueue(
+  array(
+    CURLOPT_RETURNTRANSFER => 1,
+    CURLOPT_CONNECTTIMEOUT => 10,
+    CURLOPT_MAXREDIRS => 5,
+    CURLOPT_FOLLOWLOCATION => 1
+  )
+);
+
+// new Foxtrap() dependency
+$db = new {$dbClass}($link);
+$dbClass = "\\Foxtrap\\Db\\{$config['db']['class']}";
+$dbLink = call_user_func_array(array($dbClass, 'createLink'), $config['db']['opts']);
+require_once __DIR__ . "/../src/Db/{$dbClass}.php";
+
+// new Foxtrap() dependency
+$config = HTMLPurifier_Config::createDefault();
+$config->set('HTML.TidyLevel', 'none');
+$config->set('HTML.Allowed', '');
+$config->set('Cache.SerializerPath', '/tmp');
+$purifier = HTMLPurifier($config);
+
+$foxtrap = new Foxtrap($queue, $db, $purifier);
+
+// Extract (unsorted) bookmarks from JSON file
+$imported = $foxtrap->import($opts['file']);
+
+// Call $db->register() for each bookmark
+$foxtrap->registerMarks($imported['marks'], $imported['tags'], $db);
+
+$db->saveSuccess($raw, $clean, $id);
+// Queue up all pending saves
+while (($row = $result->fetch_array(MYSQLI_ASSOC))) {
+  error_log("+ {$row['uri']}");
+  $queue->add($row['uri'], $row);
+}
+Flow::setMaxRuntime($queue, 2 * $result->num_rows);
+$db->unregister();
+
+// Set event handlers
+$queue->setResponseCallback(function ($ch, $content, $requestObj) use (, $uri_total, &$uri_done, $purifier) {
+  $errno = curl_errno($ch);
+  $error = '';
+
+  $uri_done++;
+
+  if (0 === $errno) {
+    $info = curl_getinfo($ch);
+    if (200 == $info['http_code'] && strlen($content)) {
+      if (!mb_check_encoding($content, 'UTF-8')) {
+        $content = utf8_encode($content);
+      }
+      $content_clean = preg_replace('/\s{2,}/', ' ', trim($content));
+      $content_clean = $purifier->purify($content_clean);
+      $success_stmt->bind_param('ssd', $content, $content_clean, $requestObj['id']);
+      $success_stmt->execute();
+      if (1 != $success_stmt->affected_rows) {
+        $error = sprintf(
+          '%d: %s',
+          $success_stmt->errno, $success_stmt->error
+        );
+      }
+    } else {
+      $error = json_encode($info);
+    }
+  } else {
+    $error = curl_error($ch);
+  }
+
+  if ($error) {
+    $db->saveError($error_stmt, $requestObj['id']);
+    $error = $error ? "({$error})" : '';
+  }
+
+  $mem = memory_get_usage(true) / 1024;
+  $symbol = $error ? '!' : '$';
+  error_log("{$symbol} {$requestObj['uri']} {$uri_done}/{$uri_total} mem {$mem}K id {$requestObj['id']} {$error}");
+});
+$queue->setErrorCallback(function($ch, $requestObj) use ($uri_total, &$uri_done) {
+  $uri_done++;
+
+  $mem = memory_get_usage(true) / 1024;
+  $error = sprintf(
+    'error callback: %s %s',
+    curl_error($ch), json_encode(curl_getinfo($ch))
+  );
+  error_log("! {$requestObj['uri']} {$uri_done}/{$uri_total} mem {$mem}K id {$requestObj['id']} {$error}");
+  $db->saveError($error, $requestObj['id']);
+});
+
+$queue->exec();
