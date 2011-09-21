@@ -29,7 +29,7 @@ class Factory
   public function createInstance(array $config)
   {
     $config['curl'][CURLOPT_RETURNTRANSFER] = 1;
-    $markDownloader = new CurlyQueue($config['curl']);
+    $queue = new CurlyQueue($config['curl']);
 
     require_once __DIR__ . "/Db/{$config['db']['class']}.php";
     $dbClass = "\\Foxtrap\\Db\\{$config['db']['class']}";
@@ -45,6 +45,6 @@ class Factory
     }
     $purifier = new HTMLPurifier($purifierConfig);
 
-    return new Foxtrap($markDownloader, $db, $purifier);
+    return new Foxtrap($queue, $db, $purifier);
   }
 }

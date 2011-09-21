@@ -323,7 +323,7 @@ class Foxtrap
   }
 
   /**
-   * Read access to $this->db.
+   * Access to $this->db.
    *
    * @return \Foxtrap\Db\Api
    */
@@ -333,7 +333,17 @@ class Foxtrap
   }
 
   /**
-   * Read access to $this->purifier.
+   * Access to $this->queue.
+   *
+   * @return CurlyQueue
+   */
+  public function getQueue()
+  {
+    return $this->queue;
+  }
+
+  /**
+   * Access to $this->purifier.
    *
    * @return HTMLPurifier
    */
