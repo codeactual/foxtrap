@@ -1,5 +1,18 @@
 #!/usr/bin/php
 <?php
+/**
+ * Usage:
+ *        foxtrap --file bookmarks-YY-MM-DD.json
+ *
+ * Steps taken:
+ * - New bookmarks are added to the DB.
+ * - Details (ex. tags/titles) about known bookmarks are updated.
+ * - Bookmarks removed from FF are removed from DB if present.
+ * - Bookmarks tagged as 'nosave' (only title/tags indexed) are flagged.
+ * - Bookmarks are downloaded if content is not present in DB.
+ * - Indexer is triggered.
+ * - Cache is invalidated based changes detected during above.
+ */
 
 use \Flow;
 use \Foxtrap\Factory;
