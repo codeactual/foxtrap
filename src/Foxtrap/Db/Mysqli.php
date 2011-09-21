@@ -10,6 +10,8 @@ namespace \Foxtrap\Db;
 use \Foxtrap\Db\Api;
 use \Mysqli as Db;
 
+require_once __DIR__ . '/Api.php';
+
 /**
  *  MySQLi DB API implementation.
  */

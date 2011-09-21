@@ -1,23 +1,9 @@
 #!/usr/bin/php
 <?php
-/**
- * @TODO HTMLPurifier SerializerPath in $config
- * @TODO error checks / exceptions
- * @TODO add schema to repo (no table/database name)
- * @TODO config.php sets the table name (so tests can use diff table)
- * @TODO remove error_log use (some sort of loggable iface?)
- * @TODO all CurlyQueue options come from config.php
- * @TODO tests (use diff table)
- */
 
-use \CurlyQueue;
 use \Flow;
-use \Foxtrap;
-use \Foxtrap\Db\Factory;
-use \HTMLPurifier;
-use \HTMLPurifier_Config;
+use \Foxtrap\Factory;
 
-require_once __DIR__ . '/../src/Foxtrap.php';
 require_once __DIR__ . '/../src/Foxtrap/Db/Factory.php';
 
 $opts = getopt('', array('file:'));
