@@ -11,9 +11,9 @@ use \CurlyQueue;
 use \HTMLPurifier;
 use \HTMLPurifier_Config;
 
-require_once __DIR__ . '/../src/Foxtrap.php';
-require_once __DIR__ . '/../vendor/curlyqueue/src/CurlyQueue.php';
-require_once __DIR__ . '/../vendor/htmlpurifier/library/HTMLPurifier.auto.php';
+require_once __DIR__ . '/../Foxtrap.php';
+require_once __DIR__ . '/../../vendor/curlyqueue/src/CurlyQueue.php';
+require_once __DIR__ . '/../../vendor/htmlpurifier/library/HTMLPurifier.auto.php';
 
 /**
  * Configure Foxtrap dependencies based on configuration array.
@@ -31,19 +31,19 @@ class Factory
     $config['curl'][CURLOPT_RETURNTRANSFER] = 1;
     $markDownloader = new CurlyQueue($config['curl']);
 
+    require_once __DIR__ . "/Db/{$config['db']['class']}.php";
     $dbClass = "\\Foxtrap\\Db\\{$config['db']['class']}";
     $dbLink = call_user_func_array(
       array($dbClass, 'createLink'),
       $config['db']['opts']
     );
-    require_once __DIR__ . "/../src/Db/{$dbClass}.php";
-    $db = new {$dbClass}($dbLink);
+    $db = new $dbClass($dbLink, $config);
 
-    $config = HTMLPurifier_Config::createDefault();
+    $purifierConfig = HTMLPurifier_Config::createDefault();
     foreach ($config['htmlpurifier'] as $key => $value) {
-      $config->set($key, $value);
+      $purifierConfig->set($key, $value);
     }
-    $purifier = HTMLPurifier($config);
+    $purifier = new HTMLPurifier($purifierConfig);
 
     return new Foxtrap($markDownloader, $db, $purifier);
   }

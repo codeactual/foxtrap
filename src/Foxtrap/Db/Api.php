@@ -35,7 +35,7 @@ interface Api
    * @throws Exception
    * - on write error
    */
-  public function register();
+  public function register(array $mark);
 
   /**
    * Update a URI's related fields, e.g. raw content and tags.

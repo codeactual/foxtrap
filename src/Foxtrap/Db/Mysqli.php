@@ -5,10 +5,10 @@
  * @package Foxtrap
  */
 
-namespace \Foxtrap\Db;
+namespace Foxtrap\Db;
 
 use \Foxtrap\Db\Api;
-use \Mysqli as Db;
+use \mysqli as DbLink;
 
 require_once __DIR__ . '/Api.php';
 
@@ -31,7 +31,7 @@ class Mysqli implements Api
    * @param mysqli $link
    * @param array $config
    */
-  public function __construct(mysqli $link, array $config)
+  public function __construct(DbLink $link, array $config)
   {
     $this->link = $link;
     $this->table = $config['db']['table'];
@@ -42,7 +42,7 @@ class Mysqli implements Api
    */
   public static function createLink()
   {
-    $link = call_user_func('mysqli_connect', func_get_args());
+    $link = call_user_func_array('mysqli_connect', func_get_args());
     if ($link->connect_error) {
       throw new Exception("{$link->connect_error} ({$link->connect_errno})");
     }

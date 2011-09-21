@@ -11,7 +11,7 @@ use \CurlyQueue;
 use \Foxtrap\Db\Api;
 use \HTMLPurifier;
 
-require_once __DIR__ . '/../src/Db/Api.php';
+require_once __DIR__ . '/Foxtrap/Db/Api.php';
 require_once __DIR__ . '/../vendor/curlyqueue/src/CurlyQueue.php';
 require_once __DIR__ . '/../vendor/htmlpurifier/library/HTMLPurifier.auto.php';
 
