@@ -31,10 +31,10 @@ $factory = new Factory();
 $foxtrap = $factory->createInstance($config);
 
 // Extract bookmarks from JSON --file
-$imported = $foxtrap->import($opts['file']);
+$imported = $foxtrap->jsonFileToArray($opts['file']);
 
 // Add/update their details
-$foxtrap->registerMarks($imported['marks'], $imported['tags'], $db);
+$latestVer = $foxtrap->registerMarks($imported);
 
 // Download any recently added or retry those with cleared error states
 $marks = $foxtrap->getMarksToDownload();
@@ -46,7 +46,6 @@ if ($marks) {
     $lastIdSeen = $mark['id'];
   }
   Flow::setMaxRuntime($markDownloader, 2 * count($marks));
-  $latestVer = $db->getMarkVersion($lastIdSeen);
   $db->pruneRemovedMarks($latestVer);
   $this->flagNonDownloadable();
 

@@ -7,6 +7,7 @@
 
 namespace Foxtrap\Db;
 
+use \Exception;
 use \Foxtrap\Db\Api;
 use \mysqli as DbLink;
 
@@ -66,7 +67,8 @@ class Mysqli implements Api
         `body`,
         `body_clean`,
         `last_err`,
-        `modified`
+        `modified`,
+        `version`
       )
       VALUES
       (
@@ -77,21 +79,24 @@ class Mysqli implements Api
         '',
         '',
         ?,
-        FROM_UNIXTIME(?)
+        FROM_UNIXTIME(?),
+        ?
       )
       ON DUPLICATE KEY UPDATE
+        `version` = VALUES(`version`),
         `tags` = VALUES(`tags`),
         `title` = VALUES(`title`)";
 
     $stmt = $this->link->prepare($sql);
     $stmt->bind_param(
-      'sssssd',
+      'sssssdd',
       $mark['title'],
       $mark['uri'],
       $mark['uriHashWithoutFrag'],
       $mark['pageTagsStr'],
       $mark['lastErr'],
-      $mark['time']
+      $mark['lastModified'],
+      $mark['version']
     );
     $stmt->execute();
     if ($stmt->error) {
@@ -206,26 +211,5 @@ class Mysqli implements Api
       $queue[] = $row;
     }
     return $queue;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getMarkVersion($id)
-  {
-    $sql = "
-      SELECT `version`
-      FROM `{$this->table}`
-      WHERE `id` = ?";
-
-    $stmt = $this->link->prepare($sql);
-    $stmt->bind_param('d', $id);
-    $stmt->execute();
-    if ($stmt->error) {
-      throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
-    }
-
-    $result = $stmt->get_result();
-    return $result['version'];
   }
 }

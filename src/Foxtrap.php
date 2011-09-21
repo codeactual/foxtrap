@@ -213,17 +213,18 @@ class Foxtrap
   /**
    * Use output from jsonFileToArray() to add/update each URI's DB record.
    *
-   * @param array $marks See jsonFileToArray().
-   * @param array $pageTags See jsonFileToArray().
-   * @return void
+   * @param array $fileData See jsonFileToArray().
+   * @return int Latest version ID (timestamp).
    */
-  public function registerMarks(array $marks, array $pageTags)
+  public function registerMarks(array $fileData)
   {
-    foreach ($marks as $mark) {
-      $time = (int) substr($mark['lastmodified'], 0, 10);
+    $version = time();
+
+    foreach ($fileData['marks'] as $mark) {
+      $lastModified = (int) substr($mark['lastModified'], 0, 10);
       $uriHash = md5($mark['uri']);
-      if (isset($pageTags[$uriHash])) {
-        $pageTagsStr = implode(' ', $pageTags[$uriHash]);
+      if (isset($fileData['pageTags'][$uriHash])) {
+        $pageTagsStr = implode(' ', $fileData['pageTags'][$uriHash]);
       } else {
         $pageTagsStr = '';
       }
@@ -242,14 +243,19 @@ class Foxtrap
       );
 
       $this->db->register(
-        $mark['title'],
-        $mark['uri'],
-        $uriHashWithoutFrag,
-        $pageTagsStr,
-        $lastErr,
-        $time
+        array(
+          'title' => $mark['title'],
+          'uri' => $mark['uri'],
+          'uriHashWithoutFrag' => $uriHashWithoutFrag,
+          'pageTagsStr' => $pageTagsStr,
+          'lastErr' => $lastErr,
+          'lastModified' => $lastModified,
+          'version' => $version
+        )
       );
     }
+
+    return $version;
   }
 
   /**

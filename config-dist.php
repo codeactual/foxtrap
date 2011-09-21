@@ -5,9 +5,9 @@ $config = array(
     // \Foxtrap\Db\Mysqli
     'class' => 'Mysqli',
     // Passed to mysqli_connect()
-    'opts' => array('localhost', 'user', 'pass', 'db'),
+    'opts' => array('localhost', 'user', 'pass', 'foxtrap'),
     // Pairs specific to the DB class
-    'table' => 'foxtrap'
+    'table' => 'marks'
   ),
   'curl' => array(
     CURLOPT_CONNECTTIMEOUT => 10,

@@ -30,7 +30,8 @@ interface Api
    * - string 'uriHashWithoutFrag'
    * - string 'pageTagsStr'
    * - string 'lastErr'
-   * - string 'time'
+   * - string 'lastModified'
+   * - int 'version'
    * @return void
    * @throws Exception
    * - on write error
@@ -69,7 +70,7 @@ interface Api
    * Remove URIs and related fields based on bookmarks which are no longer
    * in the source JSON from Firefox.
    *
-   * @param int $version Latest import version.
+   * @param int $version Latest import version ID (timestamp).
    * @return int Rows removed.
    * @throws Exception
    * - on non-positive version number
@@ -87,14 +88,4 @@ interface Api
    * - on read error
    */
   public function getMarksToDownload();
-
-  /**
-   * Get the 'version' field of the identified mark.
-   *
-   * @param mixed $id
-   * @return mixed
-   * @throws Exception
-   * - on read error
-   */
-  public function getMarkVersion($id);
 }
