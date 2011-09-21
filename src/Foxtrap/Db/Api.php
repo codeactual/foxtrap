@@ -3,7 +3,7 @@
 namespace Foxtrap\Db;
 
 /**
- * Api contract.
+ * Api interface.
  *
  * @package Foxtrap
  */
@@ -13,6 +13,13 @@ namespace Foxtrap\Db;
  */
 interface Api
 {
+  /**
+   * Connection link factory.
+   *
+   * @return mixed Ex. mysqli instance.
+   */
+  public static function createLink();
+
   /**
    * Add or refresh URIs and related fields based on bookmarks in source
    * source JSON from Firefox.
@@ -62,11 +69,13 @@ interface Api
    * Remove URIs and related fields based on bookmarks which are no longer
    * in the source JSON from Firefox.
    *
-   * @return void
+   * @param int $version Latest import version.
+   * @return int Rows removed.
    * @throws Exception
+   * - on non-positive version number
    * - on write error
    */
-  public function pruneRemovedMarks();
+  public function pruneRemovedMarks($version);
 
   /**
    * Get URIs and related fields of bookmarks awaiting download.

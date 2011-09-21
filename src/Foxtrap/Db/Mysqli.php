@@ -1,6 +1,6 @@
 <?php
 /**
- * Storage interface.
+ * Mysqli class.
  *
  * @package Foxtrap
  */
@@ -11,12 +11,12 @@ use \Foxtrap\Db\Api;
 use \Mysqli as Db;
 
 /**
- * Contract for concretes like Db\Mysqli.
+ *  MySQLi DB API implementation.
  */
 class Mysqli implements Api
 {
   /**
-   * @var Api Connection instance.
+   * @var mysqli Connection instance.
    */
   protected $link;
 
@@ -26,24 +26,23 @@ class Mysqli implements Api
   protected $table;
 
   /**
-   * @param Api $link
+   * @param mysqli $link
    * @param array $config
    */
-  public function __construct(Api $link, array $config)
+  public function __construct(mysqli $link, array $config)
   {
     $this->link = $link;
     $this->table = $config['db']['table'];
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function createLink()
   {
-    $link = call_user_func('mysqli_connect', func_get_args());(
-    if ($link->connect_errno) {
-      throw new Exception(
-        'mysqli_connect() error %d: %s',
-        $link->connect_errno,
-        $link->connect_error
-      );
+    $link = call_user_func('mysqli_connect', func_get_args());
+    if ($link->connect_error) {
+      throw new Exception("{$link->connect_error} ({$link->connect_errno})");
     }
     return $link;
   }
@@ -53,8 +52,8 @@ class Mysqli implements Api
    */
   public function register(array $mark)
   {
-    // If the URI (hash) already exists, still update the tags and title in case
-    // they've been updated (e.g. 'nosave' added or title enhanced)
+    // Add the URI for the first time OR update its tags/title
+    // (ex. 'nosave' tag added).
     $sql = "
       INSERT INTO `{$this->table}`
       (
@@ -81,8 +80,8 @@ class Mysqli implements Api
       ON DUPLICATE KEY UPDATE
         `tags` = VALUES(`tags`),
         `title` = VALUES(`title`)";
-    $stmt = $this->link->prepare($sql);
 
+    $stmt = $this->link->prepare($sql);
     $stmt->bind_param(
       'sssssd',
       $mark['title'],
@@ -93,11 +92,8 @@ class Mysqli implements Api
       $mark['time']
     );
     $stmt->execute();
-
-    if (1 == $stmt->affected_rows) {
-      error_log("bmprepare: new {$mark['uri']}");
-    } else if ($stmt->error) {
-      error_log("bmprepare: err ({$stmt->error}) {$mark['uri']}");
+    if ($stmt->error) {
+      throw new Exception("{$mark['uri']}: {$stmt->error} ({$stmt->errno})");
     }
   }
 
@@ -114,12 +110,11 @@ class Mysqli implements Api
         `saved` = 1,
         `last_err` = ''
       WHERE `id` = ?";
+
     $stmt = $this->link->prepare($sql);
-    if (1 != $stmt->affected_rows) {
-      $error = sprintf(
-        '%d: %s',
-        $stmt->errno, $stmt->error
-      );
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
     }
   }
 
@@ -130,11 +125,9 @@ class Mysqli implements Api
   {
     $sql = "UPDATE `{$this->table}` SET `last_err` = ? WHERE `id` = ?";
     $stmt = $this->link->prepare($sql);
-    if (1 != $stmt->affected_rows) {
-      $error = sprintf(
-        '%d: %s',
-        $stmt->errno, $stmt->error
-      );
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
     }
   }
 
@@ -153,8 +146,12 @@ class Mysqli implements Api
       WHERE
         (`last_err` = 'nosave' OR `tags` LIKE '%nosave%')
         AND `body` != ''";
-    $this->link->prepare($sql)->execute();
-    error_log("bmclean: {$stmt->affected_rows} affected");
+
+    $stmt = $this->link->prepare($sql);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$stmt->error} ({$stmt->errno})");
+    }
   }
 
   /**
@@ -162,11 +159,24 @@ class Mysqli implements Api
    */
   public function pruneRemovedMarks($version)
   {
-    // new process: during each 'register', a version number is incremented
-    // we get the current version number using the ID of the last URI prepared
-    // we delete all rows that do now have the same version number
+    $sql = "
+      UPDATE `{$this->table}`
+      SET
+        `body` = '',
+        `body_clean` = '',
+        `saved` = 0,
+        `last_err` = 'nosave'
+      WHERE
+        (`last_err` = 'nosave' OR `tags` LIKE '%nosave%')
+        AND `body` != ''";
 
-    error_log("bmprepare: pruned {$stmt->affected_rows}");
+    $stmt = $this->link->prepare($sql);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$stmt->error} ({$stmt->errno})");
+    }
+
+    return $stmt->affected_rows;
   }
 
   /**
@@ -181,12 +191,19 @@ class Mysqli implements Api
       WHERE
         `saved` = 0
         AND `last_err` = ''";
-    $result = $this->link->prepare($sql)->execute()->get_result();
 
+    $stmt = $this->link->prepare($sql);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$stmt->error} ({$stmt->errno})");
+    }
+
+    $result = $stmt->get_result();
     $queue = array();
     while (($row = $result->fetch_array(MYSQLI_ASSOC))) {
       $queue[] = $row;
     }
+    return $queue;
   }
 
   /**
@@ -198,9 +215,15 @@ class Mysqli implements Api
       SELECT `version`
       FROM `{$this->table}`
       WHERE `id` = ?";
+
     $stmt = $this->link->prepare($sql);
-    $stmt->bind_param('s', $id);
-    $result = $stmt->execute()->get_result();
-    return $result['version';
+    $stmt->bind_param('d', $id);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
+    }
+
+    $result = $stmt->get_result();
+    return $result['version'];
   }
 }

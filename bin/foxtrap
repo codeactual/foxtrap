@@ -50,6 +50,7 @@ if ($marks) {
   Flow::setMaxRuntime($markDownloader, 2 * count($marks));
   $latestVer = $db->getMarkVersion($lastIdSeen);
   $db->pruneRemovedMarks($latestVer);
+  $this->flagNonDownloadable();
 
   $markDownloader->exec();
 }
