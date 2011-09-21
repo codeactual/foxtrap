@@ -14,7 +14,6 @@
  * - Cache is invalidated based changes detected during above.
  */
 
-use \Flow;
 use \Foxtrap\Factory;
 
 require_once __DIR__ . '/../src/Foxtrap/Factory.php';
@@ -37,17 +36,6 @@ $imported = $foxtrap->jsonFileToArray($opts['file']);
 $latestVer = $foxtrap->registerMarks($imported);
 
 // Download any recently added or retry those with cleared error states
-$marks = $foxtrap->getMarksToDownload();
-if ($marks) {
-  $lastIdSeen = null;
-  foreach ($marks as $mark) {
-    error_log("+ {$mark['uri']}");
-    $markDownloader->add($mark['uri'], $mark);
-    $lastIdSeen = $mark['id'];
-  }
-  Flow::setMaxRuntime($markDownloader, 2 * count($marks));
-  $db->pruneRemovedMarks($latestVer);
-  $this->flagNonDownloadable();
-
-  $markDownloader->exec();
-}
+$foxtrap->cleanup($latestVer);
+$count = $foxtrap->download();
+echo "downloaded = {$count}\n";

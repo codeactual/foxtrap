@@ -60,7 +60,7 @@ interface Api
    * Clear a URI's content fields and prevent future downloads, e.g. for
    * bookmarks where only titles and tags should be indexed.
    *
-   * @return void
+   * @return int Marks flagged.
    * @throws Exception
    * - on write error
    */
@@ -71,7 +71,7 @@ interface Api
    * in the source JSON from Firefox.
    *
    * @param int $version Latest import version ID (timestamp).
-   * @return int Rows removed.
+   * @return int Marks removed.
    * @throws Exception
    * - on non-positive version number
    * - on write error

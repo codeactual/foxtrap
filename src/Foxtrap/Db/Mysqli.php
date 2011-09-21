@@ -119,6 +119,7 @@ class Mysqli implements Api
       WHERE `id` = ?";
 
     $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('ssd', $raw, $clean, $id);
     $stmt->execute();
     if ($stmt->error) {
       throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
@@ -132,6 +133,7 @@ class Mysqli implements Api
   {
     $sql = "UPDATE `{$this->table}` SET `last_err` = ? WHERE `id` = ?";
     $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('sd', $message, $id);
     $stmt->execute();
     if ($stmt->error) {
       throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
@@ -159,6 +161,8 @@ class Mysqli implements Api
     if ($stmt->error) {
       throw new Exception("{$stmt->error} ({$stmt->errno})");
     }
+
+    return $stmt->affected_rows;
   }
 
   /**
@@ -167,17 +171,11 @@ class Mysqli implements Api
   public function pruneRemovedMarks($version)
   {
     $sql = "
-      UPDATE `{$this->table}`
-      SET
-        `body` = '',
-        `body_clean` = '',
-        `saved` = 0,
-        `last_err` = 'nosave'
-      WHERE
-        (`last_err` = 'nosave' OR `tags` LIKE '%nosave%')
-        AND `body` != ''";
+      DELETE FROM `{$this->table}`
+      WHERE `version` < ?";
 
     $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('d', $version);
     $stmt->execute();
     if ($stmt->error) {
       throw new Exception("{$stmt->error} ({$stmt->errno})");

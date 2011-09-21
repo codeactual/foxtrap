@@ -8,11 +8,13 @@
 namespace Foxtrap;
 
 use \CurlyQueue;
+use \Flow\Flow;
 use \Foxtrap\Db\Api;
 use \HTMLPurifier;
 
 require_once __DIR__ . '/Foxtrap/Db/Api.php';
 require_once __DIR__ . '/../vendor/curlyqueue/src/CurlyQueue.php';
+require_once __DIR__ . '/../vendor/curlyqueue/vendor/flow/src/Flow/Flow.php';
 require_once __DIR__ . '/../vendor/htmlpurifier/library/HTMLPurifier.auto.php';
 
 class Foxtrap
@@ -53,6 +55,45 @@ class Foxtrap
   }
 
   /**
+   *
+   *
+   * @return void
+   */
+  public function cleanup($latestVer)
+  {
+    $pruned = $this->db->pruneRemovedMarks($latestVer);
+    $flagged = $this->db->flagNonDownloadable();
+    echo "prunted: {$pruned}\nflagged: {$flagged}\n";
+  }
+
+  /**
+   * Download HTML of any new or retry-eligible marks.
+   *
+   * @return int Download count.
+   */
+  public function download()
+  {
+    $marks = $this->db->getMarksToDownload();
+
+    if ($marks) {
+      $this->uriTotal = count($marks);
+
+      foreach ($marks as $mark) {
+        echo "+ {$mark['uri']}\n";
+        $this->queue->add($mark['uri'], $mark);
+      }
+
+      Flow::setMaxRuntime($this->queue, 2 * $this->uriTotal);
+
+      $this->queue->exec();
+
+      return $this->uriDownloaded;
+    }
+
+    return 0;
+  }
+
+  /**
    * Return a CurlyQueue handler for successful response events.
    *
    * @return Closure
@@ -64,7 +105,7 @@ class Foxtrap
       $errno = curl_errno($ch);
       $error = '';
 
-      $foxtrap->uriDownloaded++;
+      $foxtrap->incrUriDownloaded();
 
       if (0 === $errno) {
         $info = curl_getinfo($ch);
@@ -73,8 +114,8 @@ class Foxtrap
             $content = utf8_encode($content);
           }
           $content_clean = preg_replace('/\s{2,}/', ' ', trim($content));
-          $content_clean = $foxtrap->purifier->purify($content_clean);
-          $foxtrap->db->saveSuccess($content, $content_clean, $requestObj['id']);
+          $content_clean = $foxtrap->getPurifier()->purify($content_clean);
+          $foxtrap->getDb()->saveSuccess($content, $content_clean, $requestObj['id']);
         } else {
           $error = json_encode($info);
         }
@@ -83,13 +124,13 @@ class Foxtrap
       }
 
       if ($error) {
-        $foxtrap->db->saveError($error_stmt, $requestObj['id']);
+        $foxtrap->getDb()->saveError($error_stmt, $requestObj['id']);
         $error = $error ? "({$error})" : '';
       }
 
       $mem = memory_get_usage(true) / 1024;
       $symbol = $error ? '!' : '$';
-      error_log("{$symbol} {$requestObj['uri']} {$foxtrap->uriDownloaded}/{$foxtrap->uriTotal} mem {$mem}K id {$requestObj['id']} {$error}");
+      echo "{$symbol} {$requestObj['uri']} {$foxtrap->getUriDownloaded()}/{$foxtrap->getUriTotal()} mem {$mem}K id {$requestObj['id']} {$error}\n";
     };
   }
 
@@ -102,15 +143,15 @@ class Foxtrap
   {
     $foxtrap = $this;
     return function ($ch, $requestObj) use ($foxtrap) {
-      $foxtrap->uriDownloaded++;
+      $foxtrap->incrUriDownloaded();
 
       $mem = memory_get_usage(true) / 1024;
       $error = sprintf(
         'error callback: %s %s',
         curl_error($ch), json_encode(curl_getinfo($ch))
       );
-      error_log("! {$requestObj['uri']} {$foxtrap->uriDownloaded}/{$foxtrap->uriTotal} mem {$mem}K id {$requestObj['id']} {$error}");
-      $db->saveError($error, $requestObj['id']);
+      echo "! {$requestObj['uri']} {$foxtrap->getUriDownloaded()}/{$foxtrap->getUriTotal()} mem {$mem}K id {$requestObj['id']} {$error}\n";
+      $foxtrap->getDb()->saveError($error, $requestObj['id']);
     };
   }
 
@@ -122,7 +163,7 @@ class Foxtrap
   public function onDownloadEnd()
   {
     return function () {
-      error_log('bmsave: DONE');
+      echo "Done\n";
     };
   }
 
@@ -279,5 +320,55 @@ class Foxtrap
   {
     $callback = empty($req['callback']) ? 'callback' : $req['callback'];
     return "{$callback}({$json});";
+  }
+
+  /**
+   * Read access to $this->db.
+   *
+   * @return \Foxtrap\Db\Api
+   */
+  public function getDb()
+  {
+    return $this->db;
+  }
+
+  /**
+   * Read access to $this->purifier.
+   *
+   * @return HTMLPurifier
+   */
+  public function getPurifier()
+  {
+    return $this->purifier;
+  }
+
+  /**
+   * Read access to $this->uriTotal.
+   *
+   * @return int
+   */
+  public function getUriTotal()
+  {
+    return $this->uriTotal;
+  }
+
+  /**
+   * Read access to $this->uriDownloaded.
+   *
+   * @return int
+   */
+  public function getUriDownloaded()
+  {
+    return $this->uriDownloaded;
+  }
+
+  /**
+   * Increment $this->uriDownloaded.
+   *
+   * @return void
+   */
+  public function incrUriDownloaded()
+  {
+    $this->uriDownloaded++;
   }
 }
