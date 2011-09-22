@@ -186,15 +186,34 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
    */
   public function registerMarksDetectsNonDownloadable()
   {
-    $this->markTestIncomplete();
+    // 3 downloadable marks, 1 non-downloadable
+    $json = file_get_contents(__DIR__ . '/../fixture/amazon-addtag-nosave.json');
+    $arr = self::$foxtrap->jsonToArray($json);
+    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
+
+    $toDownload = self::$db->getMarksToDownload();
+    $this->assertSame(3, count($toDownload));
+
+    $mark = self::$db->getMarkById(3);
+    $this->assertSame('http://www.amazon.com/', $mark['uri']);
+    $this->assertSame('nosave', $mark['last_err']);
   }
 
   /**
-   * @group buildsJsonpCallback
+   * @group registerMarksStoresMiscFields
    * @test
    */
-  public function buildsJsonpCallback()
+  public function registerMarksStoresMiscFields()
   {
-    $this->markTestIncomplete();
+    $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
+    $arr = self::$foxtrap->jsonToArray($json);
+    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
+
+    $mark = self::$db->getMarkById(1);
+    $this->assertSame('https://twitter.com/', $mark['uri']);
+    $this->assertSame('Twitter', $mark['title']);
+    $this->assertSame(md5($mark['uri']), $mark['uri_hash']);
+    $this->assertSame('social', $mark['tags']);
+    $this->assertSame(1316494982, strtotime($mark['modified']));
   }
 }

@@ -152,7 +152,7 @@ class MysqliTest extends PHPUnit_Framework_TestCase
     $expectedSkippedId = 2;
     self::$db->saveError('SSL cert', $expectedSkippedId);
     $toDownload = self::$db->getMarksToDownload();
-    $this->assertEquals(1, count($toDownload));
+    $this->assertSame(1, count($toDownload));
     $this->assertSame($mark1['uri'], $toDownload[0]['uri']);
   }
 }

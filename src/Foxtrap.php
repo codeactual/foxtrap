@@ -322,12 +322,11 @@ class Foxtrap
    * Return a JSON response body.
    *
    * @param string $json
-   * @param array $req HTTP arguments.
+   * @param string $callback
    * @return string
    */
-  public function jsonpCallback($json, array $req)
+  public function jsonpCallback($json, $callback)
   {
-    $callback = empty($req['callback']) ? 'callback' : $req['callback'];
     return "{$callback}({$json});";
   }
 

@@ -85,4 +85,18 @@ class Blackhole implements Api
   public function getMarksToDownload()
   {
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMarkById($id)
+  {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resetTestDb()
+  {
+  }
 }
