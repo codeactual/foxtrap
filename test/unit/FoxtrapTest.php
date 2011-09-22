@@ -160,10 +160,31 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
   }
 
   /**
-   * @group registersMarks
+   * @group registerMarksDetectsDupes
    * @test
    */
-  public function registersMarks()
+  public function registerMarksDetectsDupes()
+  {
+    // http://www.google.com/search?q=php
+    // http://www.google.com/search?q=php#frag1
+    // http://www.google.com/search?q=php#frag2
+    $json = file_get_contents(__DIR__ . '/../fixture/google-with-fragments.json');
+    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
+    $toDownload = self::$db->getMarksToDownload();
+
+    // Verify fragments don't affect dupe-detection
+    $expectedUriWithoutFrag = 'http://www.google.com/search?q=php';
+    $this->assertSame(1, count($toDownload));
+    $mark = self::$db->getMarkById(1);
+    $this->assertSame($expectedUriWithoutFrag, $mark['uri']);
+    $this->assertSame(md5($expectedUriWithoutFrag), $mark['uri_hash']);
+  }
+
+  /**
+   * @group registerMarksDetectsNonDownloadable
+   * @test
+   */
+  public function registerMarksDetectsNonDownloadable()
   {
     $this->markTestIncomplete();
   }
