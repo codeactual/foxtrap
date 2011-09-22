@@ -27,10 +27,10 @@ interface Api
    * @param array $mark
    * - string 'title'
    * - string 'uri'
-   * - string 'uriHashWithoutFrag'
-   * - string 'pageTagsStr'
-   * - string 'lastErr'
-   * - string 'lastModified'
+   * - string 'uri_hash'
+   * - string 'tags'
+   * - string 'last_err'
+   * - string 'modified'
    * - int 'version'
    * @return void
    * @throws Exception

@@ -104,10 +104,10 @@ class Mysqli implements Api
       'sssssdd',
       $mark['title'],
       $mark['uri'],
-      $mark['uriHashWithoutFrag'],
-      $mark['pageTagsStr'],
-      $mark['lastErr'],
-      $mark['lastModified'],
+      $mark['uri_hash'],
+      $mark['tags'],
+      $mark['last_err'],
+      $mark['modified'],
       $mark['version']
     );
     $stmt->execute();
@@ -119,7 +119,7 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
-  public function saveSuccess($raw, $clean, $id)
+  public function saveSuccess($body, $bodyClean, $id)
   {
     $sql = "
       UPDATE `{$this->table}`
@@ -131,7 +131,7 @@ class Mysqli implements Api
       WHERE `id` = ?";
 
     $stmt = $this->link->prepare($sql);
-    $stmt->bind_param('ssd', $raw, $clean, $id);
+    $stmt->bind_param('ssd', $body, $bodyClean, $id);
     $stmt->execute();
     if ($stmt->error) {
       throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
@@ -141,11 +141,11 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
-  public function saveError($message, $id)
+  public function saveError($lastErr, $id)
   {
     $sql = "UPDATE `{$this->table}` SET `last_err` = ? WHERE `id` = ?";
     $stmt = $this->link->prepare($sql);
-    $stmt->bind_param('sd', $message, $id);
+    $stmt->bind_param('sd', $lastErr, $id);
     $stmt->execute();
     if ($stmt->error) {
       throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
@@ -165,7 +165,7 @@ class Mysqli implements Api
         `saved` = 0,
         `last_err` = 'nosave'
       WHERE
-        (`last_err` = 'nosave' OR `tags` LIKE '%nosave%')
+        `tags` LIKE '%nosave%'
         AND `body` != ''";
 
     $stmt = $this->link->prepare($sql);

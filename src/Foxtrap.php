@@ -291,10 +291,10 @@ class Foxtrap
         array(
           'title' => $mark['title'],
           'uri' => $mark['uri'],
-          'uriHashWithoutFrag' => $uriHashWithoutFrag,
-          'pageTagsStr' => $pageTagsStr,
-          'lastErr' => $lastErr,
-          'lastModified' => $lastModified,
+          'uri_hash' => $uriHashWithoutFrag,
+          'tags' => $pageTagsStr,
+          'last_err' => $lastErr,
+          'modified' => $lastModified,
           'version' => $version
         )
       );

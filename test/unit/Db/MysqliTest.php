@@ -24,7 +24,30 @@ class MysqliTest extends PHPUnit_Framework_TestCase
   public function setUp()
   {
     parent::setUp();
+
+    // Allow simple tests to deal with predictable ID numbers
+    // and generally avoid cross-test state passing.
     $this->assertTrue(self::$dbLink->query('TRUNCATE `' . self::$db->getTable() . '`'));
+  }
+
+  /**
+   * @param array $override Key/value pairs to override random selection.
+   * @return array Expected field names and values of the created row.
+   */
+  public function registerRandomMark(array $overrides = array())
+  {
+    $expected = array(
+      'title' => uniqid(),
+      'uri' => uniqid(),
+      'uri_hash' => uniqid(),
+      'tags' => uniqid(),
+      'last_err' => '',
+      'modified' => time() - mt_rand(1, 3600),
+      'version' => time()
+    );
+    $expected = array_merge($expected, $overrides);
+    self::$db->register($expected);
+    return $expected;
   }
 
   /**
@@ -47,24 +70,15 @@ class MysqliTest extends PHPUnit_Framework_TestCase
    */
   public function registersMark()
   {
-    $expected = array(
-      'title' => uniqid(),
-      'uri' => uniqid(),
-      'uriHashWithoutFrag' => uniqid(),
-      'pageTagsStr' => uniqid(),
-      'lastErr' => '',
-      'lastModified' => time() - mt_rand(1, 3600),
-      'version' => time()
-    );
-    self::$db->register($expected);
+    $expected = $this->registerRandomMark();
     $actual = self::$db->getMarkById(1);
-    $this->assertSame($expected['title'], $actual['title']);
-    $this->assertSame($expected['uri'], $actual['uri']);
-    $this->assertSame($expected['uriHashWithoutFrag'], $actual['uri_hash']);
-    $this->assertSame($expected['pageTagsStr'], $actual['tags']);
-    $this->assertSame($expected['lastErr'], $actual['last_err']);
-    $this->assertSame($expected['lastModified'], strtotime($actual['modified']));
-    $this->assertSame($expected['version'], $actual['version']);
+    foreach ($expected as $key => $expectedValue) {
+      $actualValue = $actual[$key];
+      if ('modified' == $key) {
+        $actualValue = strtotime($actualValue);
+      }
+      $this->assertSame($expectedValue, $actualValue, $key);
+    }
   }
 
   /**
@@ -73,7 +87,15 @@ class MysqliTest extends PHPUnit_Framework_TestCase
    */
   public function savesSuccess()
   {
-    $this->markTestIncomplete();
+    $this->registerRandomMark();
+    $id = 1;
+    $body = uniqid();
+    $bodyClean = uniqid();
+    self::$db->saveSuccess($body, $bodyClean, $id);
+    $actual = self::$db->getMarkById($id);
+    $this->assertSame($body, $actual['body']);
+    $this->assertSame($bodyClean, $actual['body_clean']);
+    $this->assertSame(1, $actual['saved']);
   }
 
   /**
@@ -82,16 +104,34 @@ class MysqliTest extends PHPUnit_Framework_TestCase
    */
   public function savesError()
   {
-    $this->markTestIncomplete();
+    $this->registerRandomMark();
+    $id = 1;
+    $lastErr = uniqid();
+    $bodyClean = uniqid();
+    self::$db->saveError($lastErr, $id);
+    $actual = self::$db->getMarkById($id);
+    $this->assertSame(0, $actual['saved']);
+    $this->assertSame($lastErr, $actual['last_err']);
   }
 
   /**
-   * @group flagsNonDownload
+   * @group flagsNonDownloadable
    * @test
    */
-  public function flagsNonDownload()
+  public function flagsNonDownloadable()
   {
-    $this->markTestIncomplete();
+    $this->registerRandomMark(array('tags' => 'tag1 nosave tag2'));
+    $id = 1;
+    $body = uniqid();
+    $bodyClean = uniqid();
+    self::$db->saveSuccess($body, $bodyClean, $id);
+
+    self::$db->flagNonDownloadable();
+    $actual = self::$db->getMarkById(1);
+    $this->assertSame('', $actual['body']);
+    $this->assertSame('', $actual['body_clean']);
+    $this->assertSame(0, $actual['saved']);
+    $this->assertSame('nosave', $actual['last_err']);
   }
 
   /**
@@ -100,7 +140,23 @@ class MysqliTest extends PHPUnit_Framework_TestCase
    */
   public function prunesRemovedMarks()
   {
-    $this->markTestIncomplete();
+    $id = 1;
+    $oldVersion = 10;
+    $this->registerRandomMark(array('version' => $oldVersion));
+    $actual = self::$db->getMarkById(1);
+    $this->assertSame($oldVersion, $actual['version']);
+
+    // Expect no change
+    $newVersion = $oldVersion;
+    self::$db->pruneRemovedMarks($newVersion);
+    $actual = self::$db->getMarkById(1);
+    $this->assertSame($oldVersion, $actual['version']);
+
+    // Expect pruning
+    $newVersion = $oldVersion + 1;
+    self::$db->pruneRemovedMarks($newVersion);
+    $actual = self::$db->getMarkById(1);
+    $this->assertEquals(false, $actual);
   }
 
   /**
@@ -109,6 +165,22 @@ class MysqliTest extends PHPUnit_Framework_TestCase
    */
   public function getsMarksToDownload()
   {
-    $this->markTestIncomplete();
+    $mark1 = $this->registerRandomMark();
+    $mark2 = $this->registerRandomMark();
+    $expected = array($mark1['uri'], $mark2['uri']);
+
+    $toDownload = self::$db->getMarksToDownload();
+    $actual = array($toDownload[0]['uri'], $toDownload[1]['uri']);
+
+    sort($expected);
+    sort($actual);
+
+    $this->assertSame($expected, $actual);
+
+    $expectedSkippedId = 2;
+    self::$db->saveError('SSL cert', $expectedSkippedId);
+    $toDownload = self::$db->getMarksToDownload();
+    $this->assertEquals(1, count($toDownload));
+    $this->assertSame($mark1['uri'], $toDownload[0]['uri']);
   }
 }
