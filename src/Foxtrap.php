@@ -177,7 +177,7 @@ class Foxtrap
    * @param array $row
    * @return object
    * - mixed 'id'
-   * - string 'bodyClean' HTMLPurifier filtered page content
+   * - string 'indexed' <title> <uri> <tags> <purified html>
    * - string 'title'
    * - string 'domain'
    * - string 'tags' Space delimited tag list
@@ -189,15 +189,13 @@ class Foxtrap
     preg_match('/https?:\/\/([^\/]+)/', $row['uri'], $matches);
     $domain = isset($matches[1]) ? $matches[1] : '';
 
-    $bodyClean =
-      $row['title']
-      . " {$row['uri']}"
-      . " {$row['tags']}"
-      . $row['body_clean'];
-
     return (object) array(
       'id' => $row['id'],
-      'bodyClean' => $bodyClean,
+      'indexed' =>
+        $row['title']
+        . " {$row['uri']}"
+        . " {$row['tags']}"
+        . $row['body_clean'],
       'title' => $row['title'],
       'domain' => $domain,
       'tags' => $row['tags'],

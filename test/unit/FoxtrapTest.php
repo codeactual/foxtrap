@@ -102,7 +102,26 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
    */
   public function convertsDbRowToObj()
   {
-    $this->markTestIncomplete();
+    $row = array(
+      'id' => uniqid(),
+      'title' => uniqid(),
+      'tags' => uniqid(),
+      'body_clean' => uniqid(),
+      'uri' => 'https://twitter.com/#!/user/status/1234'
+    );
+    $obj = self::$foxtrap->dbRowToObj($row);
+    $this->assertSame($row['id'], $obj->id);
+    $this->assertSame(
+      $row['title']
+      . " {$row['uri']}"
+      . " {$row['tags']}"
+      . $row['body_clean'],
+      $obj->indexed
+    );
+    $this->assertSame($row['title'], $obj->title);
+    $this->assertSame('twitter.com', $obj->domain);
+    $this->assertSame($row['tags'], $obj->tags);
+    $this->assertSame($row['uri'], $obj->uri);
   }
 
   /**
