@@ -74,7 +74,26 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
    */
   public function downloads()
   {
-    $this->markTestIncomplete();
+    $google = TestData\registerRandomMark(
+      self::$db, array('uri' => 'http://www.facebook.com/')
+    );
+    $yahoo = TestData\registerRandomMark(
+      self::$db, array('uri' => 'http://www.yahoo.com/')
+    );
+
+    self::$foxtrap->download();
+
+    $actual = self::$db->getMarkById(1);
+    $this->assertContains('Create a Page', $actual['body']);
+    $this->assertContains('<html', $actual['body']);
+    $this->assertContains('Create a Page', $actual['body_clean']);
+    $this->assertNotContains('<html', $actual['body_clean']);
+
+    $actual = self::$db->getMarkById(2);
+    $this->assertContains('Yahoo! Inc', $actual['body']);
+    $this->assertContains('<html', $actual['body']);
+    $this->assertContains('Yahoo! Inc', $actual['body_clean']);
+    $this->assertNotContains('<html', $actual['body_clean']);
   }
 
   /**
