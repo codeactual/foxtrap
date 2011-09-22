@@ -79,7 +79,7 @@ interface Api
   public function pruneRemovedMarks($version);
 
   /**
-   * Get URIs and related fields of bookmarks awaiting download.
+   * Get all bookmarks awaiting download.
    *
    * @return array An array for each mark with:
    * - mixed 'id'
@@ -88,4 +88,23 @@ interface Api
    * - on read error
    */
   public function getMarksToDownload();
+
+  /**
+   * Get URIs and related fields of bookmarks awaiting download.
+   *
+   * @return array An array for each mark with:
+   * - mixed 'id'
+   * - string 'uri'
+   * - string 'uri_hash'
+   * - string 'tags'
+   * - string 'body'
+   * - string 'body_clean'
+   * - int 'modified'
+   * - int 'saved'
+   * - string 'last_err'
+   * - int 'version'
+   * @throws Exception
+   * - on read error
+   */
+  public function getMarkById($id);
 }

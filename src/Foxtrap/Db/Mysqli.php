@@ -36,6 +36,17 @@ class Mysqli implements Api
   {
     $this->link = $link;
     $this->table = $config['db']['table'];
+
+  }
+
+  /**
+   * Read access to $this->table.
+   *
+   * @return string
+   */
+  public function getTable()
+  {
+    return $this->table;
   }
 
   /**
@@ -43,9 +54,10 @@ class Mysqli implements Api
    */
   public static function createLink()
   {
-    $link = call_user_func_array('mysqli_connect', func_get_args());
-    if ($link->connect_error) {
-      throw new Exception("{$link->connect_error} ({$link->connect_errno})");
+    $link = @call_user_func_array('mysqli_connect', func_get_args());
+    if (($error = mysqli_connect_error())) {
+      $errno = mysqli_connect_errno();
+      throw new Exception("{$error} ({$errno})");
     }
     return $link;
   }
@@ -209,5 +221,26 @@ class Mysqli implements Api
       $queue[] = $row;
     }
     return $queue;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMarkById($id)
+  {
+    $sql = "
+      SELECT *
+      FROM `{$this->table}`
+      WHERE `id` = ?";
+
+    $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('d', $id);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$stmt->error} ({$stmt->errno})");
+    }
+
+    $result = $stmt->get_result();
+    return $result->fetch_array(MYSQLI_ASSOC);
   }
 }

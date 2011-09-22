@@ -55,15 +55,19 @@ class Foxtrap
   }
 
   /**
+   * Sync-related maintenance.
    *
-   *
-   * @return void
+   * @param int $latestVer Latest import version ID (timestamp)
+   * @return array Amounts of marks affected
+   * - int 'pruned' Removed from the database due to removal in Firefox
+   * - int 'flagged' Content fields erased, flagged as 'nosave'
    */
   public function cleanup($latestVer)
   {
-    $pruned = $this->db->pruneRemovedMarks($latestVer);
-    $flagged = $this->db->flagNonDownloadable();
-    echo "prunted: {$pruned}\nflagged: {$flagged}\n";
+    return array(
+      'pruned' => $this->db->pruneRemovedMarks($latestVer),
+      'flagged' => $this->db->flagNonDownloadable()
+    );
   }
 
   /**

@@ -4,11 +4,6 @@ use \Foxtrap\Factory;
 
 class FactoryTest extends PHPUnit_Framework_TestCase
 {
-  public function setUp()
-  {
-    parent::setUp();
-  }
-
   /**
    * @group createsInstance
    * @test
