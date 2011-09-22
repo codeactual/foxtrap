@@ -2,52 +2,24 @@
 
 use \Exception;
 use \Foxtrap\Factory;
+use \TestData;
 
 class MysqliTest extends PHPUnit_Framework_TestCase
 {
   protected static $db;
-  protected static $dbClass;
-  protected static $dbLink;
 
   public static function setUpBeforeClass()
   {
-    require_once __DIR__ . "/../../../config.php";
-    require_once __DIR__ . "/../../../src/Foxtrap/Db/{$config['db']['class']}.php";
-    self::$dbClass = "\\Foxtrap\\Db\\{$config['db']['class']}";
-    self::$dbLink = call_user_func_array(
-      array(self::$dbClass, 'createLink'),
-      $config['db']['testOpts']
-    );
-    self::$db = new self::$dbClass(self::$dbLink, $config);
+    require FOXTRAP_CONFIG_FILE; // from bootstrap.php
+    $factory = new Factory();
+    $foxtrap = $factory->createTestInstance($config);
+    self::$db = $foxtrap->getDb();
   }
 
   public function setUp()
   {
     parent::setUp();
-
-    // Allow simple tests to deal with predictable ID numbers
-    // and generally avoid cross-test state passing.
-    $this->assertTrue(self::$dbLink->query('TRUNCATE `' . self::$db->getTable() . '`'));
-  }
-
-  /**
-   * @param array $override Key/value pairs to override random selection.
-   * @return array Expected field names and values of the created row.
-   */
-  public function registerRandomMark(array $overrides = array())
-  {
-    $expected = array(
-      'title' => uniqid(),
-      'uri' => uniqid(),
-      'uri_hash' => uniqid(),
-      'tags' => uniqid(),
-      'last_err' => '',
-      'modified' => time() - mt_rand(1, 3600),
-      'version' => time()
-    );
-    $expected = array_merge($expected, $overrides);
-    self::$db->register($expected);
-    return $expected;
+    self::$db->resetTestDb();
   }
 
   /**
@@ -70,7 +42,7 @@ class MysqliTest extends PHPUnit_Framework_TestCase
    */
   public function registersMark()
   {
-    $expected = $this->registerRandomMark();
+    $expected = TestData\registerRandomMark(self::$db);
     $actual = self::$db->getMarkById(1);
     foreach ($expected as $key => $expectedValue) {
       $actualValue = $actual[$key];
@@ -87,7 +59,7 @@ class MysqliTest extends PHPUnit_Framework_TestCase
    */
   public function savesSuccess()
   {
-    $this->registerRandomMark();
+    TestData\registerRandomMark(self::$db);
     $id = 1;
     $body = uniqid();
     $bodyClean = uniqid();
@@ -104,7 +76,7 @@ class MysqliTest extends PHPUnit_Framework_TestCase
    */
   public function savesError()
   {
-    $this->registerRandomMark();
+    TestData\registerRandomMark(self::$db);
     $id = 1;
     $lastErr = uniqid();
     $bodyClean = uniqid();
@@ -120,7 +92,7 @@ class MysqliTest extends PHPUnit_Framework_TestCase
    */
   public function flagsNonDownloadable()
   {
-    $this->registerRandomMark(array('tags' => 'tag1 nosave tag2'));
+    TestData\registerRandomMark(self::$db, array('tags' => 'tag1 nosave tag2'));
     $id = 1;
     $body = uniqid();
     $bodyClean = uniqid();
@@ -142,7 +114,7 @@ class MysqliTest extends PHPUnit_Framework_TestCase
   {
     $id = 1;
     $oldVersion = 10;
-    $this->registerRandomMark(array('version' => $oldVersion));
+    TestData\registerRandomMark(self::$db, array('version' => $oldVersion));
     $actual = self::$db->getMarkById(1);
     $this->assertSame($oldVersion, $actual['version']);
 
@@ -156,7 +128,7 @@ class MysqliTest extends PHPUnit_Framework_TestCase
     $newVersion = $oldVersion + 1;
     self::$db->pruneRemovedMarks($newVersion);
     $actual = self::$db->getMarkById(1);
-    $this->assertEquals(false, $actual);
+    $this->assertSame(null, $actual);
   }
 
   /**
@@ -165,8 +137,8 @@ class MysqliTest extends PHPUnit_Framework_TestCase
    */
   public function getsMarksToDownload()
   {
-    $mark1 = $this->registerRandomMark();
-    $mark2 = $this->registerRandomMark();
+    $mark1 = TestData\registerRandomMark(self::$db);
+    $mark2 = TestData\registerRandomMark(self::$db);
     $expected = array($mark1['uri'], $mark2['uri']);
 
     $toDownload = self::$db->getMarksToDownload();

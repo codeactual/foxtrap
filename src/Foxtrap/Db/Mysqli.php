@@ -29,6 +29,11 @@ class Mysqli implements Api
   protected $table;
 
   /**
+   * @var string
+   */
+  protected $testDbName;
+
+  /**
    * @param mysqli $link
    * @param array $config
    */
@@ -36,7 +41,7 @@ class Mysqli implements Api
   {
     $this->link = $link;
     $this->table = $config['db']['table'];
-
+    $this->testDbName = $config['db']['testOpts'][3] ?: '';
   }
 
   /**
@@ -242,5 +247,15 @@ class Mysqli implements Api
 
     $result = $stmt->get_result();
     return $result->fetch_array(MYSQLI_ASSOC);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function resetTestDb()
+  {
+    if ($this->testDbName) {
+      $this->link->query("TRUNCATE `{$this->testDbName}`.`{$this->table}`");
+    }
   }
 }

@@ -47,4 +47,16 @@ class Factory
 
     return new Foxtrap($queue, $db, $purifier);
   }
+
+  /**
+   * Apply the test-related options in $config to createInstance().
+   *
+   * @param array $config From config.php
+   * @return Foxtrap New instance based on configuration.
+   */
+  public function createTestInstance(array $config)
+  {
+    $config['db']['opts'] = $config['db']['testOpts'];
+    return $this->createInstance($config);
+  }
 }

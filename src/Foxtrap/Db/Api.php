@@ -107,4 +107,12 @@ interface Api
    * - on read error
    */
   public function getMarkById($id);
+
+  /**
+   * Enable tests to work with predictable ID numbers and generally avoid
+   * cross-test states.
+   *
+   * @return void
+   */
+  public function resetTestDb();
 }
