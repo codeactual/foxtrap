@@ -30,7 +30,7 @@ $factory = new Factory();
 $foxtrap = $factory->createInstance($config);
 
 // Extract bookmarks from JSON --file
-$imported = $foxtrap->jsonFileToArray($opts['file']);
+$imported = $foxtrap->jsonToArray(file_get_contents($opts['file']));
 
 // Add/update their details
 $latestVer = $foxtrap->registerMarks($imported);

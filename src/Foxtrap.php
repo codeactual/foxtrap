@@ -8,6 +8,7 @@
 namespace Foxtrap;
 
 use \CurlyQueue;
+use \Exception;
 use \Flow\Flow;
 use \Foxtrap\Db\Api;
 use \HTMLPurifier;
@@ -204,21 +205,17 @@ class Foxtrap
   }
 
   /**
-   * Convert a Firefox JSON backup file to an array.
+   * Convert JSON from a Firefox backup file to a lighter array structured
+   * for use by consumers like registerMarks().
    *
-   * @param string $filename
+   * @param string $json
    * @return array
    * - array 'marks' Values are arrays w/ keys 'uri', 'title', 'lastmodified'
    * - array 'pageTags' Keys are URIs, values are arrays of tag titles
    */
-  public function jsonFileToArray($filename)
+  public function jsonToArray($json)
   {
-    $json = file_get_contents($filename);
     $assoc = json_decode($json, true);
-
-    if (!array_key_exists('children', $assoc)) {
-      exit("\nNo bookmark folders.\n");
-    }
 
     $unsorted = null;
     $tags = null;
@@ -250,13 +247,23 @@ class Foxtrap
       }
     }
 
+    // Strip unused elements
+    $kept = array_flip(array('uri', 'title', 'lastModified'));
+    foreach ($unsorted['children'] as $pos => $child) {
+      foreach ($child as $key => $val) {
+        if (!array_key_exists($key, $kept)) {
+          unset($unsorted['children'][$pos][$key]);
+        }
+      }
+    }
+
     return array('marks' => $unsorted['children'], 'pageTags' => $pageTags);
   }
 
   /**
-   * Use output from jsonFileToArray() to add/update each URI's DB record.
+   * Use output from jsonToArray() to add/update each URI's DB record.
    *
-   * @param array $fileData See jsonFileToArray().
+   * @param array $fileData See jsonToArray().
    * @return int Latest version ID (timestamp).
    */
   public function registerMarks(array $fileData)

@@ -125,12 +125,38 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
   }
 
   /**
-   * @group convertsJsonFileToArray
+   * @group convertsJsonToArray
    * @test
    */
-  public function convertsJsonFileToArray()
+  public function convertsJsonToArray()
   {
-    $this->markTestIncomplete();
+    $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
+    $arr = self::$foxtrap->jsonToArray($json);
+
+    $uris = array();
+    foreach ($arr['marks'] as $mark) {
+      $this->assertTrue(ctype_digit($mark['lastModified']));
+      $this->assertNotEmpty($mark['uri']);
+      $this->assertNotEmpty($mark['title']);
+      $uris[$mark['uri']] = md5($mark['uri']);
+    }
+
+    $this->assertSame(
+      array('social'),
+      $arr['pageTags'][$uris['https://twitter.com/']]
+    );
+    $this->assertSame(
+      array('shopping'),
+      $arr['pageTags'][$uris['http://www.amazon.com/']]
+    );
+    $this->assertSame(
+      array('search'),
+      $arr['pageTags'][$uris['http://www.google.com/']]
+    );
+    $this->assertSame(
+      array('search'),
+      $arr['pageTags'][$uris['http://www.yahoo.com/']]
+    );
   }
 
   /**
