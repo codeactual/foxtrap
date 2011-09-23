@@ -50,7 +50,7 @@ class Foxtrap
     $this->db = $db;
     $this->purifier = $purifier;
     $this->queue = $queue;
-    $this->queue->setResponseCallback($this->onDownloadResponse());
+    $this->queue->setResponseCallback(array($this, 'onDownloadResponse'));
     $this->queue->setErrorCallback($this->onDownloadError());
     $this->queue->setEndCallback($this->onDownloadEnd());
   }
@@ -101,42 +101,39 @@ class Foxtrap
   /**
    * Return a CurlyQueue handler for successful response events.
    *
-   * @return Closure
+   * @return void
    */
-  public function onDownloadResponse()
+  public function onDownloadResponse($ch, $content, $requestObj)
   {
-    $foxtrap = $this;
-    return function ($ch, $content, $requestObj) use ($foxtrap) {
-      $errno = curl_errno($ch);
-      $error = '';
+    $errno = curl_errno($ch);
+    $error = '';
 
-      $foxtrap->incrUriDownloaded();
+    $this->uriDownloaded++;
 
-      if (0 === $errno) {
-        $info = curl_getinfo($ch);
-        if (200 == $info['http_code'] && strlen($content)) {
-          if (!mb_check_encoding($content, 'UTF-8')) {
-            $content = utf8_encode($content);
-          }
-          $content_clean = preg_replace('/\s{2,}/', ' ', trim($content));
-          $content_clean = $foxtrap->getPurifier()->purify($content_clean);
-          $foxtrap->getDb()->saveSuccess($content, $content_clean, $requestObj['id']);
-        } else {
-          $error = json_encode($info);
+    if (0 === $errno) {
+      $info = curl_getinfo($ch);
+      if (200 == $info['http_code'] && strlen($content)) {
+        if (!mb_check_encoding($content, 'UTF-8')) {
+          $content = utf8_encode($content);
         }
+        $contentClean = preg_replace('/\s{2,}/', ' ', trim($content));
+        $contentClean = $this->purifier->purify($contentClean);
+        $this->db->saveSuccess($content, $contentClean, $requestObj['id']);
       } else {
-        $error = curl_error($ch);
+        $error = json_encode($info);
       }
+    } else {
+      $error = curl_error($ch);
+    }
 
-      if ($error) {
-        $foxtrap->getDb()->saveError($error_stmt, $requestObj['id']);
-        $error = $error ? "({$error})" : '';
-      }
+    if ($error) {
+      $this->db->saveError($error_stmt, $requestObj['id']);
+      $error = $error ? "({$error})" : '';
+    }
 
-      $mem = memory_get_usage(true) / 1024;
-      $symbol = $error ? '!' : '$';
-      echo "{$symbol} {$requestObj['uri']} {$foxtrap->getUriDownloaded()}/{$foxtrap->getUriTotal()} mem {$mem}K id {$requestObj['id']} {$error}\n";
-    };
+    $mem = memory_get_usage(true) / 1024;
+    $symbol = $error ? '!' : '$';
+    echo "{$symbol} {$requestObj['uri']} {$this->uriDownloaded}/{$this->uriTotal} mem {$mem}K id {$requestObj['id']} {$error}\n";
   }
 
   /**
@@ -144,20 +141,17 @@ class Foxtrap
    *
    * @return Closure
    */
-  public function onDownloadError()
+  public function onDownloadError($ch, $requestObj)
   {
-    $foxtrap = $this;
-    return function ($ch, $requestObj) use ($foxtrap) {
-      $foxtrap->incrUriDownloaded();
+    $this->uriDownloaded++;
 
-      $mem = memory_get_usage(true) / 1024;
-      $error = sprintf(
-        'error callback: %s %s',
-        curl_error($ch), json_encode(curl_getinfo($ch))
-      );
-      echo "! {$requestObj['uri']} {$foxtrap->getUriDownloaded()}/{$foxtrap->getUriTotal()} mem {$mem}K id {$requestObj['id']} {$error}\n";
-      $foxtrap->getDb()->saveError($error, $requestObj['id']);
-    };
+    $mem = memory_get_usage(true) / 1024;
+    $error = sprintf(
+      'error callback: %s %s',
+      curl_error($ch), json_encode(curl_getinfo($ch))
+    );
+    echo "! {$requestObj['uri']} {$this->uriDownloaded}/{$this->uriTotal} mem {$mem}K id {$requestObj['id']} {$error}\n";
+    $this->db->saveError($error, $requestObj['id']);
   }
 
   /**
@@ -358,35 +352,5 @@ class Foxtrap
   public function getPurifier()
   {
     return $this->purifier;
-  }
-
-  /**
-   * Read access to $this->uriTotal.
-   *
-   * @return int
-   */
-  public function getUriTotal()
-  {
-    return $this->uriTotal;
-  }
-
-  /**
-   * Read access to $this->uriDownloaded.
-   *
-   * @return int
-   */
-  public function getUriDownloaded()
-  {
-    return $this->uriDownloaded;
-  }
-
-  /**
-   * Increment $this->uriDownloaded.
-   *
-   * @return void
-   */
-  public function incrUriDownloaded()
-  {
-    $this->uriDownloaded++;
   }
 }
