@@ -10,7 +10,8 @@ namespace Foxtrap;
 use \CurlyQueue;
 use \Exception;
 use \Flow\Flow;
-use \Foxtrap\Db\Api;
+use \Foxtrap\Db\Api as DbApi;
+use \Foxtrap\Log\Api as LogApi;
 use \HTMLPurifier;
 
 require_once __DIR__ . '/Foxtrap/Db/Api.php';
@@ -21,9 +22,14 @@ require_once __DIR__ . '/../vendor/htmlpurifier/library/HTMLPurifier.auto.php';
 class Foxtrap
 {
   /**
-   * @var Api Implementation interface, e.g. Db\Mysqli.
+   * @var DbApi Implementation interface, e.g. Db\Mysqli.
    */
   protected $db;
+
+  /**
+   * @var LogApi Implementation interface, e.g. Log\Stdout.
+   */
+  protected $log;
 
   /**
    * @var HTMLPurifier
@@ -45,14 +51,14 @@ class Foxtrap
    */
   protected $uriDownloaded;
 
-  public function __construct(CurlyQueue $queue, Api $db, HTMLPurifier $purifier)
+  public function __construct(CurlyQueue $queue, DbApi $db, HTMLPurifier $purifier, LogApi $log)
   {
     $this->db = $db;
     $this->purifier = $purifier;
     $this->queue = $queue;
     $this->queue->setResponseCallback(array($this, 'onDownloadResponse'));
-    $this->queue->setErrorCallback($this->onDownloadError());
-    $this->queue->setEndCallback($this->onDownloadEnd());
+    $this->queue->setErrorCallback(array($this, 'onDownloadError'));
+    $this->log = $log;
   }
 
   /**
@@ -84,7 +90,7 @@ class Foxtrap
       $this->uriTotal = count($marks);
 
       foreach ($marks as $mark) {
-        echo "+ {$mark['uri']}\n";
+        $this->log->onDownloadEnqueue(array('uri' => $mark['uri']));
         $this->queue->add($mark['uri'], $mark);
       }
 
@@ -131,9 +137,16 @@ class Foxtrap
       $error = $error ? "({$error})" : '';
     }
 
-    $mem = memory_get_usage(true) / 1024;
-    $symbol = $error ? '!' : '$';
-    echo "{$symbol} {$requestObj['uri']} {$this->uriDownloaded}/{$this->uriTotal} mem {$mem}K id {$requestObj['id']} {$error}\n";
+    $this->log->onDownloadResponse(
+      array(
+        'uri' => $requestObj['uri'],
+        'id' => $requestObj['id'],
+        'uriDownloaded' => $this->uriDownloaded,
+        'uriTotal' => $this->uriTotal,
+        'errno' => $errno,
+        'error' => $error
+      )
+    );
   }
 
   /**
@@ -145,25 +158,25 @@ class Foxtrap
   {
     $this->uriDownloaded++;
 
-    $mem = memory_get_usage(true) / 1024;
-    $error = sprintf(
-      'error callback: %s %s',
-      curl_error($ch), json_encode(curl_getinfo($ch))
-    );
-    echo "! {$requestObj['uri']} {$this->uriDownloaded}/{$this->uriTotal} mem {$mem}K id {$requestObj['id']} {$error}\n";
-    $this->db->saveError($error, $requestObj['id']);
-  }
+    $curlError = curl_error($ch);
+    $curlInfo = curl_getinfo($ch);
 
-  /**
-   * Return a CurlyQueue handler for queue completion.
-   *
-   * @return Closure
-   */
-  public function onDownloadEnd()
-  {
-    return function () {
-      echo "Done\n";
-    };
+    $this->db->saveError(
+      $curlError . ': ' . json_encode($curlInfo),
+      $requestObj['id']
+    );
+
+    $this->log->onDownloadError(
+      array(
+        'uri' => $requestObj['uri'],
+        'id' => $requestObj['id'],
+        'uriDownloaded' => $this->uriDownloaded,
+        'uriTotal' => $this->uriTotal,
+        'curlErrno' => curl_errno($ch),
+        'curlError' => $curlError,
+        'curlInfo' => $curlInfo
+      )
+    );
   }
 
   /**
@@ -332,6 +345,16 @@ class Foxtrap
   public function getDb()
   {
     return $this->db;
+  }
+
+  /**
+   * Access to $this->log.
+   *
+   * @return \Foxtrap\Log\Api
+   */
+  public function getLog()
+  {
+    return $this->log;
   }
 
   /**

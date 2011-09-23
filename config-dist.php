@@ -19,5 +19,8 @@ $config = array(
     'HTML.TidyLevel' => 'none',
     'HTML.Allowed' => '',
     'Cache.SerializerPath' => '/tmp',
+  ),
+  'log' => array(
+    'class' => '' // ex. 'Stdout' for Log/Stdout.php
   )
 );

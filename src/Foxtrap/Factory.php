@@ -45,7 +45,14 @@ class Factory
     }
     $purifier = new HTMLPurifier($purifierConfig);
 
-    return new Foxtrap($queue, $db, $purifier);
+    if (!$config['log']['class']) {
+      $config['log']['class'] = 'Blackhole';
+    }
+    require_once __DIR__ . "/Log/{$config['log']['class']}.php";
+    $logClass = "\\Foxtrap\\Log\\{$config['log']['class']}";
+    $log = new $logClass();
+
+    return new Foxtrap($queue, $db, $purifier, $log);
   }
 
   /**

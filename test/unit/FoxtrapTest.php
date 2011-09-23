@@ -69,34 +69,6 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
   }
 
   /**
-   * @group downloads
-   * @test
-   */
-  public function downloads()
-  {
-    $google = TestData\registerRandomMark(
-      self::$db, array('uri' => 'http://www.facebook.com/')
-    );
-    $yahoo = TestData\registerRandomMark(
-      self::$db, array('uri' => 'http://www.yahoo.com/')
-    );
-
-    self::$foxtrap->download();
-
-    $actual = self::$db->getMarkById(1);
-    $this->assertContains('Create a Page', $actual['body']);
-    $this->assertContains('<html', $actual['body']);
-    $this->assertContains('Create a Page', $actual['body_clean']);
-    $this->assertNotContains('<html', $actual['body_clean']);
-
-    $actual = self::$db->getMarkById(2);
-    $this->assertContains('Yahoo! Inc', $actual['body']);
-    $this->assertContains('<html', $actual['body']);
-    $this->assertContains('Yahoo! Inc', $actual['body_clean']);
-    $this->assertNotContains('<html', $actual['body_clean']);
-  }
-
-  /**
    * @group convertsDbRowToObj
    * @test
    */
@@ -215,5 +187,56 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
     $this->assertSame(md5($mark['uri']), $mark['uri_hash']);
     $this->assertSame('social', $mark['tags']);
     $this->assertSame(1316494982, strtotime($mark['modified']));
+  }
+
+  /**
+   * @group responseErrorHandled
+   * @test
+   */
+  public function responseErrorHandled()
+  {
+    $host = 'b6e90e661b6f10e2d3763c4e8c450c88adcd20d8';
+    $markData = array(
+      'marks' => array(
+        array(
+          'uri' => "http://{$host}/",
+          'lastModified' => time(),
+          'title' => 'does not exist'
+        )
+      ),
+      'pageTags' => array()
+    );
+    self::$foxtrap->registerMarks($markData);
+    self::$foxtrap->download();
+    $mark = self::$db->getMarkById(1);
+    $this->assertContains("Couldn't resolve host '{$host}'", $mark['last_err']);
+  }
+
+  /**
+   * @group downloads
+   * @test
+   */
+  public function downloads()
+  {
+    $google = TestData\registerRandomMark(
+      self::$db, array('uri' => 'http://www.facebook.com/')
+    );
+    $yahoo = TestData\registerRandomMark(
+      self::$db, array('uri' => 'http://www.yahoo.com/')
+    );
+
+    self::$foxtrap->download();
+
+    $actual = self::$db->getMarkById(1);
+    $this->assertContains('Create a Page', $actual['body']);
+    $this->assertContains('<html', $actual['body']);
+    $this->assertContains('Create a Page', $actual['body_clean']);
+    $this->assertNotContains('<html', $actual['body_clean']);
+
+    $actual = self::$db->getMarkById(2);
+    $this->assertContains('Yahoo! Inc', $actual['body']);
+    $this->assertContains('<html', $actual['body']);
+    $this->assertContains('Yahoo! Inc', $actual['body_clean']);
+    $this->assertNotContains('<html', $actual['body_clean']);
   }
 }
