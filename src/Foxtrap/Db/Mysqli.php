@@ -11,8 +11,6 @@ use \Exception;
 use \Foxtrap\Db\Api;
 use \mysqli as DbLink;
 
-require_once __DIR__ . '/Api.php';
-
 /**
  *  MySQLi DB API implementation.
  */

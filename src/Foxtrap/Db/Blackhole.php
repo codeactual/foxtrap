@@ -9,8 +9,6 @@ namespace Foxtrap\Db;
 
 use \stdClass;
 
-require_once __DIR__ . '/Api.php';
-
 /**
  * Empty DB API implementation for unit tests.
  */

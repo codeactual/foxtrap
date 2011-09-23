@@ -16,7 +16,7 @@
 
 use \Foxtrap\Factory;
 
-require_once __DIR__ . '/../src/Foxtrap/Factory.php';
+require __DIR__ . '/../src/LoadClasses.php';
 
 $opts = getopt('', array('file:'));
 
@@ -35,7 +35,8 @@ $imported = $foxtrap->jsonToArray(file_get_contents($opts['file']));
 // Add/update their details
 $latestVer = $foxtrap->registerMarks($imported);
 
-// Download any recently added or retry those with cleared error states
+// Avoid unnecessary downloads
 $foxtrap->cleanup($latestVer);
-$count = $foxtrap->download();
-echo "downloaded = {$count}\n";
+
+// Download any recently added or retry those with cleared error states
+$foxtrap->download();

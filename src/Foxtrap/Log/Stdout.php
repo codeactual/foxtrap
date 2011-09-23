@@ -9,18 +9,22 @@ namespace Foxtrap\Log;
 
 use \Foxtrap\Log\Api;
 
-require_once __DIR__ . '/Api.php';
-
 /**
  *  stdout logging API implementation.
  */
 class Stdout implements Api
 {
+  /**
+   * {@inheritdoc}
+   */
   public function onDownloadEnqueue(array $event)
   {
     echo "+ {$event['uri']}\n";
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function onDownloadResponse(array $event)
   {
     printf(
@@ -35,6 +39,9 @@ class Stdout implements Api
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function onDownloadError(array $event)
   {
     printf(

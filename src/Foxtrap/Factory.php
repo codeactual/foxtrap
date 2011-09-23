@@ -7,13 +7,10 @@
 
 namespace Foxtrap;
 
-use \CurlyQueue;
+use \CurlyQueue\CurlyQueue;
+use \Foxtrap\Foxtrap;
 use \HTMLPurifier;
 use \HTMLPurifier_Config;
-
-require_once __DIR__ . '/../Foxtrap.php';
-require_once __DIR__ . '/../../vendor/curlyqueue/src/CurlyQueue.php';
-require_once __DIR__ . '/../../vendor/htmlpurifier/library/HTMLPurifier.auto.php';
 
 /**
  * Configure Foxtrap dependencies based on configuration array.

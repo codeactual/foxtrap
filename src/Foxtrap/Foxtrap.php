@@ -7,17 +7,12 @@
 
 namespace Foxtrap;
 
-use \CurlyQueue;
+use \CurlyQueue\CurlyQueue;
 use \Exception;
 use \Flow\Flow;
 use \Foxtrap\Db\Api as DbApi;
 use \Foxtrap\Log\Api as LogApi;
 use \HTMLPurifier;
-
-require_once __DIR__ . '/Foxtrap/Db/Api.php';
-require_once __DIR__ . '/../vendor/curlyqueue/src/CurlyQueue.php';
-require_once __DIR__ . '/../vendor/curlyqueue/vendor/flow/src/Flow/Flow.php';
-require_once __DIR__ . '/../vendor/htmlpurifier/library/HTMLPurifier.auto.php';
 
 class Foxtrap
 {

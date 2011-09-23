@@ -61,7 +61,7 @@ class FactoryTest extends PHPUnit_Framework_TestCase
       $this->assertSame($value, $purifierConfig[$ns][$key]);
     };
 
-    $this->assertInstanceOf('\\CurlyQueue', $foxtrap->getQueue());
+    $this->assertInstanceOf('\\CurlyQueue\\CurlyQueue', $foxtrap->getQueue());
   }
 
   /**
