@@ -5,6 +5,7 @@ use \Foxtrap\Factory;
 class FactoryTest extends PHPUnit_Framework_TestCase
 {
   protected static $baseConfig;
+  protected static $factory;
 
   public static function setUpBeforeClass()
   {
@@ -26,18 +27,19 @@ class FactoryTest extends PHPUnit_Framework_TestCase
         'class' => 'Stdout'
       )
     );
+
+    self::$factory = new Factory();
   }
 
   /**
-   * @group createsInstance
+   * @group createsInstanceFromArray
    * @test
    */
-  public function createsInstance()
+  public function createsInstanceFromArray()
   {
     $config = self::$baseConfig;
-    $foxtrap = Factory::createInstance($config);
+    $foxtrap = self::$factory->createInstanceFromArray($config);
 
-    // createInstance() forces CURLOPT_RETURNTRANSFER
     $expectedConfig = $config;
     $expectedConfig['curl'][CURLOPT_RETURNTRANSFER] = 1;
     $this->assertSame($expectedConfig, $foxtrap->getDb()->config);
@@ -65,18 +67,29 @@ class FactoryTest extends PHPUnit_Framework_TestCase
   }
 
   /**
-   * @group createsInstanceWithoutLogClass
+   * @group createsInstanceFromFileWithoutLogClass
    * @test
    */
-  public function createsInstanceWithoutLogClass()
+  public function createsInstanceFromFileWithoutLogClass()
   {
     $config = self::$baseConfig;
     $config['log']['class'] = '';
-    $foxtrap = Factory::createInstance($config);
+    $foxtrap = self::$factory->createInstanceFromArray($config);
 
     $this->assertInstanceOf(
       "\\Foxtrap\\Log\\Blackhole",
       $foxtrap->getLog()
     );
+  }
+
+  /**
+   * @group createsInstanceFromFile
+   * @test
+   */
+  public function createsInstanceFromFile()
+  {
+    $expected = self::$factory->getConfigFromFile();
+    $foxtrap = self::$factory->createInstance();
+    $this->assertInstanceOf("\\Foxtrap\\Db\\{$expected['db']['class']}", $foxtrap->getDb());
   }
 }

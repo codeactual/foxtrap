@@ -18,18 +18,11 @@ use \Foxtrap\Factory;
 
 require __DIR__ . '/../src/LoadClasses.php';
 
-$opts = getopt('', array('file:'));
-
-// Pull in $config from config.php and push to Factory
-$configFile = __DIR__ . '/../config/config.php';
-if (!is_readable($configFile)) {
-  exit("\n{$configFile} missing or unreadable.\n");
-}
-require $configFile;
 $factory = new Factory();
-$foxtrap = $factory->createInstance($config);
+$foxtrap = $factory->createInstance();
 
 // Extract bookmarks from JSON --file
+$opts = getopt('', array('file:'));
 $imported = $foxtrap->jsonToArray(file_get_contents($opts['file']));
 
 // Add/update their details

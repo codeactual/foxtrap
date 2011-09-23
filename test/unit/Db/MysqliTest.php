@@ -10,9 +10,8 @@ class MysqliTest extends PHPUnit_Framework_TestCase
 
   public static function setUpBeforeClass()
   {
-    require FOXTRAP_CONFIG_FILE; // from bootstrap.php
     $factory = new Factory();
-    $foxtrap = $factory->createTestInstance($config);
+    $foxtrap = $factory->createTestInstance();
     self::$db = $foxtrap->getDb();
   }
 

@@ -10,9 +10,8 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
 
   public static function setUpBeforeClass()
   {
-    require FOXTRAP_CONFIG_FILE; // from bootstrap.php
     $factory = new Factory();
-    self::$foxtrap = $factory->createTestInstance($config);
+    self::$foxtrap = $factory->createTestInstance();
     self::$db = self::$foxtrap->getDb();
   }
 

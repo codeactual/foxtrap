@@ -18,12 +18,47 @@ use \HTMLPurifier_Config;
 class Factory
 {
   /**
+   * Return $config defined in config/config.php
+   *
+   * @return Foxtrap
+   */
+  public function getConfigFromFile()
+  {
+    $configFile = __DIR__ . '/../../config/config.php';
+    require $configFile;
+    return $config;
+  }
+
+  /**
+   * Use createInstanceFromArray() to build an instance based on config.php.
+   *
+   * @return Foxtrap
+   */
+  public function createInstance()
+  {
+    $config = $this->getConfigFromFile();
+    return $this->createInstanceFromArray($config);
+  }
+
+  /**
+   * Use createInstanceFromArray() to build a test-only instance.
+   *
+   * @return Foxtrap
+   */
+  public function createTestInstance()
+  {
+    $config = $this->getConfigFromFile();
+    $config['db']['opts'] = $config['db']['testOpts'];
+    return $this->createInstanceFromArray($config);
+  }
+
+  /**
    * Convert config array to an instance with injected dependencies.
    *
    * @param array $config From config.php
    * @return Foxtrap New instance based on configuration.
    */
-  public function createInstance(array $config)
+  public function createInstanceFromArray(array $config)
   {
     $config['curl'][CURLOPT_RETURNTRANSFER] = 1;
     $queue = new CurlyQueue($config['curl']);
@@ -50,17 +85,5 @@ class Factory
     $log = new $logClass();
 
     return new Foxtrap($queue, $db, $purifier, $log);
-  }
-
-  /**
-   * Apply the test-related options in $config to createInstance().
-   *
-   * @param array $config From config.php
-   * @return Foxtrap New instance based on configuration.
-   */
-  public function createTestInstance(array $config)
-  {
-    $config['db']['opts'] = $config['db']['testOpts'];
-    return $this->createInstance($config);
   }
 }
