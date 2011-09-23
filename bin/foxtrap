@@ -21,7 +21,7 @@ require __DIR__ . '/../src/LoadClasses.php';
 $opts = getopt('', array('file:'));
 
 // Pull in $config from config.php and push to Factory
-$configFile = __DIR__ . '/../config.php';
+$configFile = __DIR__ . '/../config/config.php';
 if (!is_readable($configFile)) {
   exit("\n{$configFile} missing or unreadable.\n");
 }
