@@ -12,6 +12,7 @@ use \Foxtrap\Foxtrap;
 use \Foxtrap\Query;
 use \HTMLPurifier;
 use \HTMLPurifier_Config;
+use \SphinxClient;
 
 /**
  * Configure Foxtrap dependencies based on configuration array.
@@ -85,7 +86,9 @@ class Factory
     $logClass = "\\Foxtrap\\Log\\{$config['log']['class']}";
     $log = new $logClass();
 
-    $query = new Query($db, $config['sphinx']);
+    $cl = new SphinxClient();
+    $cl->SetServer($config['sphinx']['host'], $config['sphinx']['port']);
+    $query = new Query($cl, $db, $config['sphinx']);
 
     return new Foxtrap($queue, $db, $purifier, $log, $query);
   }

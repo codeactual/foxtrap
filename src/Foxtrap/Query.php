@@ -7,10 +7,8 @@
 
 namespace Foxtrap;
 
-use \Foxtrap\Db\Api;
+use \Foxtrap\Db\Api as DbApi;
 use \SphinxClient;
-
-require_once 'sphinx/sphinxapi.php';
 
 /**
  * Full-text query execution and history logging.
@@ -18,17 +16,23 @@ require_once 'sphinx/sphinxapi.php';
 class Query
 {
   /**
-   * @var array 'sphinx' element from config.php
+   * @var SphinxClient
    */
-  protected $config;
+  protected $cl;
 
   /**
    * @var \Foxtrap\Db\Api
    */
   protected $db;
 
-  public function __construct(Api $db, array $config)
+  /**
+   * @var array 'sphinx' element from config.php
+   */
+  protected $config;
+
+  public function __construct(SphinxClient $cl, DbApi $db, array $config)
   {
+    $this->cl = $cl;
     $this->db = $db;
     $this->config = $config;
   }
@@ -49,16 +53,8 @@ class Query
   {
     $results = array();
 
-    $cl = new SphinxClient();
-    $cl->SetServer($this->config['host'], $this->config['port']);
-    $cl->SetFieldWeights(
-      array(
-        'tags' => 40,
-        'title' => 30,
-        'uri' => 20,
-        'body_clean' => 1
-      )
-    );
+    $this->cl->SetFieldWeights($this->config['weights']);
+
     // Detect match mode
     $mode = SPH_MATCH_ANY;
     $matches = array();
@@ -71,9 +67,9 @@ class Query
       }
       $q = str_replace($matches[1] . ':', '', $q);
     }
-    $cl->SetMatchMode($mode);
+    $this->cl->SetMatchMode($mode);
 
-    $results = $cl->Query($q, $this->config['index']);
+    $results = $this->cl->Query($q, $this->config['index']);
     if (!empty($results['matches'])) {
       // Row properties from dbRowToObj() indexed by ID
       $docs = array();
@@ -95,15 +91,11 @@ class Query
         $docBodies[] = $docs[$id]->indexed;
         unset($docs[$id]->indexed);
       }
-      $res = $cl->BuildExcerpts(
-        $docBodies, $this->config['index'], $q,
-        array(
-          'before_match' => '<span class="excerpt-word">',
-          'after_match'	=> '</span>',
-          'chunk_separator'	=> ' ... ',
-          'limit'	=> 750,
-          'around' => 10,
-        )
+      $res = $this->cl->BuildExcerpts(
+        $docBodies,
+        $this->config['index'],
+        $q,
+        $this->config['excerpts']
       );
       if ($res) {
         $pos = 0;
@@ -114,7 +106,7 @@ class Query
         // Reindex starting at 0
         $results = array_merge($docs);
       } else {
-        error_log($cl->GetLastError());
+        error_log($this->cl->GetLastError());
       }
     }
 

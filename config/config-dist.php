@@ -16,6 +16,23 @@ $config = array(
     'port' => 9312,
     'index' => 'foxtrap',
 
+    // SphinxClient::SetFieldWeights() options
+    'weights' => array(
+      'tags' => 40,
+      'title' => 30,
+      'uri' => 20,
+      'body_clean' => 1
+    ),
+
+    // SphinxClient::BuildExcerpts() options
+    'excerpts' => array(
+      'before_match' => '<span class="excerpt-word">',
+      'after_match'	=> '</span>',
+      'chunk_separator'	=> ' ... ',
+      'limit'	=> 750,
+      'around' => 10
+    ),
+
     // bin/foxtrap always ends by running bin/foxtrap-indexer
     'autoindex' => true
   ),
