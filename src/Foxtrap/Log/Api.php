@@ -1,12 +1,11 @@
 <?php
-
-namespace Foxtrap\Log;
-
 /**
  * Api interface.
  *
  * @package Foxtrap
  */
+
+namespace Foxtrap\Log;
 
 /**
  * Contract for concretes like Log\Stdout to optionally relay events.

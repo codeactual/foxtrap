@@ -33,3 +33,9 @@ $foxtrap->cleanup($latestVer);
 
 // Download any recently added or retry those with cleared error states
 $foxtrap->download();
+
+// Update FTS
+$config = $factory->getConfigFromFile();
+if ($config['sphinx']['autoindex']) {
+  passthru(__DIR__ . '/foxtrap-indexer');
+}

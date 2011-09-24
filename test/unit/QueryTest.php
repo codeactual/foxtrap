@@ -1,0 +1,45 @@
+<?php
+
+use \Foxtrap\Factory;
+use \Foxtrap\Query;
+
+class QueryTest extends PHPUnit_Framework_TestCase
+{
+  protected static $query;
+
+  public static function setUpBeforeClass()
+  {
+    $factory = new Factory();
+    $config = $factory->getConfigFromFile();
+    $foxtrap = $factory->createTestInstance();
+    self::$query = new Query($foxtrap->getDb(), $config['sphinx']);
+  }
+
+  /**
+   * @group convertsDbRowToObj
+   * @test
+   */
+  public function convertsDbRowToObj()
+  {
+    $row = array(
+      'id' => uniqid(),
+      'title' => uniqid(),
+      'tags' => uniqid(),
+      'body_clean' => uniqid(),
+      'uri' => 'https://twitter.com/#!/user/status/1234'
+    );
+    $obj = self::$query->dbRowToObj($row);
+    $this->assertSame($row['id'], $obj->id);
+    $this->assertSame(
+      $row['title']
+      . " {$row['uri']}"
+      . " {$row['tags']}"
+      . $row['body_clean'],
+      $obj->indexed
+    );
+    $this->assertSame($row['title'], $obj->title);
+    $this->assertSame('twitter.com', $obj->domain);
+    $this->assertSame($row['tags'], $obj->tags);
+    $this->assertSame($row['uri'], $obj->uri);
+  }
+}

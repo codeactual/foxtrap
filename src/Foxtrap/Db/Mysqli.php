@@ -256,4 +256,25 @@ class Mysqli implements Api
       $this->link->query("TRUNCATE `{$this->testDbName}`.`{$this->table}`");
     }
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMarksForSearch(array $ids)
+  {
+    $docs = array();
+    $sql = "
+      SELECT `id`, `title`, `body_clean`, `uri`, `tags`, `modified`
+      FROM `{$this->table}`
+      WHERE `id` IN(" . implode(',', $ids) . ')';
+
+    $result = $this->link->query($sql);
+    if ($result) {
+      while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+        $docs[$row['id']] = $row;
+      }
+    }
+
+    return $docs;
+  }
 }

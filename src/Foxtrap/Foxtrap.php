@@ -175,38 +175,6 @@ class Foxtrap
   }
 
   /**
-   * Convert a database row (as assoc. array) to an object (e.g. for JSONP).
-   *
-   * @param array $row
-   * @return object
-   * - mixed 'id'
-   * - string 'indexed' <title> <uri> <tags> <purified html>
-   * - string 'title'
-   * - string 'domain'
-   * - string 'tags' Space delimited tag list
-   * - string 'uri'
-   */
-  public function dbRowToObj(array $row)
-  {
-    $matches = array();
-    preg_match('/https?:\/\/([^\/]+)/', $row['uri'], $matches);
-    $domain = isset($matches[1]) ? $matches[1] : '';
-
-    return (object) array(
-      'id' => $row['id'],
-      'indexed' =>
-        $row['title']
-        . " {$row['uri']}"
-        . " {$row['tags']}"
-        . $row['body_clean'],
-      'title' => $row['title'],
-      'domain' => $domain,
-      'tags' => $row['tags'],
-      'uri' => $row['uri']
-    );
-  }
-
-  /**
    * Convert JSON from a Firefox backup file to a lighter array structured
    * for use by consumers like registerMarks().
    *
@@ -308,28 +276,6 @@ class Foxtrap
     }
 
     return $version;
-  }
-
-  /**
-   * Set the HTTP header for JSONP responses.
-   *
-   * @return void
-   */
-  public function jsonpHeader()
-  {
-    header('Content-Type: application/javascript; charset=utf-8');
-  }
-
-  /**
-   * Return a JSON response body.
-   *
-   * @param string $json
-   * @param string $callback
-   * @return string
-   */
-  public function jsonpCallback($json, $callback)
-  {
-    return "{$callback}({$json});";
   }
 
   /**

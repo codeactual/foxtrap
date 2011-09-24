@@ -97,4 +97,11 @@ class Blackhole implements Api
   public function resetTestDb()
   {
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMarksForSearch(array $ids)
+  {
+  }
 }

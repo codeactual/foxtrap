@@ -1,12 +1,11 @@
 <?php
-
-namespace Foxtrap\Db;
-
 /**
  * Api interface.
  *
  * @package Foxtrap
  */
+
+namespace Foxtrap\Db;
 
 /**
  * Contract for concretes like Db\Mysqli which further describes requirements.
@@ -115,4 +114,18 @@ interface Api
    * @return void
    */
   public function resetTestDb();
+
+  /**
+   * Return fields of identified documents search results/excerpts.
+   *
+   * @param array $ids Row IDs.
+   * @return array Result arrays with:
+   * - mixed 'id'
+   * - string 'title'
+   * - string 'body_clean'
+   * - string 'uri'
+   * - string 'tags'
+   * - int 'modified'
+   */
+  public function getMarksForSearch(array $ids);
 }

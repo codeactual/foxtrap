@@ -10,6 +10,14 @@ $config = array(
     // Pairs specific to the DB class
     'table' => 'marks'
   ),
+  'sphinx' => array(
+    'host' => 'localhost',
+    'port' => 9312,
+    'index' => 'foxtrap',
+
+    // bin/foxtrap always ends by running bin/foxtrap-indexer
+    'autoindex' => true
+  ),
   'curl' => array(
     CURLOPT_CONNECTTIMEOUT => 10,
     CURLOPT_MAXREDIRS => 5,
