@@ -38,9 +38,27 @@ class Query
   }
 
   /**
+   * Convert a SPH_ constant name into its integer value.
+   *
+   * @param string $name
+   * @return int
+   */
+  public function sphinxModeNameToValue($name)
+  {
+    if (0 === strpos($name, 'SPH_') && defined($name)) {
+      return constant($name);
+    } else {
+      return 0;
+    }
+  }
+
+  /**
    * Perform a query.
    *
    * @param string $q
+   * @param int $match Sphinx match mode.
+   * @param int $sortMode Sphinx sort mode.
+   * @param string $sortAttr Sphinx sort-by attribute.
    * @return array Search result arrays, each with:
    * - mixed 'id'
    * - string 'uri'
@@ -48,26 +66,15 @@ class Query
    * - string 'domain'
    * - string 'tags'
    * - string 'excerpt'
+   * @see http://www.php.net/manual/en/sphinxclient.setmatchmode.php
+   * @see http://www.php.net/manual/en/sphinxclient.setsortmode.php
    */
-  public function run($q)
+  public function run($q, $match, $sortMode, $sortAttr)
   {
     $results = array();
 
     $this->cl->SetFieldWeights($this->config['weights']);
-
-    // Detect match mode
-    $mode = SPH_MATCH_ANY;
-    $matches = array();
-    if (preg_match('/^(ext|all|phrase|bool):/', $q, $matches)) {
-      switch ($matches[1]) {
-      case 'ext': $mode = SPH_MATCH_EXTENDED2; break;
-      case 'all': $mode = SPH_MATCH_ALL; break;
-      case 'phrase': $mode = SPH_MATCH_PHRASE; break;
-      case 'bool': $mode = SPH_MATCH_BOOLEAN; break;
-      }
-      $q = str_replace($matches[1] . ':', '', $q);
-    }
-    $this->cl->SetMatchMode($mode);
+    $this->cl->SetMatchMode($match);
 
     $results = $this->cl->Query($q, $this->config['index']);
     if (!empty($results['matches'])) {
