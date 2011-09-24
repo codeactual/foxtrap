@@ -14,6 +14,13 @@ class FactoryTest extends PHPUnit_Framework_TestCase
         'class' => 'Blackhole',
         'opts' => array('event', 'horizon'),
       ),
+      'sphinx' => array(
+        'host' => 'localhost',
+        'port' => 9312,
+        'index' => 'foxtrap',
+        'historyTable' => 'searches',
+        'autoindex' => true
+      ),
       'curl' => array(
         CURLOPT_CONNECTTIMEOUT => 2,
         CURLOPT_MAXREDIRS => 3,
@@ -53,6 +60,8 @@ class FactoryTest extends PHPUnit_Framework_TestCase
       "\\Foxtrap\\Log\\{$config['log']['class']}",
       $foxtrap->getLog()
     );
+
+    $this->assertInstanceOf('\\Foxtrap\\Query', $foxtrap->getQuery());
 
     // Blackhole::createLink() just returns the options it's sent as an object
     $this->assertEquals((object) $config['db']['opts'], $foxtrap->getDb()->link);

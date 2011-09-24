@@ -29,6 +29,11 @@ class Mysqli implements Api
   /**
    * @var string
    */
+  protected $historyTable;
+
+  /**
+   * @var string
+   */
   protected $testDbName;
 
   /**
@@ -40,6 +45,7 @@ class Mysqli implements Api
     $this->link = $link;
     $this->table = $config['db']['table'];
     $this->testDbName = $config['db']['testOpts'][3] ?: '';
+    $this->historyTable = $config['db']['historyTable'];
   }
 
   /**
@@ -276,5 +282,50 @@ class Mysqli implements Api
     }
 
     return $docs;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addHistory($q)
+  {
+    $sql = "
+      INSERT INTO `{$this->historyTable}`
+      (`query`, `query_hash`)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE `uses` = `uses` + 1";
+    $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('ss', $q, md5($q));
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$q}: {$stmt->error} ({$stmt->errno})");
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHistory($limit)
+  {
+    $sql = "
+      SELECT `query`
+      FROM `{$this->historyTable}`
+      ORDER BY `modified` DESC,`uses` DESC
+      LIMIT ?";
+    $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('d', $limit);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$q}: {$stmt->error} ({$stmt->errno})");
+    }
+
+    $result = $stmt->get_result();
+    $data = array();
+    if ($result) {
+      while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+        $data[] = (object) array('query' => $row['query']);
+      }
+    }
+    return $data;
   }
 }

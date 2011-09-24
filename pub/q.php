@@ -9,10 +9,9 @@ $q = empty($_GET['q']) ? '' : $_GET['q'];
 
 $factory = new Factory();
 $foxtrap = $factory->createInstance();
-$config = $factory->getConfigFromFile();
-$query = new Query($foxtrap->getDb(), $config['sphinx']);
+$query = $foxtrap->getQuery();
 $results = $query->run($q);
 
 $output = json_encode($results);
-$query->jsonpHeader();
-echo $query->jsonpCallback($output, $_GET['callback']);
+$foxtrap->jsonpHeader();
+echo $foxtrap->jsonpCallback($output, $_GET['callback']);

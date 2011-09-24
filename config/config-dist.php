@@ -8,7 +8,8 @@ $config = array(
     'opts' => array('localhost', 'user', 'pass', 'foxtrap'),
     'testOpts' => array('localhost', 'user', 'pass', 'foxtrap'),
     // Pairs specific to the DB class
-    'table' => 'marks'
+    'table' => 'marks',
+    'historyTable' => 'searches'
   ),
   'sphinx' => array(
     'host' => 'localhost',

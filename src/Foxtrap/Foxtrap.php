@@ -12,6 +12,7 @@ use \Exception;
 use \Flow\Flow;
 use \Foxtrap\Db\Api as DbApi;
 use \Foxtrap\Log\Api as LogApi;
+use \Foxtrap\Query;
 use \HTMLPurifier;
 
 class Foxtrap
@@ -32,6 +33,11 @@ class Foxtrap
   protected $purifier;
 
   /**
+   * @var Query
+   */
+  protected $query;
+
+  /**
    * @var CurlyQueue
    */
   protected $queue;
@@ -46,7 +52,7 @@ class Foxtrap
    */
   protected $uriDownloaded;
 
-  public function __construct(CurlyQueue $queue, DbApi $db, HTMLPurifier $purifier, LogApi $log)
+  public function __construct(CurlyQueue $queue, DbApi $db, HTMLPurifier $purifier, LogApi $log, Query $query)
   {
     $this->db = $db;
     $this->purifier = $purifier;
@@ -54,6 +60,7 @@ class Foxtrap
     $this->queue->setResponseCallback(array($this, 'onDownloadResponse'));
     $this->queue->setErrorCallback(array($this, 'onDownloadError'));
     $this->log = $log;
+    $this->query = $query;
   }
 
   /**
@@ -316,5 +323,37 @@ class Foxtrap
   public function getPurifier()
   {
     return $this->purifier;
+  }
+
+  /**
+   * Access to $this->query.
+   *
+   * @return Query
+   */
+  public function getQuery()
+  {
+    return $this->query;
+  }
+
+  /**
+   * Set the HTTP header for JSONP responses.
+   *
+   * @return void
+   */
+  public function jsonpHeader()
+  {
+    header('Content-Type: application/javascript; charset=utf-8');
+  }
+
+  /**
+   * Return a JSON response body.
+   *
+   * @param string $json
+   * @param string $callback
+   * @return string
+   */
+  public function jsonpCallback($json, $callback)
+  {
+    return "{$callback}({$json});";
   }
 }

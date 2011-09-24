@@ -9,6 +9,7 @@ namespace Foxtrap;
 
 use \CurlyQueue\CurlyQueue;
 use \Foxtrap\Foxtrap;
+use \Foxtrap\Query;
 use \HTMLPurifier;
 use \HTMLPurifier_Config;
 
@@ -84,6 +85,8 @@ class Factory
     $logClass = "\\Foxtrap\\Log\\{$config['log']['class']}";
     $log = new $logClass();
 
-    return new Foxtrap($queue, $db, $purifier, $log);
+    $query = new Query($db, $config['sphinx']);
+
+    return new Foxtrap($queue, $db, $purifier, $log, $query);
   }
 }

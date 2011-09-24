@@ -104,4 +104,18 @@ class Blackhole implements Api
   public function getMarksForSearch(array $ids)
   {
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addHistory($q)
+  {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getHistory($limit)
+  {
+  }
 }

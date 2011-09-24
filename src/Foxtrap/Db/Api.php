@@ -128,4 +128,24 @@ interface Api
    * - int 'modified'
    */
   public function getMarksForSearch(array $ids);
+
+  /**
+   * Add a query to the search history. If exists, update counter.
+   *
+   * @param string $q
+   * @return void
+   * @throws Exception
+   * - on write error
+   */
+  public function addHistory($q);
+
+  /**
+   * Read the most recent/popular N searches.
+   *
+   * @param int $limit
+   * @return void
+   * @throws Exception
+   * - on read error
+   */
+  public function getHistory($limit);
 }

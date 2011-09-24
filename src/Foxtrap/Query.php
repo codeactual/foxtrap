@@ -152,26 +152,4 @@ class Query
       'uri' => $row['uri']
     );
   }
-
-  /**
-   * Set the HTTP header for JSONP responses.
-   *
-   * @return void
-   */
-  public function jsonpHeader()
-  {
-    header('Content-Type: application/javascript; charset=utf-8');
-  }
-
-  /**
-   * Return a JSON response body.
-   *
-   * @param string $json
-   * @param string $callback
-   * @return string
-   */
-  public function jsonpCallback($json, $callback)
-  {
-    return "{$callback}({$json});";
-  }
 }
