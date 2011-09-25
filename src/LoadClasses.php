@@ -13,4 +13,4 @@ $cl->register();
 unset($cl);
 
 require_once __DIR__ . '/../vendor/htmlpurifier/library/HTMLPurifier.auto.php';
-require_once 'sphinx/sphinxapi.php';
+require_once __DIR__ . '/../vendor/sphinx/sphinxapi.php';

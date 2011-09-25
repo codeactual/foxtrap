@@ -14,12 +14,11 @@ class QueryTest extends PHPUnit_Framework_TestCase
     $config = $factory->getConfigFromFile();
     self::$foxtrap = $factory->createTestInstance();
     self::$query = self::$foxtrap->getQuery();
-  }
 
-  public function setUp()
-  {
-    parent::setUp();
     self::$foxtrap->getDb()->resetTestDb();
+    $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
+    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
+    self::$foxtrap->download();
   }
 
   /**
@@ -70,95 +69,55 @@ class QueryTest extends PHPUnit_Framework_TestCase
     );
   }
 
-  /**
-   * @group findsAny
-   * @test
-   */
-  public function findsAny()
+  public function providesRunData()
   {
-    $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
-    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
-
-    $q = 'search yahoo';
-    $results = self::$query->run($q, SPH_MATCH_ANY, SPH_SORT_RELEVANCE);
-
-    $expected = array('www.yahoo.com', 'www.google.com', 'www.amazon.com');
-    foreach ($results as $res) {
-      $actual[] = $res->domain;
-    }
-    $this->assertSame($expected, $actual);
+    return array(
+      array(
+        'search yahoo',
+        SPH_MATCH_ANY,
+        SPH_SORT_RELEVANCE,
+        '',
+        array('www.yahoo.com', 'www.google.com', 'www.amazon.com'),
+      ),
+      array(
+        'search yahoo',
+        SPH_MATCH_ALL,
+        SPH_SORT_RELEVANCE,
+        '',
+        array('www.yahoo.com'),
+      ),
+      array(
+        'web',
+        SPH_MATCH_ANY,
+        SPH_SORT_RELEVANCE,
+        '',
+        array('www.yahoo.com', 'www.amazon.com'),
+      ),
+      array(
+        'web',
+        SPH_MATCH_ANY,
+        SPH_SORT_ATTR_ASC,
+        'modified',
+        array('www.yahoo.com', 'www.amazon.com'),
+      ),
+      array(
+        'web',
+        SPH_MATCH_ANY,
+        SPH_SORT_ATTR_DESC,
+        'modified',
+        array('www.amazon.com', 'www.yahoo.com'),
+      )
+    );
   }
 
   /**
-   * @group findsAll
+   * @group runsQuery
    * @test
+   * @dataProvider providesRunData
    */
-  public function findsAll()
+  public function runsQuery($q, $matchMode, $sortMode, $sortAttr, $expected)
   {
-    $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
-    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
-
-    $q = 'search yahoo';
-    $results = self::$query->run($q, SPH_MATCH_ALL, SPH_SORT_RELEVANCE);
-
-    $expected = array('www.yahoo.com');
-    foreach ($results as $res) {
-      $actual[] = $res->domain;
-    }
-    $this->assertSame($expected, $actual);
-  }
-
-  /**
-   * @group sortsByRelevance
-   * @test
-   */
-  public function sortsByRelevance()
-  {
-    $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
-    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
-
-    $q = 'web';
-    $results = self::$query->run($q, SPH_MATCH_ANY, SPH_SORT_RELEVANCE);
-
-    $expected = array('www.yahoo.com', 'www.amazon.com');
-    foreach ($results as $res) {
-      $actual[] = $res->domain;
-    }
-    $this->assertSame($expected, $actual);
-  }
-
-  /**
-   * @group sortsByModifiedAscending
-   * @test
-   */
-  public function sortsByModifiedAscending()
-  {
-    $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
-    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
-
-    $q = 'web';
-    $results = self::$query->run($q, SPH_MATCH_ANY, SPH_SORT_ATTR_ASC, 'modified');
-
-    $expected = array('www.yahoo.com', 'www.amazon.com');
-    foreach ($results as $res) {
-      $actual[] = $res->domain;
-    }
-    $this->assertSame($expected, $actual);
-  }
-
-  /**
-   * @group sortsByModifiedDescending
-   * @test
-   */
-  public function sortsByModifiedDescending()
-  {
-    $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
-    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
-
-    $q = 'web';
-    $results = self::$query->run($q, SPH_MATCH_ANY, SPH_SORT_ATTR_DESC, 'modified');
-
-    $expected = array('www.amazon.com', 'www.yahoo.com');
+    $results = self::$query->run($q, $matchMode, $sortMode, $sortAttr);
     foreach ($results as $res) {
       $actual[] = $res->domain;
     }
