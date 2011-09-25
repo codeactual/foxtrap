@@ -1,0 +1,56 @@
+html {
+  overflow: scroll; /* avoid #q width flicker */
+}
+body {
+  font-family: "Droid Sans", arial, serif;
+}
+
+.history-group {
+  width: 10%;
+}
+.past-query {
+  display: block;
+  font-size: 0.9em;
+  margin-top: 0.5em;
+  text-align: center;
+}
+.results-group {
+  width: 88%;
+}
+.float-left {
+  float: left;
+}
+.float-clear {
+  float: clear;
+}
+.result-template .hd {
+  color: #2200C1;
+  padding-top: 0.5em;
+  padding-bottom: 0.25em;
+}
+.result-template .bd {
+  color: #0E774A;
+  font-size: 0.8em;
+}
+.result-template .ft {
+  font-size: 0.9em;
+  padding-top: 0.25em;
+  padding-bottom: 0.5em;
+  border-bottom: solid 1px #ccc;
+}
+.result-template .tags {
+  color: #D14836;
+}
+.excerpt-word {
+  font-weight: bold;
+  text-decoration: underline;
+  background-color: #efefef;
+}
+
+#q {
+  font-size: 1.25em;
+  font-weight: bold;
+  padding: 0.25em;
+  text-align: center;
+  width: 98%;
+}
