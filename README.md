@@ -20,9 +20,5 @@ Includes a search page with instant/as-you-type results and history-based keywor
 1. Customize the "dist" configuration files under `config/`.
 1. [Export bookmarks as JSON.](http://support.mozilla.com/en-US/kb/Backing%20up%20and%20restoring%20bookmarks#w_manual-backup)
 1. Run `foxtrap`.
-1. Setup a document root at `pub/`, e.g. a local Apache VirtualHost named "foxtrap".
-1. Open `http://foxtrap/`.
-
-# Recommended
-
-Set up a cron to run `foxtrap` on the latest JSON file periodically created by Firefox in `bookmarkbackups/` under your profile's directory.
+1. Setup a document root at `pub/`.
+1. (Recommended) Set up a cron to run `foxtrap` on the latest JSON file periodically created by Firefox in `bookmarkbackups/` under your profile's directory.
