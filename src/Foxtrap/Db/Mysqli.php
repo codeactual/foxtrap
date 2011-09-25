@@ -268,7 +268,7 @@ class Mysqli implements Api
    */
   public function getMarksForSearch(array $ids)
   {
-    $docs = array();
+    $marks = array();
     $sql = "
       SELECT `id`, `title`, `body_clean`, `uri`, `tags`, `modified`
       FROM `{$this->table}`
@@ -277,11 +277,11 @@ class Mysqli implements Api
     $result = $this->link->query($sql);
     if ($result) {
       while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
-        $docs[$row['id']] = $row;
+        $marks[$row['id']] = $row;
       }
     }
 
-    return $docs;
+    return $marks;
   }
 
   /**

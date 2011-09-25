@@ -35,6 +35,8 @@ class Query
     $this->cl = $cl;
     $this->db = $db;
     $this->config = $config;
+
+    $this->cl->SetFieldWeights($this->config['weights']);
   }
 
   /**
@@ -58,7 +60,8 @@ class Query
    * @param string $q
    * @param int $match Sphinx match mode.
    * @param int $sortMode Sphinx sort mode.
-   * @param string $sortAttr Sphinx sort-by attribute.
+   * @param string $sortAttr (Optional, '') Sphinx sort-by attribute.
+   * - Only optional for SPH_SORT_RELEVANCE
    * @return array Search result arrays, each with:
    * - mixed 'id'
    * - string 'uri'
@@ -69,55 +72,62 @@ class Query
    * @see http://www.php.net/manual/en/sphinxclient.setmatchmode.php
    * @see http://www.php.net/manual/en/sphinxclient.setsortmode.php
    */
-  public function run($q, $match, $sortMode, $sortAttr)
+  public function run($q, $match, $sortMode, $sortAttr = '')
   {
-    $results = array();
+    // In Sphinx sort order
+    $docs = array();
 
-    $this->cl->SetFieldWeights($this->config['weights']);
     $this->cl->SetMatchMode($match);
+    $this->cl->SetSortMode($sortMode, $sortAttr);
 
     $results = $this->cl->Query($q, $this->config['index']);
-    if (!empty($results['matches'])) {
-      // Row properties from dbRowToObj() indexed by ID
-      $docs = array();
 
-      // Row IDs from matches
-      $docIds = array();
-      foreach ($results['matches'] as $id => $prop) {
-        $docIds[] = $id;
-      }
-
-      $docs = $this->db->getMarksForSearch($docIds);
-      foreach ($docs as $id => $doc) {
-        $docs[$id] = $this->dbRowToObj($doc);
-      }
-
-      // Collect all doc bodies for building excerpts
-      $docBodies = array();
-      foreach ($docIds as $id) {
-        $docBodies[] = $docs[$id]->indexed;
-        unset($docs[$id]->indexed);
-      }
-      $res = $this->cl->BuildExcerpts(
-        $docBodies,
-        $this->config['index'],
-        $q,
-        $this->config['excerpts']
-      );
-      if ($res) {
-        $pos = 0;
-        foreach ($res as $r) {
-          $docs[$docIds[$pos++]]->excerpt = $r;
-        }
-
-        // Reindex starting at 0
-        $results = array_merge($docs);
-      } else {
-        error_log($this->cl->GetLastError());
-      }
+    if (empty($results['matches'])) {
+      return $docs;
     }
 
-    return $results;
+    // Use this index to keep getMarksForSearch() and BuildExcerpts()
+    // results in Sphinx sort order.
+    $rankToId = array();
+    foreach ($results['matches'] as $id => $prop) {
+      $rankToId[] = $id;
+    }
+    $idToRank = array_flip($rankToId);
+
+    $marks = $this->db->getMarksForSearch($rankToId);
+    foreach ($marks as $id => $mark) {
+      $docs[$idToRank[$id]] = $this->dbRowToObj($mark);
+    }
+
+    // getMarksForSearch() may not return results in sort order.
+    // Reindex here to prevent run() clients from using foreach()
+    // and erronously relying on array insertion order.
+    ksort($docs);
+
+    // Collect excerpt raw material from 'indexed' property augmented
+    // above in dbRowToObj(). Use $rankToId so that BuildExcerpts()
+    // returns results in original sort order.
+    $docBodies = array();
+    foreach ($rankToId as $id) {
+      $docBodies[] = $docs[$idToRank[$id]]->indexed;
+      unset($docs[$idToRank[$id]]->indexed);
+    }
+
+    $res = $this->cl->BuildExcerpts(
+      $docBodies,
+      $this->config['index'],
+      $q,
+      $this->config['excerpts']
+    );
+    if ($res) {
+      foreach ($res as $rank => $r) {
+        $docs[$rank]->excerpt = $r;
+      }
+    } else {
+      error_log($this->cl->GetLastError());
+    }
+
+    return $docs;
   }
 
   /**

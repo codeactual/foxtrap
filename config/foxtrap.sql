@@ -30,13 +30,13 @@ CREATE TABLE `marks` (
   `tags` varchar(128) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `body` mediumtext COLLATE utf8_unicode_ci NOT NULL,
   `body_clean` mediumtext COLLATE utf8_unicode_ci NOT NULL,
-  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `saved` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '0=saved 1=not saved',
   `last_err` varchar(1024) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `version` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uri_hash` (`uri_hash`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=COMPRESSED;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=COMPRESSED;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

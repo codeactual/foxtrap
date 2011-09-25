@@ -19,6 +19,19 @@ class FactoryTest extends PHPUnit_Framework_TestCase
         'port' => 9312,
         'index' => 'foxtrap',
         'historyTable' => 'searches',
+        'weights' => array(
+          'tags' => 40,
+          'title' => 30,
+          'uri' => 20,
+          'body_clean' => 1
+        ),
+        'excerpts' => array(
+          'before_match' => '<span class="excerpt-word">',
+          'after_match'	=> '</span>',
+          'chunk_separator'	=> ' ... ',
+          'limit'	=> 750,
+          'around' => 10
+        ),
         'autoindex' => true
       ),
       'curl' => array(

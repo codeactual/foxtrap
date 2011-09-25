@@ -131,7 +131,6 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
   {
     // 3 downloadable marks, 1 non-downloadable
     $json = file_get_contents(__DIR__ . '/../fixture/amazon-addtag-nosave.json');
-    $arr = self::$foxtrap->jsonToArray($json);
     self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
 
     $toDownload = self::$db->getMarksToDownload();
@@ -149,7 +148,6 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
   public function registerMarksStoresMiscFields()
   {
     $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
-    $arr = self::$foxtrap->jsonToArray($json);
     self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
 
     $mark = self::$db->getMarkById(1);
