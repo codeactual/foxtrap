@@ -1,6 +1,6 @@
 # foxtrap
 
-foxtrap imports s Firefox bookmark backup and downloads all pages for full-text indexing.
+foxtrap imports Firefox bookmark backup files and downloads all pages for full-text indexing of titles, URIs, tags, and body text.
 
 ## Usage
 
