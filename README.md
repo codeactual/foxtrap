@@ -6,7 +6,7 @@ Includes a search page with instant/as-you-type results and history-based keywor
 
 ## Usage
 
-1. `foxtrap --file bookmarks-YYYY-MM-DD.json`
+`foxtrap --file bookmarks-YYYY-MM-DD.json`
 
 ## Requirements
 
