@@ -2,6 +2,8 @@
 
 foxtrap imports Firefox bookmark backup files and downloads all pages for full-text indexing of titles, URIs, tags, and body text.
 
+Includes a search page with instant/as-you-type results and history-based keyword suggestions.
+
 ## Usage
 
 1. `foxtrap --file bookmarks-YYYY-MM-DD.json`
