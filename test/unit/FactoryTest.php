@@ -61,7 +61,6 @@ class FactoryTest extends PHPUnit_Framework_TestCase
     $foxtrap = self::$factory->createInstanceFromArray($config);
 
     $expectedConfig = $config;
-    $expectedConfig['curl'][CURLOPT_RETURNTRANSFER] = 1;
     $this->assertSame($expectedConfig, $foxtrap->getDb()->config);
 
     $this->assertInstanceOf(

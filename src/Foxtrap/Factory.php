@@ -62,7 +62,6 @@ class Factory
    */
   public function createInstanceFromArray(array $config)
   {
-    $config['curl'][CURLOPT_RETURNTRANSFER] = 1;
     $queue = new CurlyQueue($config['curl']);
 
     require_once __DIR__ . "/Db/{$config['db']['class']}.php";

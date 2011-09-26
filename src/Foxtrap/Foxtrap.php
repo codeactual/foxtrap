@@ -111,7 +111,7 @@ class Foxtrap
    *
    * @return void
    */
-  public function onDownloadResponse($ch, $content, $requestObj)
+  public function onDownloadResponse($ch, $content, $context)
   {
     $errno = curl_errno($ch);
     $error = '';
@@ -126,7 +126,7 @@ class Foxtrap
         }
         $contentClean = preg_replace('/\s{2,}/', ' ', trim($content));
         $contentClean = $this->purifier->purify($contentClean);
-        $this->db->saveSuccess($content, $contentClean, $requestObj['id']);
+        $this->db->saveSuccess($content, $contentClean, $context['id']);
       } else {
         $error = json_encode($info);
       }
@@ -135,14 +135,14 @@ class Foxtrap
     }
 
     if ($error) {
-      $this->db->saveError($error_stmt, $requestObj['id']);
+      $this->db->saveError($error_stmt, $context['id']);
       $error = $error ? "({$error})" : '';
     }
 
     $this->log->onDownloadResponse(
       array(
-        'uri' => $requestObj['uri'],
-        'id' => $requestObj['id'],
+        'uri' => $context['uri'],
+        'id' => $context['id'],
         'uriDownloaded' => $this->uriDownloaded,
         'uriTotal' => $this->uriTotal,
         'errno' => $errno,
@@ -156,7 +156,7 @@ class Foxtrap
    *
    * @return Closure
    */
-  public function onDownloadError($ch, $requestObj)
+  public function onDownloadError($ch, $context)
   {
     $this->uriDownloaded++;
 
@@ -165,13 +165,13 @@ class Foxtrap
 
     $this->db->saveError(
       $curlError . ': ' . json_encode($curlInfo),
-      $requestObj['id']
+      $context['id']
     );
 
     $this->log->onDownloadError(
       array(
-        'uri' => $requestObj['uri'],
-        'id' => $requestObj['id'],
+        'uri' => $context['uri'],
+        'id' => $context['id'],
         'uriDownloaded' => $this->uriDownloaded,
         'uriTotal' => $this->uriTotal,
         'curlErrno' => curl_errno($ch),
