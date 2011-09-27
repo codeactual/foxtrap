@@ -9,7 +9,7 @@ header('Content-type: text/html; charset=utf-8');
   <meta charset="utf-8" />
   <link href="http://fonts.googleapis.com/css?family=Droid+Sans" rel="stylesheet" type="text/css">
   <link type="text/css" href="index.css" rel="stylesheet" />
-  <script src="http://yui.yahooapis.com/3.4.0/build/yui/yui-min.js" charset="utf-8"></script>
+  <script src="http://yui.yahooapis.com/3.4.1/build/yui/yui-min.js" charset="utf-8"></script>
   <script src="index.js" charset="utf-8"></script>
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 </head>
