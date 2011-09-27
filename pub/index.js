@@ -39,7 +39,7 @@ YUI().use('autocomplete', 'jsonp', 'array-extras', 'event-delegate', function(Y)
           title: result.raw.title,
           excerpt: result.raw.excerpt,
           domain: result.raw.domain,
-          tags: result.raw.tags
+          tags: result.raw.tags ? '(' + result.raw.tags + ')' : result.raw.tags
         });
       });
     },
