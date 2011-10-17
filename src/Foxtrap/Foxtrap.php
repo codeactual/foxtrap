@@ -286,6 +286,50 @@ class Foxtrap
   }
 
   /**
+   * Return the filename of the most recent input checksum.
+   *
+   * @return string
+   */
+  public function getLastRunHashFile()
+  {
+    return __DIR__ . '/../../config/lastrun';
+  }
+
+  /**
+   * Write the checksum of the most recent input JSON.
+   *
+   * @param string $json
+   * @return void
+   * @throws Exception
+   * - on write error
+   */
+  public function writeLastRunHash($json)
+  {
+    $file = $this->getLastRunHashFile();
+    $hash = md5($json);
+    // @codeCoverageIgnoreStart
+    if (false === file_put_contents($file, $hash)) {
+      throw new Exception("could not write '{$md5}' to {$file}");
+    }
+    // @codeCoverageIgnoreEnd
+  }
+
+  /**
+   * Determine if the input JSON matches the last run's.
+   *
+   * @param string $json
+   * @return boolean True if input matches.
+   */
+  public function isLastRunInputSame($json)
+  {
+    $file = $this->getLastRunHashFile();
+    if (file_exists($file)) {
+      return md5($json) === file_get_contents($file);
+    }
+    return false;
+  }
+
+  /**
    * Access to $this->db.
    *
    * @return \Foxtrap\Db\Api

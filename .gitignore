@@ -1,3 +1,4 @@
 config/config.php
+config/lastrun
 config/sphinx.conf
 test/unit/build

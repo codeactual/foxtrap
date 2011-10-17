@@ -13,10 +13,20 @@ $opts = getopt('', array('file:'));
 if (!is_readable($opts['file'])) {
   exit("Usage: foxtrap --file <JSON>\n");
 }
-$imported = $foxtrap->jsonToArray(file_get_contents($opts['file']));
+
+$json = file_get_contents($opts['file']);
+
+if ($foxtrap->isLastRunInputSame($json)) {
+  exit("Database is up-to-date.\n");
+}
+
+$imported = $foxtrap->jsonToArray($json);
 
 // Add/update their details
 $latestVer = $foxtrap->registerMarks($imported);
+
+// Avoid future processing of the same data.
+$foxtrap->writeLastRunHash($json);
 
 // Avoid unnecessary downloads
 $foxtrap->cleanup($latestVer);

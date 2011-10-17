@@ -208,4 +208,26 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
     $this->assertContains('Yahoo! Inc', $actual['body_clean']);
     $this->assertNotContains('<html', $actual['body_clean']);
   }
+
+  /**
+   * @group verifiesLastRunHash
+   * @test
+   */
+  public function verifiesLastRunHash()
+  {
+    $file = self::$foxtrap->getLastRunHashFile();
+    if (file_exists($file)) {
+      unlink($file);
+    }
+
+    $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
+    self::$foxtrap->writeLastRunHash($json);
+    $this->assertSame(
+      md5($json),
+      file_get_contents(self::$foxtrap->getLastRunHashFile())
+    );
+
+    $this->assertTrue(self::$foxtrap->isLastRunInputSame($json));
+    $this->assertFalse(self::$foxtrap->isLastRunInputSame($json . 't'));
+  }
 }
