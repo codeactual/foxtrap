@@ -16,6 +16,7 @@ Includes a search page with instant/as-you-type results and history-based keywor
 
 ## Setup
 
+1. git submodule update --init
 1. Create a new database and import `config/foxtrap.sql`.
 1. Customize the "dist" configuration files under `config/`.
 1. [Export bookmarks as JSON.](http://support.mozilla.com/en-US/kb/Backing%20up%20and%20restoring%20bookmarks#w_manual-backup)
