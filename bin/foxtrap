@@ -25,9 +25,6 @@ $imported = $foxtrap->jsonToArray($json);
 // Add/update their details
 $latestVer = $foxtrap->registerMarks($imported);
 
-// Avoid future processing of the same data.
-$foxtrap->writeLastRunHash($json);
-
 // Avoid unnecessary downloads
 $foxtrap->cleanup($latestVer);
 
@@ -39,3 +36,6 @@ $config = $factory->getConfigFromFile();
 if ($config['sphinx']['autoindex']) {
   passthru(__DIR__ . '/foxtrap-indexer');
 }
+
+// Avoid future processing of the same data.
+$foxtrap->writeLastRunHash($json);
