@@ -103,6 +103,26 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
   }
 
   /**
+   * @group markLastModTimeConsidersTagModTime
+   * @test
+   */
+  public function markLastModTimeConsidersTagModTime()
+  {
+    $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
+    $arr = self::$foxtrap->jsonToArray($json);
+
+    $found = false;
+    foreach ($arr['marks'] as $mark) {
+      if ('https://twitter.com/' == $mark['uri']) {
+        $this->assertSame(1316495070343835, $mark['lastModified']);
+        $found = true;
+      }
+    }
+
+    $this->assertTrue($found);
+  }
+
+  /**
    * @group registerMarksDetectsDupes
    * @test
    */

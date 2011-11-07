@@ -210,8 +210,13 @@ class Foxtrap
       }
     }
 
-    // COLLECT ALL TAGS FOR EACH PAGE
-    // (keys = URI hashes, values = array of tag strings)
+    // Collect tag modification times to override page modification times
+    // in case the former is more recent.
+    // URI hashes => timestamps
+    $tagsModified = array();
+
+    // Collect page tags.
+    // URI hashes => array of tag names
     $pageTags = array();
     foreach ($tags['children'] as $tag) {
       $tagTitle = $tag['title'];
@@ -221,17 +226,26 @@ class Foxtrap
           $pageTags[$uriHash] = array();
         }
         $pageTags[$uriHash][] = $tagTitle;
+        $tagsModified[$page['uri']] = $page['lastModified'];
       }
     }
 
-    // Strip unused elements
+    // Page fields to keep.
     $kept = array_flip(array('uri', 'title', 'lastModified'));
+
     foreach ($unsorted['children'] as $pos => $child) {
+      // Strip unused elements.
       foreach ($child as $key => $val) {
         if (!array_key_exists($key, $kept)) {
           unset($unsorted['children'][$pos][$key]);
         }
       }
+
+      // Resolve last known modification time.
+      $unsorted['children'][$pos]['lastModified'] = max(
+        $unsorted['children'][$pos]['lastModified'],
+        $tagsModified[$child['uri']]
+      );
     }
 
     return array('marks' => $unsorted['children'], 'pageTags' => $pageTags);
@@ -249,6 +263,7 @@ class Foxtrap
 
     foreach ($fileData['marks'] as $mark) {
       $lastModified = (int) substr($mark['lastModified'], 0, 10);
+
       $uriHash = md5($mark['uri']);
       if (isset($fileData['pageTags'][$uriHash])) {
         $pageTagsStr = implode(' ', $fileData['pageTags'][$uriHash]);
@@ -256,15 +271,15 @@ class Foxtrap
         $pageTagsStr = '';
       }
 
-      // For marks tagged as 'nosave', set an error state to prevent download
+      // For marks tagged as 'nosave', set an error state to prevent download.
       if (false === strpos($pageTagsStr, 'nosave')) {
         $lastErr = '';
       } else {
         $lastErr = 'nosave';
       }
 
-      // multiple bookmarks may point to the same base uri but different fragments,
-      // so use the fragment-less URI to avoid duplicates
+      // Multiple bookmarks may point to the same base uri but different fragments,
+      // so use the fragment-less URI to avoid duplicates.
       $uriHashWithoutFrag = md5(
         preg_replace('/#[^!].*$/','', $mark['uri'])
       );
