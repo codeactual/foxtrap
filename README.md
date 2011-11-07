@@ -20,6 +20,7 @@ Includes a search page with instant/as-you-type results and history-based keywor
 1. Create a new database and import `config/foxtrap.sql`.
 1. Customize the "dist" configuration files under `config/`.
 1. [Export bookmarks as JSON.](http://support.mozilla.com/en-US/kb/Backing%20up%20and%20restoring%20bookmarks#w_manual-backup)
-1. Run `foxtrap`.
+1. `foxtrap --file bookmarks.json`
+1. Start Sphinx:`bin/foxtrap-searchd-start`
 1. Setup a document root at `pub/`.
 1. (Recommended) Set up a cron to run `foxtrap` on the latest JSON file periodically created by Firefox in `bookmarkbackups/` under your profile's directory.

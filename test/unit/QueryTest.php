@@ -19,6 +19,7 @@ class QueryTest extends PHPUnit_Framework_TestCase
     $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
     self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
     self::$foxtrap->download();
+    exec(__DIR__ . '/../../bin/foxtrap-test-indexer');
   }
 
   /**
