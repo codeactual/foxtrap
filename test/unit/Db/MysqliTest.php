@@ -36,6 +36,18 @@ class MysqliTest extends PHPUnit_Framework_TestCase
   }
 
   /**
+   * @group getsMarkMetaByUri
+   * @test
+   */
+  public function getsMarkMetaByUri()
+  {
+    $expected = TestData\registerRandomMark(self::$db);
+    $actual = self::$db->getMarkMetaByUri($expected['uri']);
+    $this->assertSame($expected['title'], $actual['title']);
+    $this->assertSame($expected['tags'], $actual['tags']);
+  }
+
+  /**
    * @group registersMark
    * @test
    */

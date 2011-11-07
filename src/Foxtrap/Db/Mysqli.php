@@ -235,6 +235,27 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
+  public function getMarkMetaByUri($uri)
+  {
+    $sql = "
+      SELECT `title`, `tags`
+      FROM `{$this->table}`
+      WHERE `uri_hash` = ?";
+
+    $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('s', md5($uri));
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$stmt->error} ({$stmt->errno})");
+    }
+
+    $result = $stmt->get_result();
+    return $result->fetch_array(MYSQLI_ASSOC);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getMarkById($id)
   {
     $sql = "

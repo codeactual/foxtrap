@@ -10,10 +10,11 @@ use \Foxtrap\Db\Api;
  */
 function registerRandomMark(Api $db, array $overrides = array())
 {
+  $uri = 'http://' . uniqid() . '.com/';
   $expected = array(
     'title' => uniqid(),
-    'uri' => uniqid(),
-    'uri_hash' => uniqid(),
+    'uri' => $uri,
+    'uri_hash' => md5($uri),
     'tags' => uniqid(),
     'last_err' => '',
     'modified' => time() - mt_rand(1, 3600),

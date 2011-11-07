@@ -87,6 +87,13 @@ class Blackhole implements Api
   /**
    * {@inheritdoc}
    */
+  public function getMarkMetaByUri($uri)
+  {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getMarkById($id)
   {
   }

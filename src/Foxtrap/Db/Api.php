@@ -89,6 +89,17 @@ interface Api
   public function getMarksToDownload();
 
   /**
+   * Get a mark's primary metadata.
+   *
+   * @return array An array for each mark with:
+   * - string 'title'
+   * - string 'tags'
+   * @throws Exception
+   * - on read error
+   */
+  public function getMarkMetaByUri($uri);
+
+  /**
    * Get URIs and related fields of bookmarks awaiting download.
    *
    * @return array An array for each mark with:
