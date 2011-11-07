@@ -28,10 +28,10 @@ class MysqliTest extends PHPUnit_Framework_TestCase
   public function detectsConnectError()
   {
     try {
-      self::$db->createLink('localhost', 'localhost', 'localhost');
+      self::$db->createLink('badhost', 'baduser', 'badpw');
       $this->fail('did not detect connect error');
     } catch (Exception $e) {
-      $this->assertContains('Access denied for user', $e->getMessage());
+      $this->assertContains('Name or service not known', $e->getMessage());
     }
   }
 

@@ -12,12 +12,14 @@ class FactoryTest extends PHPUnit_Framework_TestCase
     self::$baseConfig = array(
       'db' => array(
         'class' => 'Blackhole',
-        'opts' => array('event', 'horizon'),
+        'connect' => array('event', 'horizon'),
       ),
       'sphinx' => array(
-        'host' => 'localhost',
-        'port' => 9312,
-        'index' => 'foxtrap',
+        'connect' => array(
+          'host' => 'localhost',
+          'port' => 9312,
+          'index' => 'foxtrap'
+        ),
         'historyTable' => 'searches',
         'weights' => array(
           'tags' => 40,
@@ -76,7 +78,7 @@ class FactoryTest extends PHPUnit_Framework_TestCase
     $this->assertInstanceOf('\\Foxtrap\\Query', $foxtrap->getQuery());
 
     // Blackhole::createLink() just returns the options it's sent as an object
-    $this->assertEquals((object) $config['db']['opts'], $foxtrap->getDb()->link);
+    $this->assertEquals((object) $config['db']['connect'], $foxtrap->getDb()->link);
 
     $purifierConfig = $foxtrap->getPurifier()->config->getAll();
     foreach ($config['htmlpurifier'] as $key => $value) {

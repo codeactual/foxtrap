@@ -26,15 +26,21 @@ class Query
   protected $db;
 
   /**
-   * @var array 'sphinx' element from config.php
+   * @var array Non-connection fields under 'sphinx' from config.php
    */
   protected $config;
 
-  public function __construct(SphinxClient $cl, DbApi $db, array $config)
+  /**
+   * @var string
+   */
+  protected $index;
+
+  public function __construct(SphinxClient $cl, DbApi $db, $index, array $config)
   {
     $this->cl = $cl;
     $this->db = $db;
     $this->config = $config;
+    $this->index = $index;
 
     $this->cl->SetFieldWeights($this->config['weights']);
   }
@@ -80,7 +86,7 @@ class Query
     $this->cl->SetMatchMode($match);
     $this->cl->SetSortMode($sortMode, $sortAttr);
 
-    $results = $this->cl->Query($q, $this->config['index']);
+    $results = $this->cl->Query($q, $this->index);
 
     if (empty($results['matches'])) {
       return $docs;
@@ -115,7 +121,7 @@ class Query
 
     $res = $this->cl->BuildExcerpts(
       $docBodies,
-      $this->config['index'],
+      $this->index,
       $q,
       $this->config['excerpts']
     );

@@ -5,16 +5,23 @@ $config = array(
     // \Foxtrap\Db\Mysqli
     'class' => 'Mysqli',
     // Passed to mysqli_connect()
-    'opts' => array('localhost', 'user', 'pass', 'foxtrap'),
-    'testOpts' => array('localhost', 'user', 'pass', 'foxtrap'),
+    'connect' => array('localhost', 'user', 'pass', 'foxtrap'),
+    'testConnect' => array('localhost', 'user', 'pass', 'foxtrap'),
     // Pairs specific to the DB class
     'table' => 'marks',
     'historyTable' => 'searches'
   ),
   'sphinx' => array(
-    'host' => 'localhost',
-    'port' => 9312,
-    'index' => 'foxtrap',
+    'connect' => array(
+      'host' => 'localhost',
+      'port' => 9312,
+      'index' => 'foxtrap'
+    ),
+    'testConnect' => array(
+      'host' => 'localhost',
+      'port' => 9313,
+      'index' => 'foxtrap_test'
+    ),
 
     // SphinxClient::SetFieldWeights() options
     'weights' => array(

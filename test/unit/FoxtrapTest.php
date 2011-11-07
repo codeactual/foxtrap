@@ -175,7 +175,7 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
     $this->assertSame('Twitter', $mark['title']);
     $this->assertSame(md5($mark['uri']), $mark['uri_hash']);
     $this->assertSame('social', $mark['tags']);
-    $this->assertSame(1316494982, strtotime($mark['modified']));
+    $this->assertSame(1316495070, strtotime($mark['modified']));
   }
 
   /**

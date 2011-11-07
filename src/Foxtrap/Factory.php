@@ -50,7 +50,8 @@ class Factory
   public function createTestInstance()
   {
     $config = $this->getConfigFromFile();
-    $config['db']['opts'] = $config['db']['testOpts'];
+    $config['db']['connect'] = $config['db']['testConnect'];
+    $config['sphinx']['connect'] = $config['sphinx']['testConnect'];
     return $this->createInstanceFromArray($config);
   }
 
@@ -68,7 +69,7 @@ class Factory
     $dbClass = "\\Foxtrap\\Db\\{$config['db']['class']}";
     $dbLink = call_user_func_array(
       array($dbClass, 'createLink'),
-      $config['db']['opts']
+      $config['db']['connect']
     );
     $db = new $dbClass($dbLink, $config);
 
@@ -86,8 +87,16 @@ class Factory
     $log = new $logClass();
 
     $cl = new SphinxClient();
-    $cl->SetServer($config['sphinx']['host'], $config['sphinx']['port']);
-    $query = new Query($cl, $db, $config['sphinx']);
+    $cl->SetServer(
+      $config['sphinx']['connect']['host'],
+      $config['sphinx']['connect']['port']
+    );
+    $query = new Query(
+      $cl,
+      $db,
+      $config['sphinx']['connect']['index'],
+      $config['sphinx']
+    );
 
     return new Foxtrap($queue, $db, $purifier, $log, $query);
   }

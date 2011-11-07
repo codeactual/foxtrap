@@ -118,6 +118,7 @@ class QueryTest extends PHPUnit_Framework_TestCase
   public function runsQuery($q, $matchMode, $sortMode, $sortAttr, $expected)
   {
     $results = self::$query->run($q, $matchMode, $sortMode, $sortAttr);
+    $actual = array();
     foreach ($results as $res) {
       $actual[] = $res->domain;
     }

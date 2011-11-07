@@ -44,7 +44,7 @@ class Mysqli implements Api
   {
     $this->link = $link;
     $this->table = $config['db']['table'];
-    $this->testDbName = $config['db']['testOpts'][3] ?: '';
+    $this->testDbName = $config['db']['testConnect'][3] ?: '';
     $this->historyTable = $config['db']['historyTable'];
   }
 
