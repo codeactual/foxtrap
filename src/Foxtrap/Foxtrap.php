@@ -66,17 +66,19 @@ class Foxtrap
   /**
    * Sync-related maintenance.
    *
-   * @param int $latestVer Latest import version ID (timestamp)
-   * @return array Amounts of marks affected
+   * @param array $pruneIds IDs of marks removed in Firefox.
+   * @return array Amounts of marks affected.
    * - int 'pruned' Removed from the database due to removal in Firefox
    * - int 'flagged' Content fields erased, flagged as 'nosave'
    */
-  public function cleanup($latestVer)
+  public function cleanup(array $pruneIds)
   {
-    return array(
-      'pruned' => $this->db->pruneRemovedMarks($latestVer),
-      'flagged' => $this->db->flagNonDownloadable()
-    );
+    $results = array();
+    $results['flagged'] = $this->db->flagNonDownloadable();
+    if ($pruneIds) {
+      $results['pruned'] = $this->db->deleteMarksById($pruneIds);
+    }
+    return $results;
   }
 
   /**
@@ -107,6 +109,25 @@ class Foxtrap
   }
 
   /**
+   * Return body text with redundant whitespace and markup removed.
+   *
+   * @param string $text
+   * @return string
+   */
+  public function cleanResponseBody($text)
+  {
+    // Ensure text in adjacent tags are spaced out after purify().
+    $text = preg_replace('/(<\/[a-z]+>)/', '  \1 ', $text);
+    $text = preg_replace('/(<[a-z]+ ?\/>)/', '  \1', $text);
+
+    $text = $this->purifier->purify($text);
+
+    // Normalize/strip whitespace.
+    $text = preg_replace('/\s/', ' ', $text);
+    return trim(preg_replace('/\s{2,}/', ' ', $text));
+  }
+
+  /**
    * Return a CurlyQueue handler for successful response events.
    *
    * @return void
@@ -121,12 +142,11 @@ class Foxtrap
     if (0 === $errno) {
       $info = curl_getinfo($ch);
       if (200 == $info['http_code'] && strlen($content)) {
-        if (!mb_check_encoding($content, 'UTF-8')) {
-          $content = utf8_encode($content);
-        }
-        $contentClean = preg_replace('/\s{2,}/', ' ', trim($content));
-        $contentClean = $this->purifier->purify($contentClean);
-        $this->db->saveSuccess($content, $contentClean, $context['id']);
+        $this->db->saveSuccess(
+          $content,
+          $this->cleanResponseBody($content),
+          $context['id']
+        );
       } else {
         $error = json_encode($info);
       }
@@ -135,7 +155,7 @@ class Foxtrap
     }
 
     if ($error) {
-      $this->db->saveError($error_stmt, $context['id']);
+      $this->db->saveError($error, $context['id']);
       $error = $error ? "({$error})" : '';
     }
 
@@ -231,7 +251,7 @@ class Foxtrap
     }
 
     // Page fields to keep.
-    $kept = array_flip(array('uri', 'title', 'lastModified'));
+    $kept = array_flip(array('uri', 'title', 'lastModified', 'dateAdded'));
 
     foreach ($unsorted['children'] as $pos => $child) {
       // Strip unused elements.
@@ -252,52 +272,77 @@ class Foxtrap
   }
 
   /**
+   * Generate a bookmark's hash.
+   *
+   * @param string $title
+   * @param string $uri
+   * @param string $tags Comma separated.
+   * @param int $added UNIX timestamp.
+   * @return string
+   */
+  public function generateMarkHash($uri, $title, $tags, $added)
+  {
+    // Encode for predictability (to match other `marks` text columns).
+    return md5(utf8_encode($uri . $title . $tags . strval($added)));
+  }
+
+  /**
    * Use output from jsonToArray() to add/update each URI's DB record.
    *
    * @param array $fileData See jsonToArray().
-   * @return int Latest version ID (timestamp).
+   * @return array IDs to prune due to removal/update of mark in FF.
    */
   public function registerMarks(array $fileData)
   {
-    $version = time();
+    $pruneIds = array();
+
+    $prevHashes = $this->db->getMarkHashes();
 
     foreach ($fileData['marks'] as $mark) {
-      $lastModified = (int) substr($mark['lastModified'], 0, 10);
-
+      $mark['lastModified'] = (int) substr($mark['lastModified'], 0, 10);
+      $mark['dateAdded'] = (int) substr($mark['dateAdded'], 0, 10);
       $uriHash = md5($mark['uri']);
-      if (isset($fileData['pageTags'][$uriHash])) {
-        $pageTagsStr = implode(' ', $fileData['pageTags'][$uriHash]);
+
+      if (empty($fileData['pageTags'][$uriHash])) {
+        $tags = '';
       } else {
-        $pageTagsStr = '';
+        $tags = implode(',', $fileData['pageTags'][$uriHash]);
+      }
+
+      $curHash = $this->generateMarkHash($mark['uri'], $mark['title'], $tags, $mark['dateAdded']);
+
+      if (isset($prevHashes[$curHash])) {
+        unset($prevHashes[$curHash]);
+        continue;
       }
 
       // For marks tagged as 'nosave', set an error state to prevent download.
-      if (false === strpos($pageTagsStr, 'nosave')) {
+      if (false === strpos($tags, 'nosave')) {
         $lastErr = '';
       } else {
         $lastErr = 'nosave';
       }
 
-      // Multiple bookmarks may point to the same base uri but different fragments,
-      // so use the fragment-less URI to avoid duplicates.
-      $uriHashWithoutFrag = md5(
-        preg_replace('/#[^!].*$/','', $mark['uri'])
-      );
-
       $this->db->register(
         array(
           'title' => $mark['title'],
           'uri' => $mark['uri'],
-          'uri_hash' => $uriHashWithoutFrag,
-          'tags' => $pageTagsStr,
+          'hash' => $curHash,
+          'tags' => $tags,
           'last_err' => $lastErr,
-          'modified' => $lastModified,
-          'version' => $version
+          'modified' => $mark['lastModified'],
+          'added' => $mark['dateAdded']
         )
       );
+
+      unset($prevHashes[$curHash]);
     }
 
-    return $version;
+    foreach ($prevHashes as $hash => $id) {
+      $pruneIds[] = $id;
+    }
+
+    return $pruneIds;
   }
 
   /**

@@ -73,21 +73,7 @@ class Blackhole implements Api
   /**
    * {@inheritdoc}
    */
-  public function pruneRemovedMarks($version)
-  {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getMarksToDownload()
-  {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getMarkMetaByUri($uri)
   {
   }
 
@@ -123,6 +109,13 @@ class Blackhole implements Api
    * {@inheritdoc}
    */
   public function getHistory($limit)
+  {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteMarksById(array $uri)
   {
   }
 }

@@ -28,15 +28,13 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
   public function cleansUp()
   {
     // Should flag as non-downloadable
-    $target1 = TestData\registerRandomMark(self::$db, array('tags' => 'tag1 nosave tag2'));
+    $target1 = TestData\registerRandomMark(self::$foxtrap, array('tags' => 'tag1,nosave,tag2'));
     self::$db->saveSuccess('html', 'plaintext', 1);
 
     // Should prune as mark no longer in FF
-    $oldVersion = 10;
-    $newVersion = $oldVersion + 1;
-    $target2 = TestData\registerRandomMark(self::$db, array('version' => $oldVersion));
+    $target2 = TestData\registerRandomMark(self::$foxtrap);
 
-    $ignored = TestData\registerRandomMark(self::$db);
+    $ignored = TestData\registerRandomMark(self::$foxtrap);
 
     // Verify initial state
     $actual = self::$db->getMarkById(1);
@@ -46,7 +44,8 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
     $actual = self::$db->getMarkById(3);
     $this->assertSame($ignored['uri'], $actual['uri']);
 
-    $affected = self::$foxtrap->cleanup($newVersion);
+    // Remove $target2
+    $affected = self::$foxtrap->cleanup(array(2));
 
     // Verify basic results
     $this->assertSame(1, $affected['pruned']);
@@ -57,7 +56,7 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
     $this->assertSame('', $actual['body']);
     $this->assertSame('', $actual['body_clean']);
     $this->assertSame('nosave', $actual['last_err']);
-    $this->assertSame(0, $actual['saved']);
+    $this->assertSame(0, $actual['downloaded']);
 
     // Verify pruning result
     $this->assertSame(null, self::$db->getMarkById(2));
@@ -103,6 +102,23 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
   }
 
   /**
+   * @group generatesMarkHash
+   * @test
+   */
+  public function generatesMarkHash()
+  {
+    $this->assertSame(
+      '968d9da0d79159049c5c44e8f85e8304',
+      self::$foxtrap->generateMarkHash(
+        'https://twitter.com/',
+        'Twitter',
+        'social',
+        1316495070
+      )
+    );
+  }
+
+  /**
    * @group markLastModTimeConsidersTagModTime
    * @test
    */
@@ -123,24 +139,63 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
   }
 
   /**
-   * @group registerMarksDetectsDupes
+   * FF allows them, so importing is simpler if we do too.
+   *
+   * @group registerMarksAllowsDupes
    * @test
    */
-  public function registerMarksDetectsDupes()
+  public function registerMarksAllowsDupes()
   {
-    // http://www.google.com/search?q=php
-    // http://www.google.com/search?q=php#frag1
-    // http://www.google.com/search?q=php#frag2
     $json = file_get_contents(__DIR__ . '/../fixture/google-with-fragments.json');
     self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
     $toDownload = self::$db->getMarksToDownload();
 
-    // Verify fragments don't affect dupe-detection
-    $expectedUriWithoutFrag = 'http://www.google.com/search?q=php';
-    $this->assertSame(1, count($toDownload));
+    $this->assertSame(3, count($toDownload));
     $mark = self::$db->getMarkById(1);
-    $this->assertSame($expectedUriWithoutFrag, $mark['uri']);
-    $this->assertSame(md5($expectedUriWithoutFrag), $mark['uri_hash']);
+    $this->assertSame('http://www.google.com/search?q=php', $mark['uri']);
+    $mark = self::$db->getMarkById(2);
+    $this->assertSame('http://www.google.com/search?q=php#frag1', $mark['uri']);
+    $mark = self::$db->getMarkById(3);
+    $this->assertSame('http://www.google.com/search?q=php#frag2', $mark['uri']);
+  }
+
+  /**
+   * @group registerMarksDetectsUriRemoval
+   * @test
+   */
+  public function registerMarksDetectsUriRemoval()
+  {
+    $json = file_get_contents(__DIR__ . '/../fixture/entities-to-encode.json');
+    $pruneIds = self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
+    $this->assertCount(0, $pruneIds);
+
+    $json = file_get_contents(__DIR__ . '/../fixture/entities-to-encode-2-removed.json');
+    $pruneIds = self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
+    $this->assertCount(2, $pruneIds);
+
+    $mark = self::$db->getMarkById(1);
+    $this->assertSame('http://www.w3schools.com/tags/ref_symbols.asp', $mark['uri']);
+    $mark = self::$db->getMarkById(2);
+    $this->assertSame('http://redis.io/topics/pubsub', $mark['uri']);
+    $mark = self::$db->getMarkById(3);
+    $this->assertSame('http://www.slideshare.net/AmazonWebServices/predicting-costs-on-aws', $mark['uri']);
+  }
+
+  /**
+   * @group registerMarksDetectsTagRemoval
+   * @test
+   */
+  public function registerMarksDetectsTagRemoval()
+  {
+    $json = file_get_contents(__DIR__ . '/../fixture/entities-to-encode.json');
+    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
+    $mark = self::$db->getMarkById(5);
+    $this->assertSame('tag 1,tag2', $mark['tags']);
+
+    $json = file_get_contents(__DIR__ . '/../fixture/entities-to-encode-1-tag-removed.json');
+    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
+    $mark = self::$db->getMarkById(7);
+    $this->assertSame('tag 1', $mark['tags']);
   }
 
   /**
@@ -173,9 +228,19 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
     $mark = self::$db->getMarkById(1);
     $this->assertSame('https://twitter.com/', $mark['uri']);
     $this->assertSame('Twitter', $mark['title']);
-    $this->assertSame(md5($mark['uri']), $mark['uri_hash']);
+    $this->assertSame(
+      self::$foxtrap->generateMarkHash(
+        $mark['uri'],
+        $mark['title'],
+        $mark['tags'],
+        $mark['added']
+      ),
+      $mark['hash']
+    );
     $this->assertSame('social', $mark['tags']);
-    $this->assertSame(1316495070, strtotime($mark['modified']));
+    $this->assertSame(1316494982, $mark['added']);
+    $this->assertSame(1316495070, $mark['modified']);
+    $this->assertSame(0, $mark['downloaded']);
   }
 
   /**
@@ -208,10 +273,10 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
   public function downloads()
   {
     $google = TestData\registerRandomMark(
-      self::$db, array('uri' => 'http://www.facebook.com/')
+      self::$foxtrap, array('uri' => 'http://www.facebook.com/')
     );
     $yahoo = TestData\registerRandomMark(
-      self::$db, array('uri' => 'http://www.yahoo.com/')
+      self::$foxtrap, array('uri' => 'http://www.yahoo.com/')
     );
 
     self::$foxtrap->download();

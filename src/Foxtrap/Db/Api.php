@@ -30,7 +30,6 @@ interface Api
    * - string 'tags'
    * - string 'last_err'
    * - string 'modified'
-   * - int 'version'
    * @return void
    * @throws Exception
    * - on write error
@@ -66,18 +65,6 @@ interface Api
   public function flagNonDownloadable();
 
   /**
-   * Remove URIs and related fields based on bookmarks which are no longer
-   * in the source JSON from Firefox.
-   *
-   * @param int $version Latest import version ID (timestamp).
-   * @return int Marks removed.
-   * @throws Exception
-   * - on non-positive version number
-   * - on write error
-   */
-  public function pruneRemovedMarks($version);
-
-  /**
    * Get all bookmarks awaiting download.
    *
    * @return array An array for each mark with:
@@ -87,17 +74,6 @@ interface Api
    * - on read error
    */
   public function getMarksToDownload();
-
-  /**
-   * Get a mark's primary metadata.
-   *
-   * @return array An array for each mark with:
-   * - string 'title'
-   * - string 'tags'
-   * @throws Exception
-   * - on read error
-   */
-  public function getMarkMetaByUri($uri);
 
   /**
    * Get URIs and related fields of bookmarks awaiting download.
@@ -112,7 +88,6 @@ interface Api
    * - int 'modified'
    * - int 'saved'
    * - string 'last_err'
-   * - int 'version'
    * @throws Exception
    * - on read error
    */
@@ -159,4 +134,13 @@ interface Api
    * - on read error
    */
   public function getHistory($limit);
+
+  /**
+   * Delete marks by ID.
+   *
+   * @return array IDs.
+   * @throws Exception
+   * - on write error
+   */
+  public function deleteMarksById(array $uri);
 }

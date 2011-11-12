@@ -2,25 +2,25 @@
 
 namespace TestData;
 
-use \Foxtrap\Db\Api;
+use \Foxtrap\Foxtrap;
 
 /**
  * @param array $override Key/value pairs to override random selection.
  * @return array Expected field names and values of the created row.
  */
-function registerRandomMark(Api $db, array $overrides = array())
+function registerRandomMark(Foxtrap $foxtrap, array $overrides = array())
 {
   $uri = 'http://' . uniqid() . '.com/';
   $expected = array(
-    'title' => uniqid(),
+    'title' => 'Title ¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹',
     'uri' => $uri,
-    'uri_hash' => md5($uri),
-    'tags' => uniqid(),
+    'tags' => '¥£€$,¢₡₢₣,₤₥₦₧,₨₩₪₫,₭₮₯₹',
     'last_err' => '',
-    'modified' => time() - mt_rand(1, 3600),
-    'version' => time()
+    'added' => time() - mt_rand(1, 3600),
+    'modified' => time()
   );
+  $expected['hash'] = $foxtrap->generateMarkHash($expected['title'], $expected['uri'], $expected['tags'], $expected['added']);
   $expected = array_merge($expected, $overrides);
-  $db->register($expected);
+  $foxtrap->getDb()->register($expected);
   return $expected;
 }

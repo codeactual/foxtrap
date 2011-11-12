@@ -52,6 +52,7 @@ class Factory
     $config = $this->getConfigFromFile();
     $config['db']['connect'] = $config['db']['testConnect'];
     $config['sphinx']['connect'] = $config['sphinx']['testConnect'];
+    $config['log']['class'] = 'Blackhole';
     return $this->createInstanceFromArray($config);
   }
 

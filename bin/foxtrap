@@ -23,10 +23,10 @@ if ($foxtrap->isLastRunInputSame($json)) {
 $imported = $foxtrap->jsonToArray($json);
 
 // Add/update their details
-$latestVer = $foxtrap->registerMarks($imported);
+$pruneIds = $foxtrap->registerMarks($imported);
 
 // Avoid unnecessary downloads
-$foxtrap->cleanup($latestVer);
+$foxtrap->cleanup($pruneIds);
 
 // Download any recently added or retry those with cleared error states
 $foxtrap->download();

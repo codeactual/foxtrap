@@ -83,13 +83,13 @@ class Mysqli implements Api
       (
         `title`,
         `uri`,
-        `uri_hash`,
+        `hash`,
         `tags`,
         `body`,
         `body_clean`,
         `last_err`,
         `modified`,
-        `version`
+        `added`
       )
       VALUES
       (
@@ -100,24 +100,23 @@ class Mysqli implements Api
         '',
         '',
         ?,
-        FROM_UNIXTIME(?),
+        ?,
         ?
       )
       ON DUPLICATE KEY UPDATE
-        `version` = VALUES(`version`),
         `tags` = VALUES(`tags`),
         `title` = VALUES(`title`)";
 
     $stmt = $this->link->prepare($sql);
     $stmt->bind_param(
       'sssssdd',
-      $mark['title'],
-      $mark['uri'],
-      $mark['uri_hash'],
-      $mark['tags'],
+      utf8_encode($mark['title']),
+      utf8_encode($mark['uri']),
+      $mark['hash'],
+      utf8_encode($mark['tags']),
       $mark['last_err'],
       $mark['modified'],
-      $mark['version']
+      $mark['added']
     );
     $stmt->execute();
     if ($stmt->error) {
@@ -135,12 +134,12 @@ class Mysqli implements Api
       SET
         `body` = ?,
         `body_clean` = ?,
-        `saved` = 1,
+        `downloaded` = UNIX_TIMESTAMP(),
         `last_err` = ''
       WHERE `id` = ?";
 
     $stmt = $this->link->prepare($sql);
-    $stmt->bind_param('ssd', $body, $bodyClean, $id);
+    $stmt->bind_param('ssd', utf8_encode($body), utf8_encode($bodyClean), $id);
     $stmt->execute();
     if ($stmt->error) {
       throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
@@ -171,32 +170,13 @@ class Mysqli implements Api
       SET
         `body` = '',
         `body_clean` = '',
-        `saved` = 0,
+        `downloaded` = 0,
         `last_err` = 'nosave'
       WHERE
         `tags` LIKE '%nosave%'
         AND `body` != ''";
 
     $stmt = $this->link->prepare($sql);
-    $stmt->execute();
-    if ($stmt->error) {
-      throw new Exception("{$stmt->error} ({$stmt->errno})");
-    }
-
-    return $stmt->affected_rows;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function pruneRemovedMarks($version)
-  {
-    $sql = "
-      DELETE FROM `{$this->table}`
-      WHERE `version` < ?";
-
-    $stmt = $this->link->prepare($sql);
-    $stmt->bind_param('d', $version);
     $stmt->execute();
     if ($stmt->error) {
       throw new Exception("{$stmt->error} ({$stmt->errno})");
@@ -215,7 +195,7 @@ class Mysqli implements Api
         `id`, `uri`
       FROM `{$this->table}`
       WHERE
-        `saved` = 0
+        `downloaded` = 0
         AND `last_err` = ''";
 
     $stmt = $this->link->prepare($sql);
@@ -230,27 +210,6 @@ class Mysqli implements Api
       $queue[] = $row;
     }
     return $queue;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getMarkMetaByUri($uri)
-  {
-    $sql = "
-      SELECT `title`, `tags`
-      FROM `{$this->table}`
-      WHERE `uri_hash` = ?";
-
-    $stmt = $this->link->prepare($sql);
-    $stmt->bind_param('s', md5($uri));
-    $stmt->execute();
-    if ($stmt->error) {
-      throw new Exception("{$stmt->error} ({$stmt->errno})");
-    }
-
-    $result = $stmt->get_result();
-    return $result->fetch_array(MYSQLI_ASSOC);
   }
 
   /**
@@ -271,7 +230,15 @@ class Mysqli implements Api
     }
 
     $result = $stmt->get_result();
-    return $result->fetch_array(MYSQLI_ASSOC);
+    $mark = $result->fetch_array(MYSQLI_ASSOC);
+    if ($mark['id']) {
+      $mark['uri'] = utf8_decode($mark['uri']);
+      $mark['title'] = utf8_decode($mark['title']);
+      $mark['tags'] = utf8_decode($mark['tags']);
+      $mark['body'] = utf8_decode($mark['body']);
+      $mark['body_clean'] = utf8_decode($mark['body_clean']);
+    }
+    return $mark;
   }
 
   /**
@@ -298,7 +265,30 @@ class Mysqli implements Api
     $result = $this->link->query($sql);
     if ($result) {
       while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+        $row['title'] = utf8_decode($row['title']);
+        $row['tags'] = utf8_decode($row['tags']);
+        $row['body_clean'] = utf8_decode($row['body_clean']);
         $marks[$row['id']] = $row;
+      }
+    }
+
+    return $marks;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMarkHashes()
+  {
+    $marks = array();
+    $sql = "
+      SELECT `id`, `hash`
+      FROM `{$this->table}`";
+
+    $result = $this->link->query($sql);
+    if ($result) {
+      while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+        $marks[$row['hash']] = $row['id'];
       }
     }
 
@@ -310,6 +300,7 @@ class Mysqli implements Api
    */
   public function addHistory($q)
   {
+    $q = utf8_encode($q);
     $sql = "
       INSERT INTO `{$this->historyTable}`
       (`query`, `query_hash`)
@@ -344,9 +335,27 @@ class Mysqli implements Api
     $data = array();
     if ($result) {
       while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
-        $data[] = (object) array('query' => $row['query']);
+        $data[] = (object) array('query' => utf8_decode($row['query']));
       }
     }
     return $data;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteMarksById(array $ids)
+  {
+    $sql = "
+      DELETE FROM `{$this->table}`
+      WHERE `id` IN(" . implode(',', $ids) . ')';
+
+    $stmt = $this->link->prepare($sql);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$stmt->error} ({$stmt->errno})");
+    }
+
+    return $stmt->affected_rows;
   }
 }
