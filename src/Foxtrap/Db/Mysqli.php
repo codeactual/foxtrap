@@ -320,7 +320,7 @@ class Mysqli implements Api
   public function getHistory($limit)
   {
     $sql = "
-      SELECT `query`
+      SELECT `id`, `query`
       FROM `{$this->historyTable}`
       ORDER BY `modified` DESC,`uses` DESC
       LIMIT ?";
@@ -335,7 +335,10 @@ class Mysqli implements Api
     $data = array();
     if ($result) {
       while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
-        $data[] = (object) array('query' => utf8_decode($row['query']));
+        $data[] = (object) array(
+          'id' => $row['id'],
+          'query' => utf8_decode($row['query'])
+        );
       }
     }
     return $data;

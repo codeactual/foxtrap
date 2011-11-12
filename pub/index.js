@@ -7,11 +7,12 @@ YUI().use('autocomplete', 'jsonp', 'array-extras', 'event-delegate', function(Y)
     // Refresh left-panel list of click-generating queries
     refreshHistory: function (response) {
       var template =
-          '<a class="past-query" href="#">#{query}</a>';
+          '<a class="past-query" href="#query-{id}">#{query}</a>';
       if (response.length) {
         response = Y.Array.map(response, function (element) {
           return Y.Lang.sub(template, {
-            query: element.query
+            query: element.query,
+            id: element.id
           });
         });
         var histNode = Y.Node.one('#query-history');
