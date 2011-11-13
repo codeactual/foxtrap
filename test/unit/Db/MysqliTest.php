@@ -87,21 +87,6 @@ class MysqliTest extends PHPUnit_Framework_TestCase
   }
 
   /**
-   * @group cleansResponseBody
-   * @test
-   */
-  public function cleansResponseBody()
-  {
-    $body = file_get_contents(__DIR__ . '/../../fixture/mysql-incorrect-string-type.html');
-    $expected = file_get_contents(__DIR__ . '/../../fixture/mysql-incorrect-string-type-cleaned.html');
-    //$body = file_get_contents('/tmp/asdf');
-    $actual = self::$foxtrap->cleanResponseBody($body);
-    file_put_contents('/tmp/clean', $actual);
-    //$this->assertSame($expected, $actual);
-    $this->assertTrue(true);
-  }
-
-  /**
    * @group savesError
    * @test
    */
