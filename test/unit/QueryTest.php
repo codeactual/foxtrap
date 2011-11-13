@@ -15,10 +15,20 @@ class QueryTest extends PHPUnit_Framework_TestCase
     self::$foxtrap = $factory->createTestInstance();
     self::$query = self::$foxtrap->getQuery();
 
-    self::$foxtrap->getDb()->resetTestDb();
+    $db = self::$foxtrap->getDb();
+    $db->resetTestDb();
     $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
     self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
-    self::$foxtrap->download();
+
+    $body = file_get_contents(__DIR__ . '/../fixture/twitter.html');
+    $db->saveSuccess($body, self::$foxtrap->cleanResponseBody($body), 1);
+    $body = file_get_contents(__DIR__ . '/../fixture/yahoo.html');
+    $db->saveSuccess($body, self::$foxtrap->cleanResponseBody($body), 2);
+    $body = file_get_contents(__DIR__ . '/../fixture/amazon.html');
+    $db->saveSuccess($body, self::$foxtrap->cleanResponseBody($body), 3);
+    $body = file_get_contents(__DIR__ . '/../fixture/google.html');
+    $db->saveSuccess($body, self::$foxtrap->cleanResponseBody($body), 4);
+
     exec(__DIR__ . '/../../bin/foxtrap-test-indexer');
   }
 
@@ -92,21 +102,21 @@ class QueryTest extends PHPUnit_Framework_TestCase
         SPH_MATCH_ANY,
         SPH_SORT_RELEVANCE,
         '',
-        array('www.yahoo.com', 'www.amazon.com'),
+        array('www.yahoo.com', 'www.amazon.com', 'www.google.com'),
       ),
       array(
         'web',
         SPH_MATCH_ANY,
         SPH_SORT_ATTR_ASC,
         'modified',
-        array('www.yahoo.com', 'www.amazon.com'),
+        array('www.google.com', 'www.yahoo.com', 'www.amazon.com'),
       ),
       array(
         'web',
         SPH_MATCH_ANY,
         SPH_SORT_ATTR_DESC,
         'modified',
-        array('www.amazon.com', 'www.yahoo.com'),
+        array('www.amazon.com', 'www.yahoo.com', 'www.google.com'),
       )
     );
   }
