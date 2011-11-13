@@ -122,9 +122,11 @@ class Foxtrap
 
     $text = $this->purifier->purify($text);
 
-    // Normalize/strip whitespace.
-    $text = preg_replace('/\s/', ' ', $text);
-    return trim(preg_replace('/\s{2,}/', ' ', $text));
+    // Normalize non-unicode and unicode whitespace.
+    $text = preg_replace('/\s|\p{Z}/u', ' ', $text);
+
+    // Remove redundant whitespace.
+    return trim(preg_replace('/\s\s+/', ' ', $text));
   }
 
   /**
