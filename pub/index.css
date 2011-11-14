@@ -23,6 +23,9 @@ body {
 .float-clear {
   float: clear;
 }
+.result-template:hover {
+  cursor: pointer;
+}
 .result-template .hd {
   color: #2200C1;
   padding-top: 0.5em;
