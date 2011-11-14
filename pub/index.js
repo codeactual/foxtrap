@@ -66,6 +66,7 @@ $(document).ready(function() {
 
   $('#query-history').on('click', '.past-query', function(event) {
     event.preventDefault();
+    q.val($(this).text());
     q.autocomplete('search', $(this).text());
   });
 
