@@ -7,9 +7,11 @@ header('Content-type: text/html; charset=utf-8');
 <head>
   <title>Foxtrap</title>
   <meta charset="utf-8" />
+  <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.4.1/build/cssgrids/cssgrids-min.css&3.4.1/build/cssreset/cssreset-min.css"/>
   <link href="http://fonts.googleapis.com/css?family=Droid+Sans" rel="stylesheet" type="text/css">
   <link type="text/css" href="index.css" rel="stylesheet" />
-  <script src="http://yui.yahooapis.com/3.4.1/build/yui/yui-min.js" charset="utf-8"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js" charset="utf-8"></script>
+  <script src="jquery-ui-1.8.16.custom.min.js" charset="utf-8"></script>
   <script src="index.js" charset="utf-8"></script>
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 </head>
@@ -19,8 +21,8 @@ header('Content-type: text/html; charset=utf-8');
 </div>
 <div>
   <div id="query-history" class="history-group float-left">&nbsp;</div>
-  <div class="results-group float-left">
-    <div id="results-ac-output"></div>
+  <div id="results" class="results-group float-left">
+    <ul id="results-ac-output"></ul>
   </div>
   <div class="float-clear"></div>
 </div>
