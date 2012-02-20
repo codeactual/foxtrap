@@ -59,9 +59,11 @@ $(document).ready(function() {
     $.ajax({
       url: 'add_history.php',
       dataType: 'jsonp',
-      data: { q: q.val() }
+      data: { q: q.val() },
+      success: function() {
+        refreshHistory();
+      }
     });
-    refreshHistory();
   });
 
   $('#query-history').on('click', '.past-query', function(event) {
