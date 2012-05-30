@@ -108,12 +108,17 @@ class Mysqli implements Api
         `title` = VALUES(`title`)";
 
     $stmt = $this->link->prepare($sql);
+
+    $mark['title'] = utf8_encode($mark['title']);
+    $mark['uri'] = utf8_encode($mark['uri']);
+    $mark['tags'] = utf8_encode($mark['tags']);
+
     $stmt->bind_param(
       'sssssdd',
-      utf8_encode($mark['title']),
-      utf8_encode($mark['uri']),
+      $mark['title'],
+      $mark['uri'],
       $mark['hash'],
-      utf8_encode($mark['tags']),
+      $mark['tags'],
       $mark['last_err'],
       $mark['modified'],
       $mark['added']
@@ -139,7 +144,9 @@ class Mysqli implements Api
       WHERE `id` = ?";
 
     $stmt = $this->link->prepare($sql);
-    $stmt->bind_param('ssd', utf8_encode($body), utf8_encode($bodyClean), $id);
+    $body = utf8_encode($body);
+    $bodyClean = utf8_encode($bodyClean);
+    $stmt->bind_param('ssd', $body, $bodyClean, $id);
     $stmt->execute();
     if ($stmt->error) {
       throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
