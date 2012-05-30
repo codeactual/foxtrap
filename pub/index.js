@@ -70,7 +70,6 @@ $(document).ready(function() {
     $('.opened-result', acOutput).removeClass('opened-result');
     a.addClass('opened-result');
 
-    window.open(a.attr('href'));
     $.ajax({
       url: 'add_history.php',
       dataType: 'jsonp',
@@ -79,7 +78,6 @@ $(document).ready(function() {
         refreshHistory();
       }
     });
-    e.preventDefault();
   });
 
   // Reveal 'View Saved Copy' links when hovering over a result.
