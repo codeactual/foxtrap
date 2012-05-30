@@ -38,7 +38,7 @@ $(document).ready(function() {
           q: request.term
         },
         success: function(data) {
-          $('#results-ac-output').empty();
+          acOutput.empty();
           response(data);
         },
       });
@@ -47,22 +47,27 @@ $(document).ready(function() {
   .data('autocomplete')._renderItem = function(ul, item) {
     item.tags = item.tags ? '(' + item.tags + ')' : '';
     var a = $('<a class="link-wrap"/>'),
+        ft = $('<div class="ft" data-id="' + item.id + '"></div>'),
         li = $('<li class="result-template"></li>');
+
+    ft.append('<div class="excerpt">' + item.excerpt + '</div>');
+    ft.append('<div class="viewer-toggle"><span class="viewer-toggle-label">View Saved Copy</span></div>');
 
     a.attr('href', item.uri);
     a.appendTo(li);
     a.data('item.autocomplete', item)
       .append('<div class="hd">' + item.title + '</div>')
       .append('<div class="bd">' + item.domain + ' <span class="tags">' + item.tags + '</span></div>')
-      .append('<div class="ft">' + item.excerpt + '</div>')
+      .append(ft);
 
     li.appendTo(acOutput);
   };
 
-  $('#results-ac-output').delegate('a.link-wrap', 'click', function(e) {
+  // Open a new tab with the marked URI.
+  acOutput.delegate('.link-wrap', 'click', function(e) {
     var a = $(this);
 
-    $('#results-ac-output .opened-result').removeClass('opened-result');
+    $('.opened-result', acOutput).removeClass('opened-result');
     a.addClass('opened-result');
 
     window.open(a.attr('href'));
@@ -77,10 +82,48 @@ $(document).ready(function() {
     e.preventDefault();
   });
 
+  // Reveal 'View Saved Copy' links when hovering over a result.
+  acOutput.delegate(
+    'a',
+    'hover',
+    function(e) {
+      $('.viewer-toggle-on', acOutput).removeClass('viewer-toggle-on');
+      $('.viewer-toggle', this).addClass('viewer-toggle-on');
+    }
+  );
+
+  // Display the saved copy content below the 'View Saved Copy' link.
+  acOutput.delegate('.viewer-toggle-on', 'click', function(e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    // Remove previously opened saved copy.
+    $('iframe', acOutput).slideUp('fast', function() {
+      $(this).remove();
+    });
+
+    // Add the current saved copy.
+    var viewerToggle = $(this),
+        a = viewerToggle.closest('.link-wrap'),
+        ft = viewerToggle.closest('.ft'),
+        markId = ft.data('id'),
+        iframeId = 'viewer-' + markId,
+        src = 'view.php?markId=' + markId;
+    ft.append('<iframe id="' + iframeId + '" src="' + src +  '"/>');
+    $('#' + iframeId).slideDown('fast');
+
+    // Visually group the search result and the related saved copy.
+    $('.opened-result', acOutput).removeClass('opened-result');
+    a.addClass('opened-result');
+  });
+
+
+  // Populate and submit the search box with a prior query.
   $('#query-history').on('click', '.past-query', function(event) {
+    var query = $(this);
     event.preventDefault();
-    q.val($(this).text());
-    q.autocomplete('search', $(this).text());
+    q.val(query.text());
+    q.autocomplete('search', query.text());
   });
 
   refreshHistory();
