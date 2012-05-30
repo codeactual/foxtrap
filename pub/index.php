@@ -7,11 +7,8 @@ header('Content-type: text/html; charset=utf-8');
 <head>
   <title>Foxtrap</title>
   <meta charset="utf-8" />
-  <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.5.1/build/cssgrids/cssgrids-min.css&3.5.1/build/cssreset/cssreset-min.css"/>
+  <link rel="stylesheet" type="text/css" href="yui-grids-reset.css" />
   <link type="text/css" href="index.css" rel="stylesheet" />
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" charset="utf-8"></script>
-  <script src="jquery-ui.min.js" charset="utf-8"></script>
-  <script src="index.js" charset="utf-8"></script>
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 </head>
 <body>
@@ -29,5 +26,8 @@ header('Content-type: text/html; charset=utf-8');
     </div>
   </div>
 </div>
+<script src="jquery.min.js" charset="utf-8"></script>
+<script src="jquery-ui.min.js" charset="utf-8"></script>
+<script src="index.js" charset="utf-8"></script>
 </body>
 </html>
