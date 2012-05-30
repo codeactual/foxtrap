@@ -1,3 +1,3 @@
 #!/bin/sh
 DIR="$( cd "$( dirname "$0" )" && pwd )"
-indexer -c $DIR/../config/sphinx-test.conf --rotate --all
+nice -n 19 indexer -c $DIR/../config/sphinx-test.conf --rotate --all
