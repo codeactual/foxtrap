@@ -2,7 +2,9 @@
 
 foxtrap imports Firefox bookmark backup files and downloads all pages for full-text indexing of titles, URIs, tags, and body text.
 
-Includes a search page with instant/as-you-type results and history-based keyword suggestions.
+* "Instant" results as you type.
+* Keyword history ranked by queries that led to a clicked link.
+* Sanitized copy of the archived page viewable under each search result.
 
 ![screenshot: saved copy viewer](http://codeactual.github.com/foxtrap/images/saved-copy.png)
 
