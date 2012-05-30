@@ -4,6 +4,8 @@ foxtrap imports Firefox bookmark backup files and downloads all pages for full-t
 
 Includes a search page with instant/as-you-type results and history-based keyword suggestions.
 
+![screenshot: saved copy viewer](http://codeactual.github.com/foxtrap/images/saved-copy.png)
+
 ## Usage
 
 `foxtrap --file bookmarks-YYYY-MM-DD.json`
