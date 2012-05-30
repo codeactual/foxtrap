@@ -10,8 +10,8 @@ header('Content-type: text/html; charset=utf-8');
   <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.5.1/build/cssgrids/cssgrids-min.css&3.5.1/build/cssreset/cssreset-min.css"/>
   <link href="http://fonts.googleapis.com/css?family=Droid+Sans" rel="stylesheet" type="text/css">
   <link type="text/css" href="index.css" rel="stylesheet" />
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js" charset="utf-8"></script>
-  <script src="jquery-ui-1.8.16.custom.min.js" charset="utf-8"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" charset="utf-8"></script>
+  <script src="jquery-ui.min.js" charset="utf-8"></script>
   <script src="index.js" charset="utf-8"></script>
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 </head>
