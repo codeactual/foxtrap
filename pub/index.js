@@ -112,8 +112,10 @@ $(document).ready(function() {
     // Visually group the search result and the related saved copy.
     $('.opened-result', acOutput).removeClass('opened-result');
     a.addClass('opened-result');
-  });
 
+    // Scroll to position the search result at the top.
+    a.get(0).scrollIntoView();
+  });
 
   // Populate and submit the search box with a prior query.
   $('#query-history').on('click', '.past-query', function(event) {
