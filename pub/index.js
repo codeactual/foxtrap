@@ -98,9 +98,7 @@ $(document).ready(function() {
     e.stopImmediatePropagation();
 
     // Remove previously opened saved copy.
-    $('iframe', acOutput).slideUp('fast', function() {
-      $(this).remove();
-    });
+    $('iframe', acOutput).remove();
 
     // Add the current saved copy.
     var viewerToggle = $(this),
@@ -110,7 +108,6 @@ $(document).ready(function() {
         iframeId = 'viewer-' + markId,
         src = 'view.php?markId=' + markId;
     ft.append('<iframe id="' + iframeId + '" src="' + src +  '"/>');
-    $('#' + iframeId).slideDown('fast');
 
     // Visually group the search result and the related saved copy.
     $('.opened-result', acOutput).removeClass('opened-result');
