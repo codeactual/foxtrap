@@ -45,6 +45,11 @@ class FactoryTest extends PHPUnit_Framework_TestCase
           'HTML.TidyLevel' => 'none',
           'HTML.Allowed' => '',
           'Cache.SerializerPath' => '/tmp'
+        ),
+        'viewer' => array(
+          'HTML.TidyLevel' => 'none',
+          'HTML.AllowedAttributes' => '',
+          'Cache.SerializerPath' => '/tmp'
         )
       ),
       'log' => array(
