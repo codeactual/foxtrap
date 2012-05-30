@@ -18,7 +18,8 @@ Includes a search page with instant/as-you-type results and history-based keywor
 
 1. git submodule update --init
 1. Create a new database and import `config/foxtrap.sql`.
-1. Customize the "dist" configuration files under `config/`.
+1. Copy `config/config-dist.php` to `config/config.php` and customize `db` and `sphinx` sections.
+1. Copy `config/sphinx-dist.conf` to `config/sphinx.conf` and replace the placeholders.
 1. [Export bookmarks as JSON.](http://support.mozilla.com/en-US/kb/Backing%20up%20and%20restoring%20bookmarks#w_manual-backup)
 1. `foxtrap --file bookmarks.json`
 1. Start Sphinx:`bin/foxtrap-searchd-start`
