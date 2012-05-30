@@ -46,16 +46,23 @@ $(document).ready(function() {
   })
   .data('autocomplete')._renderItem = function(ul, item) {
     item.tags = item.tags ? '(' + item.tags + ')' : '';
-    $('<li class="result-template" data-uri="' + item.uri + '"></li>')
-      .data('item.autocomplete', item)
+    var a = $('<a class="link-wrap"/>'),
+        li = $('<li class="result-template"></li>');
+
+    a.attr('href', item.uri);
+    a.appendTo(li);
+    a.data('item.autocomplete', item)
       .append('<div class="hd">' + item.title + '</div>')
       .append('<div class="bd">' + item.domain + ' <span class="tags">' + item.tags + '</span></div>')
       .append('<div class="ft">' + item.excerpt + '</div>')
-      .appendTo(acOutput);
+
+    li.appendTo(acOutput);
   };
 
-  $('#results').on('click', 'li', function(e) {
-    window.open($(this).data('uri'));
+  $('#results-ac-output').delegate('a.link-wrap', 'click', function(e) {
+    var a = $(this);
+
+    window.open(a.attr('href'));
     $.ajax({
       url: 'add_history.php',
       dataType: 'jsonp',
@@ -64,6 +71,7 @@ $(document).ready(function() {
         refreshHistory();
       }
     });
+    e.preventDefault();
   });
 
   $('#query-history').on('click', '.past-query', function(event) {
