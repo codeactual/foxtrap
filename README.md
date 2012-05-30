@@ -25,3 +25,11 @@ Includes a search page with instant/as-you-type results and history-based keywor
 1. Start Sphinx:`bin/foxtrap-searchd-start`
 1. Setup a document root at `pub/`.
 1. (Recommended) Set up a cron to run `foxtrap` on the latest JSON file periodically created by Firefox in `bookmarkbackups/` under your profile's directory.
+
+## Running Tests
+
+1. Create a new test database and import `config/foxtrap.sql`.
+1. Customize `testConnect` values in `config/config.php`.
+1. Copy `config/sphinx-test-dist.conf` to `config/sphinx-test.conf` and replace the placeholders.
+1. Start Sphinx (w/ test config):`bin/foxtrap-test-searchd-start`
+1. `phpunit -c test/unit/phpunit.xml test/unit`
