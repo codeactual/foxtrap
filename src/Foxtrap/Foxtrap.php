@@ -264,10 +264,10 @@ class Foxtrap
       }
 
       // Resolve last known modification time.
-      $unsorted['children'][$pos]['lastModified'] = max(
-        $unsorted['children'][$pos]['lastModified'],
-        $tagsModified[$child['uri']]
-      );
+      if (array_key_exists($child['uri'], $tagsModified)
+        && $tagsModified[$child['uri']] > $unsorted['children'][$pos]['lastModified']) {
+        $unsorted['children'][$pos]['lastModified'] = $tagsModified[$child['uri']];
+      }
     }
 
     return array('marks' => $unsorted['children'], 'pageTags' => $pageTags);
