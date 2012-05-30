@@ -41,9 +41,11 @@ class FactoryTest extends PHPUnit_Framework_TestCase
         CURLOPT_MAXREDIRS => 3,
       ),
       'htmlpurifier' => array(
-        'HTML.TidyLevel' => 'heavy',
-        'HTML.Allowed' => 'li',
-        'Cache.SerializerPath' => '/tmp/custom',
+        'index' => array(
+          'HTML.TidyLevel' => 'none',
+          'HTML.Allowed' => '',
+          'Cache.SerializerPath' => '/tmp'
+        )
       ),
       'log' => array(
         'class' => 'Stdout'
@@ -81,7 +83,7 @@ class FactoryTest extends PHPUnit_Framework_TestCase
     $this->assertEquals((object) $config['db']['connect'], $foxtrap->getDb()->link);
 
     $purifierConfig = $foxtrap->getPurifier()->config->getAll();
-    foreach ($config['htmlpurifier'] as $key => $value) {
+    foreach ($config['htmlpurifier']['index'] as $key => $value) {
       list($ns, $key) = explode('.', $key);
       $this->assertSame($value, $purifierConfig[$ns][$key]);
     };

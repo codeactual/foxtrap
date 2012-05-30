@@ -49,9 +49,11 @@ $config = array(
     CURLOPT_FOLLOWLOCATION => 1
   ),
   'htmlpurifier' => array(
-    'HTML.TidyLevel' => 'none',
-    'HTML.Allowed' => '',
-    'Cache.SerializerPath' => '/tmp',
+    'index' => array(
+      'HTML.TidyLevel' => 'none',
+      'HTML.Allowed' => '',
+      'Cache.SerializerPath' => '/tmp'
+    )
   ),
   'log' => array(
     'class' => '' // ex. 'Stdout' for Log/Stdout.php

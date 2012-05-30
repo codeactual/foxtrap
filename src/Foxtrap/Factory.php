@@ -32,6 +32,21 @@ class Factory
   }
 
   /**
+   * Create an HTMLPurifier instance.
+   *
+   * @param array $overrides Ex. $config['htmlpurifier']['index'] in config/config.php.
+   * @return HTMLPurifier
+   */
+  public function createPurifier($overrides)
+  {
+    $config = HTMLPurifier_Config::createDefault();
+    foreach ($overrides as $key => $value) {
+      $config->set($key, $value);
+    }
+    return new HTMLPurifier($config);
+  }
+
+  /**
    * Use createInstanceFromArray() to build an instance based on config.php.
    *
    * @return Foxtrap
@@ -74,11 +89,7 @@ class Factory
     );
     $db = new $dbClass($dbLink, $config);
 
-    $purifierConfig = HTMLPurifier_Config::createDefault();
-    foreach ($config['htmlpurifier'] as $key => $value) {
-      $purifierConfig->set($key, $value);
-    }
-    $purifier = new HTMLPurifier($purifierConfig);
+    $purifier = $this->createPurifier($config['htmlpurifier']['index']);
 
     if (!$config['log']['class']) {
       $config['log']['class'] = 'Blackhole';
