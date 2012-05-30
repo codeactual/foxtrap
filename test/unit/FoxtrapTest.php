@@ -336,9 +336,9 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
     $this->assertNotContains('<html', $actual['body_clean']);
 
     $actual = self::$db->getMarkById(2);
-    $this->assertContains('Yahoo! Inc', $actual['body']);
+    $this->assertContains('Yahoo!', $actual['body']);
     $this->assertContains('<html', $actual['body']);
-    $this->assertContains('Yahoo! Inc', $actual['body_clean']);
+    $this->assertContains('Yahoo!', $actual['body_clean']);
     $this->assertNotContains('<html', $actual['body_clean']);
   }
 
