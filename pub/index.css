@@ -5,23 +5,11 @@ body {
   font-family: "Droid Sans", arial, serif;
 }
 
-.history-group {
-  width: 10%;
-}
 .past-query {
   display: block;
   font-size: 0.9em;
   margin-top: 0.5em;
   text-align: center;
-}
-.results-group {
-  width: 88%;
-}
-.float-left {
-  float: left;
-}
-.float-clear {
-  float: clear;
 }
 .result-template:hover {
   cursor: pointer;
@@ -55,5 +43,13 @@ body {
   font-weight: bold;
   padding: 0.25em;
   text-align: center;
+  border: solid 1px #cccccc;
   width: 98%;
+}
+
+#logo {
+  font-size: 1.25em;
+  font-weight: bold;
+  padding: 0.25em;
+  text-align: center;
 }
