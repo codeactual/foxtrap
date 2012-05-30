@@ -88,6 +88,11 @@ class Query
 
     $results = $this->cl->Query($q, $this->index);
 
+    $lastError = $this->cl->GetLastError();
+    if ($lastError) {
+      error_log($lastError);
+    }
+
     if (empty($results['matches'])) {
       return $docs;
     }
