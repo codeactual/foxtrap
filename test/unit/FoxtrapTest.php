@@ -254,6 +254,7 @@ class FoxtrapTest extends PHPUnit_Framework_TestCase
       'marks' => array(
         array(
           'uri' => "http://{$host}/",
+          'dateAdded' => time(),
           'lastModified' => time(),
           'title' => 'does not exist'
         )
