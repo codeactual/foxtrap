@@ -62,6 +62,9 @@ $(document).ready(function() {
   $('#results-ac-output').delegate('a.link-wrap', 'click', function(e) {
     var a = $(this);
 
+    $('#results-ac-output .opened-result').removeClass('opened-result');
+    a.addClass('opened-result');
+
     window.open(a.attr('href'));
     $.ajax({
       url: 'add_history.php',
