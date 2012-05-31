@@ -115,6 +115,13 @@ class Blackhole implements Api
   /**
    * {@inheritdoc}
    */
+  public function getErrorLog($limit)
+  {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function deleteMarksById(array $uri)
   {
   }

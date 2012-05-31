@@ -30,7 +30,7 @@ interface Api
    * - string 'tags'
    * - string 'last_err'
    * - string 'modified'
-   * @return void
+   * @return int Inserted/modified ID.
    * @throws Exception
    * - on write error
    */
@@ -134,6 +134,16 @@ interface Api
    * - on read error
    */
   public function getHistory($limit);
+
+  /**
+   * Read the most recent N errors.
+   *
+   * @param int $limit
+   * @return void
+   * @throws Exception
+   * - on read error
+   */
+  public function getErrorLog($limit);
 
   /**
    * Delete marks by ID.

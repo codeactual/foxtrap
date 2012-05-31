@@ -21,6 +21,6 @@ function registerRandomMark(Foxtrap $foxtrap, array $overrides = array())
   );
   $expected['hash'] = $foxtrap->generateMarkHash($expected['title'], $expected['uri'], $expected['tags'], $expected['added']);
   $expected = array_merge($expected, $overrides);
-  $foxtrap->getDb()->register($expected);
+  $expected['id'] = $foxtrap->getDb()->register($expected);
   return $expected;
 }

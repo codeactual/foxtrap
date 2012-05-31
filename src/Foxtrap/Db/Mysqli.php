@@ -127,6 +127,7 @@ class Mysqli implements Api
     if ($stmt->error) {
       throw new Exception("{$mark['uri']}: {$stmt->error} ({$stmt->errno})");
     }
+    return $stmt->insert_id;
   }
 
   /**
@@ -160,6 +161,7 @@ class Mysqli implements Api
   {
     $sql = "UPDATE `{$this->table}` SET `last_err` = ? WHERE `id` = ?";
     $stmt = $this->link->prepare($sql);
+    $lastErr = utf8_encode($lastErr);
     $stmt->bind_param('sd', $lastErr, $id);
     $stmt->execute();
     if ($stmt->error) {
@@ -329,7 +331,7 @@ class Mysqli implements Api
     $sql = "
       SELECT `id`, `query`
       FROM `{$this->historyTable}`
-      ORDER BY `modified` DESC,`uses` DESC
+      ORDER BY `modified` DESC, `uses` DESC
       LIMIT ?";
     $stmt = $this->link->prepare($sql);
     $stmt->bind_param('d', $limit);
@@ -345,6 +347,38 @@ class Mysqli implements Api
         $data[] = (object) array(
           'id' => $row['id'],
           'query' => utf8_decode($row['query'])
+        );
+      }
+    }
+    return $data;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getErrorLog($limit)
+  {
+    $sql = "
+      SELECT `id`, `last_err`, `title`, `uri`
+      FROM `{$this->table}`
+      ORDER BY `added` DESC
+      LIMIT ?";
+    $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('d', $limit);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$q}: {$stmt->error} ({$stmt->errno})");
+    }
+
+    $result = $stmt->get_result();
+    $data = array();
+    if ($result) {
+      while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+        $data[] = (object) array(
+          'id' => $row['id'],
+          'last_err' => utf8_decode($row['last_err']),
+          'title' => utf8_decode($row['title']),
+          'uri' => utf8_decode($row['uri'])
         );
       }
     }

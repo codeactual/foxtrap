@@ -146,4 +146,36 @@ class MysqliTest extends PHPUnit_Framework_TestCase
     $this->assertSame(1, count($toDownload));
     $this->assertSame($mark1['uri'], $toDownload[0]['uri']);
   }
+
+  /**
+   * @group getsErrorLogs
+   * @test
+   */
+  public function getsErrorLogs()
+  {
+    $mark1 = TestData\registerRandomMark(self::$foxtrap);
+    $mark2 = TestData\registerRandomMark(self::$foxtrap);
+    $expected = array(
+      array(
+        'id' => $mark2['id'],
+        'last_err' => 'mark2 error',
+        'title' => $mark2['title'],
+        'uri' => $mark2['uri']
+      ),
+      array(
+        'id' => $mark1['id'],
+        'last_err' => 'mark1 error',
+        'title' => $mark1['title'],
+        'uri' => $mark1['uri']
+      )
+    );
+
+    self::$db->saveError('mark1 error', $mark1['id']);
+    self::$db->saveError('mark2 error', $mark2['id']);
+
+    $log = self::$db->getErrorLog(2);
+    $this->assertSame(2, count($log));
+    $this->assertSame($expected[0], (array) $log[0]);
+    $this->assertSame($expected[1], (array) $log[1]);
+  }
 }
