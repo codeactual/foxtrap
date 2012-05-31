@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <link rel="stylesheet" type="text/css" href="yui-grids-reset.css" />
   <link type="text/css" href="index.css" rel="stylesheet" />
-  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="/favicon.png" type="image/png" />
 </head>
 <body>
 <div class="yui3-g">
