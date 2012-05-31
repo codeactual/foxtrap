@@ -86,16 +86,25 @@ $(document).ready(function() {
     e.preventDefault();
     e.stopImmediatePropagation();
 
-    // Remove previously opened saved copy.
-    $('iframe', acOutput).remove();
-
-    // Add the current saved copy.
     var viewerToggle = $(this),
-        a = viewerToggle.closest('.link-wrap'),
         ft = viewerToggle.closest('.ft'),
         markId = ft.data('id'),
         iframeId = 'viewer-' + markId,
+        iframe = $('#' + iframeId);
+
+    // Hide/show the iframe if it's already in the DOM.
+    if (iframe.length) {
+      iframe.toggle();
+      return;
+    }
+
+    var a = viewerToggle.closest('.link-wrap'),
         src = 'view.php?markId=' + markId;
+
+    // Remove previously opened saved copy.
+    $('iframe', acOutput).remove();
+
+    // Add the new saved copy.
     ft.append('<iframe id="' + iframeId + '" src="' + src +  '"/>');
 
     // Scroll to position the search result at the top.
