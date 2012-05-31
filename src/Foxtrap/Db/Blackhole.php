@@ -66,6 +66,13 @@ class Blackhole implements Api
   /**
    * {@inheritdoc}
    */
+  public function removeError($id)
+  {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function flagNonDownloadable()
   {
   }

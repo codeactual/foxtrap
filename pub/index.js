@@ -1,9 +1,12 @@
 'use strict';
 
 $(document).ready(function() {
-  var acOutput = $('#results-ac-output');
-  var q = $('#q');
-  var history = $('#query-history');
+  var acOutput = $('#results-ac-output'),
+      history = $('#query-history'),
+      q = $('#q'),
+      search = $('.search'),
+      status = $('.status'),
+      layoutToggle = $('.layout-toggle');
 
   q.autocomplete({
     delay: 100,
@@ -36,13 +39,13 @@ $(document).ready(function() {
         li = $('<li class="result-template"></li>');
 
     ft.append('<div class="excerpt">' + item.excerpt + '</div>');
-    ft.append('<div class="viewer-toggle"><span class="viewer-toggle-label">View Saved Copy</span></div>');
+    ft.append('<div class="viewer-toggle"><span class="viewer-toggle-label mark-action-btn">View Saved Copy</span></div>');
 
     a.attr('href', item.uri);
     a.appendTo(li);
     a.data('item.autocomplete', item)
-      .append('<div class="hd">' + item.title + '</div>')
-      .append('<div class="bd">' + item.domain + ' <span class="tags">' + item.tags + '</span></div>')
+      .append('<div class="hd title">' + item.title + '</div>')
+      .append('<div class="bd uri">' + item.domain + ' <span class="tags">' + item.tags + '</span></div>')
       .append(ft);
 
     li.appendTo(acOutput);
@@ -101,31 +104,86 @@ $(document).ready(function() {
 
   // Populate and submit the search box with a prior query.
   $('#query-history').on('click', '.past-query', function(event) {
-    var query = $(this);
     event.preventDefault();
+
+    var query = $(this);
     q.val(query.text());
     q.autocomplete('search', query.text());
   });
 
-  // Replace search elements with status elements.
-  $('#query-history').on('click', '.past-query', function(event) {
-    var query = $(this);
+  // Swap search/status elements.
+  layoutToggle.on('click', function(event) {
     event.preventDefault();
-    q.val(query.text());
-    q.autocomplete('search', query.text());
+    status.toggle();
+    search.toggle();
   });
 
-  // Refresh history.
+  // Populate history.
   $.ajax({
     url: 'get_history.php',
     dataType: 'jsonp',
     success: function(data) {
       if (data.length) {
-        history.empty();
         $.each(data, function(pos, item) {
           history.append('<a class="past-query" href="#query-' + item.id + '">' + item.query + '</a>');
         });
       }
     }
+  });
+
+  // Populate error log.
+  $.ajax({
+    url: 'get_error_log.php',
+    dataType: 'jsonp',
+    success: function(data) {
+      if (data.length) {
+        var ul = $('#error-log');
+        $.each(data, function(pos, item) {
+          var matches = item.last_err.match(/^([^\{]+)(.*)$/),
+              message = matches[1].replace(/: $/, ''),
+              detail = JSON.parse(matches[2]),
+              li = $('<li id="error-log-' + item.id + '" class="error-log" />');
+
+          message = message || 'HTTP code: ' + detail.http_code;
+
+          li.append(
+            $('<div class="title"/>')
+            .append('<a class="retry mark-action-btn" href="#" data-id="' + item.id + '">retry</a>')
+            .append(item.title)
+          );
+          li.append('<div class="uri">' + item.uri + '</div>')
+          li.append('<div class="message">' + message + '</div>')
+          ul.append(li);
+        });
+      }
+    }
+  });
+
+  // Remove an mark's error state.
+  $('#error-log').on('click', '.retry', function(event) {
+    event.preventDefault();
+
+    var markId = $(this).data('id'),
+        logItem = $('#error-log-' + markId),
+        logBtn = $('.mark-action-btn', logItem);
+
+    $.ajax({
+      url: '/retry.php',
+      dataType: 'jsonp',
+      data: {
+        markId: markId
+      },
+      success: function(data) {
+        if (data.removed) {
+          logBtn.remove();
+          logItem.addClass('invalid');
+        } else {
+          logBtn.text('Could not schedule retry.');
+        }
+      },
+      error: function() {
+        logBtn.text('Could not contact server.');
+      }
+    });
   });
 });

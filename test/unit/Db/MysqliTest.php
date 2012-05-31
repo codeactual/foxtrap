@@ -95,11 +95,32 @@ class MysqliTest extends PHPUnit_Framework_TestCase
     TestData\registerRandomMark(self::$foxtrap);
     $id = 1;
     $lastErr = uniqid();
-    $bodyClean = uniqid();
     self::$db->saveError($lastErr, $id);
     $actual = self::$db->getMarkById($id);
     $this->assertSame(0, $actual['downloaded']);
     $this->assertSame($lastErr, $actual['last_err']);
+  }
+
+  /**
+   * @group removesError
+   * @test
+   */
+  public function removesError()
+  {
+    TestData\registerRandomMark(self::$foxtrap);
+    $id = 1;
+    $lastErr = uniqid();
+
+    self::$db->saveError($lastErr, $id);
+    $actual = self::$db->getMarkById($id);
+    $this->assertSame($lastErr, $actual['last_err']);
+
+    $success = self::$db->removeError($id);
+    $this->assertTrue($success);
+    $success = self::$db->removeError($id);
+    $this->assertFalse($success);
+    $actual = self::$db->getMarkById($id);
+    $this->assertSame('', $actual['last_err']);
   }
 
   /**

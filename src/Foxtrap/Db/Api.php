@@ -39,6 +39,9 @@ interface Api
   /**
    * Update a URI's related fields, e.g. raw content and tags.
    *
+   * @param string $raw Unsanitized HTML.
+   * @param string $clean Ssanitized HTML.
+   * @param int $id
    * @return void
    * @throws Exception
    * - on write error
@@ -48,11 +51,23 @@ interface Api
   /**
    * Update a URI's error state.
    *
+   * @param string $message
+   * @param int $id
    * @return void
    * @throws Exception
    * - on write error
    */
   public function saveError($message, $id);
+
+  /**
+   * Remove a URI's error state.
+   *
+   * @param int $id
+   * @return boolean True on success.
+   * @throws Exception
+   * - on write error
+   */
+  public function removeError($id);
 
   /**
    * Clear a URI's content fields and prevent future downloads, e.g. for

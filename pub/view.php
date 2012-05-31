@@ -1,7 +1,5 @@
 <?php
 
-header('Content-type: text/html; charset=utf-8');
-
 use \Foxtrap\Factory;
 
 require __DIR__ . '/../src/LoadClasses.php';

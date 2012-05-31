@@ -1,8 +1,11 @@
-html {
-  overflow: scroll; /* avoid #q width flicker */
+a {
+  text-decoration: none;
 }
 body {
   font-family: arial, serif;
+}
+html {
+  overflow: scroll; /* avoid #q width flicker */
 }
 iframe {
   border: solid 1px #cccccc;
@@ -10,37 +13,61 @@ iframe {
   height: 400px;
 }
 
+.error-log .title {
+  font-size: 0.9em;
+}
+.error-log .mark-action-btn {
+  margin-right: 1em;
+}
+.error-log .message {
+  font-style: italic;
+  font-size: 0.8em;
+  margin: 0.25em 0 0.75em 0;
+}
+.error-log .result {
+  margin: 0.5em 0;
+}
+.error-log .uri {
+  margin: 0.25em 0;
+}
+.excerpt-word {
+  font-weight: bold;
+  text-decoration: underline;
+  background-color: #efefef;
+}
+.invalid {
+  text-decoration: line-through;
+}
+.layout-toggle {
+  color: #cccccc;
+  display: block;
+  font-size: 0.8em;
+  padding-bottom: 1em;
+  text-align: center;
+}
 .link-wrap {
   border-left: solid 5px transparent;
   color: inherit;
   display: block;
   padding-left: 5px;
-  text-decoration: none;
 }
-.opened-result {
-  border-left: solid 5px orange;
+.mark-action-btn {
+  background-color: orange;
+  color: white;
+  font-size: 0.8em;
+  padding: 0.5em 1em 0.5em 1em;
 }
 .past-query {
   display: block;
   font-size: 0.8em;
   margin-top: 0.5em;
   text-align: center;
-  text-decoration: none;
 }
 .past-query:hover {
   text-decoration: underline;
 }
 .result-template:hover {
   cursor: pointer;
-}
-.result-template .hd {
-  color: #2200C1;
-  padding-top: 0.5em;
-  padding-bottom: 0.25em;
-}
-.result-template .bd {
-  color: #0E774A;
-  font-size: 0.8em;
 }
 .result-template .ft {
   font-size: 0.8em;
@@ -54,24 +81,34 @@ iframe {
   text-align: center;
   visibility: hidden;
 }
-.result-template .ft .viewer-toggle-label {
-  background-color: orange;
-  color: white;
-  font-size: 0.8em;
-  padding: 0.5em 2em 0.5em 2em;
-}
 .result-template .ft .viewer-toggle-on {
   visibility: visible;;
 }
 .result-template .tags {
   color: #D14836;
 }
-.excerpt-word {
-  font-weight: bold;
-  text-decoration: underline;
-  background-color: #efefef;
+.status {
+  display: none;
+}
+.title {
+  color: #2200C1;
+  padding-top: 0.5em;
+  padding-bottom: 0.25em;
+}
+.uri {
+  color: #0E774A;
+  font-size: 0.8em;
 }
 
+#error-log {
+  padding: 1em 1em 1em 0;
+}
+#logo {
+  font-size: 1.25em;
+  font-weight: bold;
+  padding-top: 0.5em;
+  text-align: center;
+}
 #q {
   font-size: 1.25em;
   font-weight: bold;
@@ -80,11 +117,4 @@ iframe {
   text-align: center;
   border: solid 1px #dedede;
   width: 98%;
-}
-
-#logo {
-  font-size: 1.25em;
-  font-weight: bold;
-  padding: 0.5em 0 0.5em 0;
-  text-align: center;
 }

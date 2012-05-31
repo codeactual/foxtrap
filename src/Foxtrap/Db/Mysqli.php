@@ -172,6 +172,21 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
+  public function removeError($id)
+  {
+    $sql = "UPDATE `{$this->table}` SET `last_err` = '' WHERE `id` = ?";
+    $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('d', $id);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
+    }
+    return $stmt->affected_rows == 1;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function flagNonDownloadable()
   {
     $sql = "
