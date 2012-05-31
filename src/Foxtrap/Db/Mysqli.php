@@ -361,6 +361,7 @@ class Mysqli implements Api
     $sql = "
       SELECT `id`, `last_err`, `title`, `uri`
       FROM `{$this->table}`
+      WHERE `last_err` NOT IN ('', 'nosave')
       ORDER BY `added` DESC
       LIMIT ?";
     $stmt = $this->link->prepare($sql);

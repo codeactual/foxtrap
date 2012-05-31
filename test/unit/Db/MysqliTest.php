@@ -155,12 +155,14 @@ class MysqliTest extends PHPUnit_Framework_TestCase
   {
     $mark1 = TestData\registerRandomMark(self::$foxtrap);
     $mark2 = TestData\registerRandomMark(self::$foxtrap);
+    $mark3 = TestData\registerRandomMark(self::$foxtrap);
+    $mark4 = TestData\registerRandomMark(self::$foxtrap);
     $expected = array(
       array(
-        'id' => $mark2['id'],
-        'last_err' => 'mark2 error',
-        'title' => $mark2['title'],
-        'uri' => $mark2['uri']
+        'id' => $mark4['id'],
+        'last_err' => 'mark4 error',
+        'title' => $mark4['title'],
+        'uri' => $mark4['uri']
       ),
       array(
         'id' => $mark1['id'],
@@ -170,12 +172,14 @@ class MysqliTest extends PHPUnit_Framework_TestCase
       )
     );
 
-    self::$db->saveError('mark1 error', $mark1['id']);
-    self::$db->saveError('mark2 error', $mark2['id']);
+    self::$db->saveError('mark1 error', $mark1['id']); // Expected
+    self::$db->saveError('', $mark2['id']);            // Unexpected
+    self::$db->saveError('nosave', $mark3['id']);      // Unexpected
+    self::$db->saveError('mark4 error', $mark4['id']); // Expected
 
     $log = self::$db->getErrorLog(2);
     $this->assertSame(2, count($log));
-    $this->assertSame($expected[0], (array) $log[0]);
-    $this->assertSame($expected[1], (array) $log[1]);
+    $this->assertSame($expected[0], (array) $log[0]);   // $mark4
+    $this->assertSame($expected[1], (array) $log[1]);   // $mark1
   }
 }
