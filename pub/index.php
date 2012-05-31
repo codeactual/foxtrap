@@ -1,7 +1,4 @@
-<?php
-$q = empty($_GET['q']) ? '' : $_GET['q'];
-header('Content-type: text/html; charset=utf-8');
-?>
+<?php $q = empty($_GET['q']) ? '' : $_GET['q']; ?>
 <!doctype html>
 <html lang="en">
 <head>
