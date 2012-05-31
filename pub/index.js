@@ -5,21 +5,6 @@ $(document).ready(function() {
   var q = $('#q');
   var history = $('#query-history');
 
-  var refreshHistory = function() {
-    $.ajax({
-      url: 'get_history.php',
-      dataType: 'jsonp',
-      success: function(data) {
-        if (data.length) {
-          history.empty();
-          jQuery.each(data, function(pos, item) {
-            history.append('<a class="past-query" href="#query-' + item.id + '">' + item.query + '</a>');
-          });
-        }
-      }
-    });
-  };
-
   q.autocomplete({
     delay: 100,
     autofocus: true,
@@ -40,7 +25,7 @@ $(document).ready(function() {
         success: function(data) {
           acOutput.empty();
           response(data);
-        },
+        }
       });
     }
   })
@@ -65,6 +50,9 @@ $(document).ready(function() {
 
   // Open a new tab with the marked URI.
   acOutput.delegate('.link-wrap', 'click', function(e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
     var a = $(this);
 
     $('.opened-result', acOutput).removeClass('opened-result');
@@ -75,7 +63,10 @@ $(document).ready(function() {
       dataType: 'jsonp',
       data: { q: q.val() },
       success: function() {
-        refreshHistory();
+        window.location = a.attr('href');
+      },
+      error: function() {
+        window.location = a.attr('href');
       }
     });
   });
@@ -123,5 +114,25 @@ $(document).ready(function() {
     q.autocomplete('search', query.text());
   });
 
-  refreshHistory();
+  // Replace search elements with status elements.
+  $('#query-history').on('click', '.past-query', function(event) {
+    var query = $(this);
+    event.preventDefault();
+    q.val(query.text());
+    q.autocomplete('search', query.text());
+  });
+
+  // Refresh history.
+  $.ajax({
+    url: 'get_history.php',
+    dataType: 'jsonp',
+    success: function(data) {
+      if (data.length) {
+        history.empty();
+        $.each(data, function(pos, item) {
+          history.append('<a class="past-query" href="#query-' + item.id + '">' + item.query + '</a>');
+        });
+      }
+    }
+  });
 });
