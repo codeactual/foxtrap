@@ -55,9 +55,6 @@ $(document).ready(function() {
 
     var a = $(this);
 
-    $('.opened-result', acOutput).removeClass('opened-result');
-    a.addClass('opened-result');
-
     $.ajax({
       url: 'add_history.php',
       dataType: 'jsonp',
@@ -72,9 +69,9 @@ $(document).ready(function() {
   });
 
   // Reveal 'View Saved Copy' links when hovering over a result.
-  acOutput.delegate(
-    'a',
+  acOutput.on(
     'hover',
+    'a',
     function(e) {
       $('.viewer-toggle-on', acOutput).removeClass('viewer-toggle-on');
       $('.viewer-toggle', this).addClass('viewer-toggle-on');
@@ -82,7 +79,7 @@ $(document).ready(function() {
   );
 
   // Display the saved copy content below the 'View Saved Copy' link.
-  acOutput.delegate('.viewer-toggle-on', 'click', function(e) {
+  acOutput.on('click', '.viewer-toggle-on', function(e) {
     e.preventDefault();
     e.stopImmediatePropagation();
 
@@ -97,10 +94,6 @@ $(document).ready(function() {
         iframeId = 'viewer-' + markId,
         src = 'view.php?markId=' + markId;
     ft.append('<iframe id="' + iframeId + '" src="' + src +  '"/>');
-
-    // Visually group the search result and the related saved copy.
-    $('.opened-result', acOutput).removeClass('opened-result');
-    a.addClass('opened-result');
 
     // Scroll to position the search result at the top.
     a.get(0).scrollIntoView();
