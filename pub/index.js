@@ -19,7 +19,8 @@ $(document).ready(function() {
 
         lastPushState = $.extend({}, state);
         history.pushState(lastPushState, '', '?q=' + encodeURIComponent(query));
-      };
+      },
+      reDownloadMsg = 'Will download in next cycle.';
 
   q.autocomplete({
     delay: 100,
@@ -50,14 +51,19 @@ $(document).ready(function() {
     }
   })
   .data('autocomplete')._renderItem = function(ul, item) {
+  console.log('item', item);
     item.tags = item.tags ? '(' + item.tags + ')' : '';
     var a = $('<a class="link-wrap"/>'),
         ft = $('<div class="ft" data-id="' + item.id + '"></div>'),
-        li = $('<li class="result-template"></li>');
+        li = $('<li class="result-template"></li>'),
+        dlBtnMsg = item.downloaded ? 'Download Again' : reDownloadMsg;
 
     ft.append('<div class="excerpt">' + item.excerpt + '</div>');
-    ft.append('<div class="viewer-toggle"><span class="viewer-toggle-label mark-action-btn">View Saved Copy</span></div>');
-
+    ft.append(
+      $('<div class="viewer-toggle"/>')
+      .append('<span class="viewer-view-copy mark-action-btn">View Saved Copy</span>')
+      .append('<span class="viewer-dl-again mark-action-btn">' + dlBtnMsg + '</span>')
+    );
     a.attr('href', item.uri);
     a.appendTo(li);
     a.data('item.autocomplete', item)
@@ -99,7 +105,7 @@ $(document).ready(function() {
   );
 
   // Display the saved copy content below the 'View Saved Copy' link.
-  acOutput.on('click', '.viewer-toggle-on', function(e) {
+  acOutput.on('click', '.viewer-view-copy', function(e) {
     e.preventDefault();
     e.stopImmediatePropagation();
 
@@ -126,6 +132,34 @@ $(document).ready(function() {
 
     // Add the new saved copy.
     ft.append('<iframe id="' + iframeId + '" src="' + src +  '"/>');
+  });
+
+  // Flag a mark for re-download.
+  acOutput.on('click', '.viewer-dl-again', function(e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    var reDownloadBtn = $(this),
+        ft = reDownloadBtn.closest('.ft'),
+        markId = ft.data('id');
+
+    $.ajax({
+      url: 'redownload.php',
+      dataType: 'jsonp',
+      data: {
+        markId: markId
+      },
+      success: function(data) {
+        if (data.scheduled) {
+          reDownloadBtn.text(reDownloadMsg);
+        } else {
+          reDownloadBtn.text('Could not schedule download.');
+        }
+      },
+      error: function() {
+        reDownloadBtn.text('Could not contact server.');
+      }
+    });
   });
 
   // Populate and submit the search box with a prior query.

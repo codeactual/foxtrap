@@ -124,6 +124,34 @@ class MysqliTest extends PHPUnit_Framework_TestCase
   }
 
   /**
+   * @group flagsForReDownload
+   * @test
+   */
+  public function flagsForReDownload()
+  {
+    $mark = TestData\registerRandomMark(self::$foxtrap);
+    $id = 1;
+    $body = uniqid();
+    $bodyClean = uniqid();
+
+    // Simulated download.
+    self::$db->saveSuccess($body, $bodyClean, $id);
+
+    // Should not be eligible for download.
+    $toDownload = self::$db->getMarksToDownload();
+    $this->assertSame([], $toDownload);
+
+    // Change eligibility.
+    $this->assertTrue(self::$db->flagForReDownload($id));
+
+    // Verify new eligibility.
+    $toDownload = self::$db->getMarksToDownload();
+    $this->assertCount(1, $toDownload);
+    $this->assertSame($id, $toDownload[0]['id']);
+    $this->assertSame($mark['uri'], $toDownload[0]['uri']);
+  }
+
+  /**
    * @group flagsNonDownloadable
    * @test
    */

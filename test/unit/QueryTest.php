@@ -40,6 +40,7 @@ class QueryTest extends PHPUnit_Framework_TestCase
   {
     $row = array(
       'id' => uniqid(),
+      'downloaded' => false,
       'title' => uniqid(),
       'tags' => uniqid(),
       'body_clean' => uniqid(),

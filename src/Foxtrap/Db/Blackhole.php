@@ -73,6 +73,13 @@ class Blackhole implements Api
   /**
    * {@inheritdoc}
    */
+  public function flagForReDownload($id)
+  {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function flagNonDownloadable()
   {
   }

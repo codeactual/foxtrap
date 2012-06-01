@@ -54,6 +54,7 @@ iframe {
   color: white;
   font-size: 0.8em;
   padding: 0.5em 1em 0.5em 1em;
+  margin-right: 0.5em;
 }
 .past-query {
   display: block;

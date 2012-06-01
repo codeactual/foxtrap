@@ -70,6 +70,16 @@ interface Api
   public function removeError($id);
 
   /**
+   * Reset a mark's flags so it will be re-downloaded.
+   *
+   * @param int $id
+   * @return boolean True on success.
+   * @throws Exception
+   * - on write error
+   */
+  public function flagForReDownload($id);
+
+  /**
    * Clear a URI's content fields and prevent future downloads, e.g. for
    * bookmarks where only titles and tags should be indexed.
    *
