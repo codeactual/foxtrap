@@ -187,6 +187,21 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
+  public function flagForReDownload($id)
+  {
+    $sql = "UPDATE `{$this->table}` SET `downloaded` = 0, `last_err` = '' WHERE `id` = ?";
+    $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('d', $id);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
+    }
+    return $stmt->affected_rows == 1;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function flagNonDownloadable()
   {
     $sql = "
@@ -282,7 +297,7 @@ class Mysqli implements Api
   {
     $marks = array();
     $sql = "
-      SELECT `id`, `title`, `body_clean`, `uri`, `tags`, `modified`
+      SELECT `id`, `title`, `body_clean`, `uri`, `tags`, `modified`, `downloaded`
       FROM `{$this->table}`
       WHERE `id` IN(" . implode(',', $ids) . ')';
 
@@ -377,7 +392,7 @@ class Mysqli implements Api
       SELECT `id`, `last_err`, `title`, `uri`
       FROM `{$this->table}`
       WHERE `last_err` NOT IN ('', 'nosave')
-      ORDER BY `added` DESC
+      ORDER BY `id` DESC
       LIMIT ?";
     $stmt = $this->link->prepare($sql);
     $stmt->bind_param('d', $limit);
