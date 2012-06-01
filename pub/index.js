@@ -2,19 +2,36 @@
 
 $(document).ready(function() {
   var acOutput = $('#results-ac-output'),
-      history = $('#query-history'),
+      qHistory = $('#query-history'),
       q = $('#q'),
       search = $('.search'),
       status = $('.status'),
-      layoutToggle = $('.layout-toggle');
+      layoutToggle = $('.layout-toggle'),
+      lastPushState = null,
+      pushQueryState = function(query) {
+        var state = {q: query};
+
+        // Avoid duplicate states, ex. user clicks a history link and then
+        // a search result associated with the same query.
+        if (JSON.stringify(lastPushState) == JSON.stringify(state)) {
+          return;
+        }
+
+        lastPushState = $.extend({}, state);
+        history.pushState(lastPushState, '', '?q=' + encodeURIComponent(query));
+      };
 
   q.autocomplete({
     delay: 100,
     autofocus: true,
     create: function(event, ui) {
-      // Allow q?=keyword URI to trigger initial search.
+      // Allow 'q?=keyword' URI to trigger initial search.
       var uriQuery = q.val();
       if (uriQuery) {
+        // Avoid duplicate states, ex. user goes directory to 'q?=css' and then
+        // a search result associated with the same query.
+        lastPushState = {q: uriQuery};
+
         q.autocomplete('search', uriQuery);
       }
     },
@@ -56,18 +73,18 @@ $(document).ready(function() {
     e.preventDefault();
     e.stopImmediatePropagation();
 
-    var a = $(this);
+    var a = $(this),
+        openUri = function() {
+          pushQueryState(q.val());
+          window.location = a.attr('href');
+        };
 
     $.ajax({
       url: 'add_history.php',
       dataType: 'jsonp',
       data: { q: q.val() },
-      success: function() {
-        window.location = a.attr('href');
-      },
-      error: function() {
-        window.location = a.attr('href');
-      }
+      success: openUri,
+      error: openUri
     });
   });
 
@@ -115,9 +132,11 @@ $(document).ready(function() {
   $('#query-history').on('click', '.past-query', function(event) {
     event.preventDefault();
 
-    var query = $(this);
-    q.val(query.text());
-    q.autocomplete('search', query.text());
+    var query = $(this),
+        qText = query.text();
+    q.val(qText);
+    q.autocomplete('search', qText);
+    pushQueryState(qText);
   });
 
   // Swap search/status elements.
@@ -134,7 +153,7 @@ $(document).ready(function() {
     success: function(data) {
       if (data.length) {
         $.each(data, function(pos, item) {
-          history.append('<a class="past-query" href="#query-' + item.id + '">' + item.query + '</a>');
+          qHistory.append('<a class="past-query" href="#query-' + item.id + '">' + item.query + '</a>');
         });
       }
     }
@@ -195,4 +214,11 @@ $(document).ready(function() {
       }
     });
   });
+
+  window.onpopstate = function(e) {
+    if (e.state && e.state.q) {
+      q.val(e.state.q);
+      q.autocomplete('search', e.state.q);
+    }
+  };
 });
