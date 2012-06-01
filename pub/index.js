@@ -164,26 +164,30 @@ $(document).ready(function() {
     url: 'get_error_log.php',
     dataType: 'jsonp',
     success: function(data) {
-      if (data.length) {
-        var ul = $('#error-log');
-        $.each(data, function(pos, item) {
-          var matches = item.last_err.match(/^([^\{]+)(.*)$/),
-              message = matches[1].replace(/: $/, ''),
-              detail = JSON.parse(matches[2]),
-              li = $('<li id="error-log-' + item.id + '" class="error-log" />');
+      var ul = $('#error-log');
+
+      if (!data.length) {
+        ul.append('<li>No errors.</li>');
+        return;
+      }
+
+      $.each(data, function(pos, item) {
+        var matches = item.last_err.match(/^([^\{]+)(.*)$/),
+          message = matches[1].replace(/: $/, ''),
+          detail = JSON.parse(matches[2]),
+          li = $('<li id="error-log-' + item.id + '" class="error-log" />');
 
           message = message || 'HTTP code: ' + detail.http_code;
 
           li.append(
             $('<div class="title"/>')
             .append('<a class="retry mark-action-btn" href="#" data-id="' + item.id + '">retry</a>')
-            .append(item.title)
+            .append('<a class="uri" href="' + item.uri + '">' + item.title + '</a>')
           );
-          li.append('<div class="uri">' + item.uri + '</div>')
+          li.append('<div><a class="uri" href="' + item.uri + '">' + item.uri + '</a></div>')
           li.append('<div class="message">' + message + '</div>')
           ul.append(li);
-        });
-      }
+      });
     }
   });
 
