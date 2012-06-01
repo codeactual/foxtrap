@@ -40,7 +40,6 @@ iframe {
 }
 .layout-toggle {
   color: #cccccc;
-  display: block;
   font-size: 0.8em;
   padding-bottom: 1em;
   text-align: center;
@@ -117,4 +116,10 @@ iframe {
   text-align: center;
   border: solid 1px #dedede;
   width: 98%;
+}
+#query-history {
+  margin-top: 1.5em;
+}
+#sidebar {
+  text-align: center;
 }

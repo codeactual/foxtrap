@@ -10,9 +10,9 @@
 </head>
 <body>
 <div class="yui3-g">
-  <div class="yui3-u-1-8">
+  <div id="sidebar" class="yui3-u-1-8">
     <div id="logo">foxtrap</div>
-    <a class="layout-toggle" href="#">status</a>
+    <div><a class="layout-toggle" href="#">status</a></div>
     <div id="query-history" class="history-group search"></div>
   </div>
   <div class="yui3-u-7-8">
