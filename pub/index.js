@@ -51,7 +51,6 @@ $(document).ready(function() {
     }
   })
   .data('autocomplete')._renderItem = function(ul, item) {
-  console.log('item', item);
     item.tags = item.tags ? '(' + item.tags + ')' : '';
     var a = $('<a class="link-wrap"/>'),
         ft = $('<div class="ft" data-id="' + item.id + '"></div>'),
@@ -59,11 +58,15 @@ $(document).ready(function() {
         dlBtnMsg = item.downloaded ? 'Download Again' : reDownloadMsg;
 
     ft.append('<div class="excerpt">' + item.excerpt + '</div>');
-    ft.append(
-      $('<div class="viewer-toggle"/>')
-      .append('<span class="viewer-view-copy mark-action-btn">View Saved Copy</span>')
-      .append('<span class="viewer-dl-again mark-action-btn">' + dlBtnMsg + '</span>')
-    );
+
+    if (!/nosave/.test(item.tags)) {
+      ft.append(
+        $('<div class="viewer-toggle"/>')
+        .append('<span class="viewer-view-copy mark-action-btn">View Saved Copy</span>')
+        .append('<span class="viewer-dl-again mark-action-btn">' + dlBtnMsg + '</span>')
+      );
+    }
+
     a.attr('href', item.uri);
     a.appendTo(li);
     a.data('item.autocomplete', item)
