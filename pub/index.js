@@ -117,14 +117,16 @@ $(document).ready(function() {
         ft = viewerToggle.closest('.ft'),
         markId = ft.data('id'),
         iframeId = 'viewer-' + markId,
-        iframe = $('#' + iframeId);
-
-    // Scroll to position the search result at the top.
-    a.get(0).scrollIntoView(true);
+        iframe = $('#' + iframeId),
+        scrollResultIntoView = function() {
+          // Scroll to position the search result at the top.
+          a.get(0).scrollIntoView(true);
+        };
 
     // Hide/show the iframe if it's already in the DOM.
     if (iframe.length) {
       iframe.toggle();
+      scrollResultIntoView();
       return;
     }
 
@@ -135,6 +137,8 @@ $(document).ready(function() {
 
     // Add the new saved copy.
     ft.append('<iframe id="' + iframeId + '" src="' + src +  '"/>');
+
+    scrollResultIntoView();
   });
 
   // Flag a mark for re-download.
