@@ -24,7 +24,6 @@ $(document).ready(function() {
 
   q.autocomplete({
     delay: 100,
-    autofocus: true,
     create: function(event, ui) {
       // Allow 'q?=keyword' URI to trigger initial search.
       var uriQuery = q.val();
@@ -266,4 +265,6 @@ $(document).ready(function() {
       q.autocomplete('search', e.state.q);
     }
   };
+
+  q.focus();
 });
