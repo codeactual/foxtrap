@@ -259,6 +259,7 @@ $(document).ready(function() {
     });
   });
 
+  // Respond to back-navigation by applying the saved (search query) state.
   window.onpopstate = function(e) {
     if (e.state && e.state.q) {
       q.val(e.state.q);
