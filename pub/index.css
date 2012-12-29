@@ -13,6 +13,15 @@ iframe {
   height: 400px;
 }
 
+.add-mark {
+  color: white;
+  font-weight: bold;
+  background-color: blue;
+  text-align: center;
+  padding: 0.5em 1em 0.5em 1em;
+  display: block;
+  margin: 1em;
+}
 .error-log .title {
   font-size: 0.9em;
 }

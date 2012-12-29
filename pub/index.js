@@ -7,6 +7,7 @@ $(document).ready(function() {
       search = $('.search'),
       status = $('.status'),
       layoutToggle = $('.layout-toggle'),
+      addMark = $('.add-mark'),
       lastPushState = null,
       pushQueryState = function(query) {
         var state = {q: query};
@@ -184,6 +185,12 @@ $(document).ready(function() {
     event.preventDefault();
     status.toggle();
     search.toggle();
+  });
+
+  // Swap search/status elements.
+  addMark.on('click', function(event) {
+    event.preventDefault();
+    $('#add-modal').modal();
   });
 
   // Populate history.

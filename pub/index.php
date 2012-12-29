@@ -5,6 +5,7 @@
   <title>Foxtrap</title>
   <meta charset="utf-8" />
   <link rel="stylesheet" type="text/css" href="yui-grids-reset.css" />
+  <link type="text/css" href="bootstrap.css" rel="stylesheet" />
   <link type="text/css" href="index.css" rel="stylesheet" />
   <link rel="shortcut icon" href="/favicon.png" type="image/png" />
 </head>
@@ -13,6 +14,7 @@
   <div id="sidebar" class="yui3-u-1-8">
     <div id="logo">foxtrap</div>
     <div><a class="layout-toggle" href="#">status</a></div>
+    <div><a class="add-mark" href="#">add</a></div>
     <div id="query-history" class="history-group search"></div>
   </div>
   <div class="yui3-u-7-8">
@@ -27,8 +29,22 @@
     <ul id="error-log" class="status"></ul>
   </div>
 </div>
+<div id="add-modal" class="modal hide fade" tabindex="-1">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>Add Mark</h3>
+  </div>
+  <div class="modal-body">
+    <p>(form placeholder)</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <a href="#" class="btn btn-primary">Save changes</a>
+  </div>
+</div>
 <script src="jquery.min.js" charset="utf-8"></script>
 <script src="jquery-ui.min.js" charset="utf-8"></script>
+<script src="bootstrap.js" charset="utf-8"></script>
 <script src="index.js" charset="utf-8"></script>
 </body>
 </html>
