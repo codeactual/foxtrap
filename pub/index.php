@@ -29,17 +29,33 @@
     <ul id="error-log" class="status"></ul>
   </div>
 </div>
-<div id="add-modal" class="modal hide fade" tabindex="-1">
+<div id="add-modal" class="modal hide" tabindex="-1">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
     <h3>Add Mark</h3>
   </div>
   <div class="modal-body">
-    <p>(form placeholder)</p>
+    <form class="form-horizontal">
+      <div class="control-group">
+        <div class="controls">
+          <input type="text" id="add-mark-uri" placeholder="URI">
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="controls">
+          <input type="text" id="add-mark-title" placeholder="Title">
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="controls">
+          <input type="text" id="add-mark-tags" placeholder="Tags">
+        </div>
+      </div>
+    </form>
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Close</a>
-    <a href="#" class="btn btn-primary">Save changes</a>
+    <a href="#" class="btn btn-primary">Add</a>
   </div>
 </div>
 <script src="jquery.min.js" charset="utf-8"></script>

@@ -191,6 +191,7 @@ $(document).ready(function() {
   addMark.on('click', function(event) {
     event.preventDefault();
     $('#add-modal').modal();
+    $('#add-mark-uri').focus();
   });
 
   // Populate history.
