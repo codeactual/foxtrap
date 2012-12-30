@@ -23,6 +23,13 @@ $(document).ready(function() {
       },
       reDownloadMsg = 'Will download in next cycle.';
 
+  var openComposeMarkModal = function() {
+    $('#compose-mark-modal').modal();
+
+    // Appending ":first" to selector will select the title input for some reason.
+    $('#compose-mark-modal input[type="text"]:enabled')[0].focus();
+  };
+
   q.autocomplete({
     delay: 100,
     create: function(event, ui) {
@@ -51,7 +58,7 @@ $(document).ready(function() {
     }
   })
   .data('autocomplete')._renderItem = function(ul, item) {
-    item.tags = item.tags ? '(' + item.tags + ')' : '';
+    item.tags = item.tags ? item.tags : '';
     var a = $('<a class="link-wrap" target="_blank"/>'),
         ft = $('<div class="ft" data-id="' + item.id + '"></div>'),
         li = $('<li class="result-template"></li>'),
@@ -59,13 +66,16 @@ $(document).ready(function() {
 
     ft.append('<div class="excerpt">' + item.excerpt + '</div>');
 
+    var viewerToggle = $('<div class="viewer-toggle"/>');
+    viewerToggle.append('<span class="viewer-edit mark-action-btn">Edit</span>')
+
     if (!/nosave/.test(item.tags)) {
-      ft.append(
-        $('<div class="viewer-toggle"/>')
+      viewerToggle
         .append('<span class="viewer-view-copy mark-action-btn">View Saved Copy</span>')
-        .append('<span class="viewer-dl-again mark-action-btn">' + dlBtnMsg + '</span>')
-      );
+        .append('<span class="viewer-dl-again mark-action-btn">' + dlBtnMsg + '</span>');
     }
+
+    ft.append(viewerToggle);
 
     a.attr('href', item.uri);
     a.appendTo(li);
@@ -137,6 +147,19 @@ $(document).ready(function() {
     scrollResultIntoView();
   });
 
+  // Open Edit Mark modal.
+  acOutput.on('click', '.viewer-edit', function(e) {
+    event.preventDefault();
+    e.stopImmediatePropagation();
+
+    var editBtn = $(this);
+    var linkWrap = editBtn.parents('.link-wrap');
+    $('.compose-mark-form input[name="uri"]').val(linkWrap.attr('href')).prop('readonly', 'readonly');
+    $('.compose-mark-form input[name="title"]').val($('div.title', linkWrap).text());
+    $('.compose-mark-form input[name="tags"]').val($('span.tags', linkWrap).text());
+    openComposeMarkModal();
+  });
+
   // Flag a mark for re-download.
   acOutput.on('click', '.viewer-dl-again', function(e) {
     e.preventDefault();
@@ -183,22 +206,18 @@ $(document).ready(function() {
     search.toggle();
   });
 
-  var openAddMarkModal = function() {
-    $('#add-mark-modal').modal();
-    $('#add-mark-modal input:first').focus();
-  };
-
   var focusSearch = function() {
     q.focus();
   };
 
   // Swap search/status elements.
-  body.on('click', '.add-mark-open', function(event) {
+  body.on('click', '.compose-mark-open', function(event) {
     event.preventDefault();
-    openAddMarkModal();
+    $('.compose-mark-form input[type="text"]').val('').removeAttr('readonly');
+    openComposeMarkModal();
   });
 
-  body.on('submit', '.add-mark-form', function(event) {
+  body.on('submit', '.compose-mark-form', function(event) {
     event.preventDefault();
     $.ajax({
       url: '/add_mark.php',
@@ -206,7 +225,7 @@ $(document).ready(function() {
       dataType: 'jsonp',
       data: $(this).serialize(),
       success: function() {
-        $('#add-mark-modal').modal('hide');
+        $('#compose-mark-modal').modal('hide');
         focusSearch();
       }
     });
@@ -222,7 +241,7 @@ $(document).ready(function() {
     }
   });
 
-  $('#add-mark-modal').on('hidden', function() {
+  $('#compose-mark-modal').on('hidden', function() {
     focusSearch();
   });
 
