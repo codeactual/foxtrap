@@ -52,7 +52,7 @@ $(document).ready(function() {
   })
   .data('autocomplete')._renderItem = function(ul, item) {
     item.tags = item.tags ? '(' + item.tags + ')' : '';
-    var a = $('<a class="link-wrap"/>'),
+    var a = $('<a class="link-wrap" target="_blank"/>'),
         ft = $('<div class="ft" data-id="' + item.id + '"></div>'),
         li = $('<li class="result-template"></li>'),
         dlBtnMsg = item.downloaded ? 'Download Again' : reDownloadMsg;
@@ -79,13 +79,9 @@ $(document).ready(function() {
 
   // Open a new tab with the marked URI.
   acOutput.delegate('.link-wrap', 'click', function(e) {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-
     var a = $(this),
         openUri = function() {
           pushQueryState(q.val());
-          window.location = a.attr('href');
         };
 
     $.ajax({
