@@ -38,17 +38,17 @@
     <div class="modal-body">
       <div class="control-group">
         <div class="controls">
-          <input type="text" name="uri" placeholder="URI" value="http://twitter.github.com/bootstrap/base-css.html#forms" />
+          <input type="text" name="uri" placeholder="URI" />
         </div>
       </div>
       <div class="control-group">
         <div class="controls">
-          <input type="text" name="title" placeholder="Title" value="bootstram forms" />
+          <input type="text" name="title" placeholder="Title" />
         </div>
       </div>
       <div class="control-group">
         <div class="controls">
-          <input type="text" name="tags" placeholder="Tags" value="tag1 tag2" />
+          <input type="text" name="tags" placeholder="Tags" />
         </div>
       </div>
     </div>
