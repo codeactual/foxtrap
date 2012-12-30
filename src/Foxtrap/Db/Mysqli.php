@@ -449,4 +449,22 @@ class Mysqli implements Api
     }
     return $stmt->affected_rows == 1;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteMarksFlaggedForDeletion()
+  {
+    $sql = "
+      DELETE FROM `{$this->table}`
+      WHERE `deleted` = 1";
+
+    $stmt = $this->link->prepare($sql);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$stmt->error} ({$stmt->errno})");
+    }
+
+    return $stmt->affected_rows;
+  }
 }

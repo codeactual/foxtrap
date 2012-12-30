@@ -8,6 +8,8 @@ require __DIR__ . '/../src/LoadClasses.php';
 $factory = new Factory();
 $foxtrap = $factory->createInstance();
 
+$foxtrap->getDb()->deleteMarksFlaggedForDeletion();
+
 // Download any recently added or retry those with cleared error states
 $foxtrap->download();
 
