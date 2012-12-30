@@ -346,7 +346,8 @@ class Mysqli implements Api
       VALUES (?, ?)
       ON DUPLICATE KEY UPDATE `uses` = `uses` + 1";
     $stmt = $this->link->prepare($sql);
-    $stmt->bind_param('ss', $q, md5($q));
+    $hash = md5($q);
+    $stmt->bind_param('ss', $q, $hash);
     $stmt->execute();
     if ($stmt->error) {
       throw new Exception("{$q}: {$stmt->error} ({$stmt->errno})");
