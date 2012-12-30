@@ -54,7 +54,6 @@
     </form>
   </div>
   <div class="modal-footer">
-    <a href="#" class="btn" data-dismiss="modal">Close</a>
     <a href="#" class="btn btn-primary">Add</a>
   </div>
 </div>
