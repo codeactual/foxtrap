@@ -297,7 +297,7 @@ class Mysqli implements Api
   {
     $marks = array();
     $sql = "
-      SELECT `id`, `title`, `body_clean`, `uri`, `tags`, `modified`, `downloaded`
+      SELECT `id`, `title`, `body_clean`, `uri`, `tags`, `modified`, `downloaded`, `deleted`
       FROM `{$this->table}`
       WHERE `id` IN(" . implode(',', $ids) . ')';
 
@@ -433,5 +433,20 @@ class Mysqli implements Api
     }
 
     return $stmt->affected_rows;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function toggleDeletionFlag($id)
+  {
+    $sql = "UPDATE `{$this->table}` SET `deleted` = `deleted` XOR 1 WHERE `id` = ?";
+    $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('d', $id);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");
+    }
+    return $stmt->affected_rows == 1;
   }
 }

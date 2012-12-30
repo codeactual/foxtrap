@@ -162,6 +162,7 @@ class Query
     return (object) array(
       'id' => $row['id'],
       'downloaded' => (boolean) $row['downloaded'],
+      'deleted' => (boolean) $row['deleted'],
       'indexed' =>
         $row['title']
         . " {$row['uri']}"

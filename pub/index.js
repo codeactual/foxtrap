@@ -60,7 +60,7 @@ $(document).ready(function() {
   .data('autocomplete')._renderItem = function(ul, item) {
     item.tags = item.tags ? item.tags : '';
     var a = $('<a class="link-wrap" target="_blank"/>'),
-        ft = $('<div class="ft" data-id="' + item.id + '"></div>'),
+        ft = $('<div class="ft" data-id="' + item.id + '" data-deleted="' + item.deleted + '"></div>'),
         li = $('<li class="result-template"></li>'),
         dlBtnMsg = item.downloaded ? 'Download Again' : reDownloadMsg;
 
@@ -75,7 +75,7 @@ $(document).ready(function() {
         .append('<span class="viewer-dl-again mark-action-btn">' + dlBtnMsg + '</span>');
     }
 
-    viewerToggle.append('<span class="viewer-delete mark-action-btn mark-delete-btn">Delete</span>')
+    viewerToggle.append('<span class="viewer-delete mark-action-btn mark-delete-btn">' + (item.deleted ? 'Cancel Deletion' : 'Delete') + '</span>');
 
     ft.append(viewerToggle);
 
@@ -170,12 +170,20 @@ $(document).ready(function() {
     e.stopImmediatePropagation();
     var delBtn = $(this);
     var linkWrap = delBtn.parents('.link-wrap');
+    var ft = delBtn.closest('.ft');
+    var markId = ft.data('id');
+    $('.compose-mark-form input[name="markId"]').val(markId);;
     $('.compose-mark-form input[name="uri"]').val(linkWrap.attr('href'));
     $('.compose-mark-form input[name="title"]').val($('div.title', linkWrap).text());
     $('.compose-mark-form input[name="tags"]').val($('span.tags', linkWrap).text());
     $('.compose-mark-form input[type="text"]').attr('readonly', 'readonly');
-    $('#compose-mark-modal h3').text('Delete Mark');
-    $('#compose-mark-modal button[type="submit"]').text('Delete');
+    if (ft.data('deleted')) {
+      $('#compose-mark-modal h3').text('Cancel Mark Deletion');
+      $('#compose-mark-modal button[type="submit"]').text('Cancel');
+    } else {
+      $('#compose-mark-modal h3').text('Delete Mark');
+      $('#compose-mark-modal button[type="submit"]').text('Delete');
+    }
     openComposeMarkModal();
   });
 
@@ -240,16 +248,32 @@ $(document).ready(function() {
 
   body.on('submit', '.compose-mark-form', function(event) {
     event.preventDefault();
-    $.ajax({
-      url: '/add_mark.php',
-      type: 'POST',
-      dataType: 'jsonp',
-      data: $(this).serialize(),
-      success: function() {
-        $('#compose-mark-modal').modal('hide');
-        focusSearch();
-      }
-    });
+
+    var mode = $('.compose-mark-submit', $(this)).text();
+
+    if ('Cancel' === mode || 'Delete' === mode) {
+      $.ajax({
+        url: '/delete_mark.php',
+        type: 'POST',
+        dataType: 'jsonp',
+        data: $(this).serialize(),
+        success: function() {
+          $('#compose-mark-modal').modal('hide');
+          focusSearch();
+        }
+      });
+    } else {
+      $.ajax({
+        url: '/add_mark.php',
+        type: 'POST',
+        dataType: 'jsonp',
+        data: $(this).serialize(),
+        success: function() {
+          $('#compose-mark-modal').modal('hide');
+          focusSearch();
+        }
+      });
+    };
   });
 
   body.on('keydown', function(e) {

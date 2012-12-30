@@ -35,6 +35,7 @@
     <h3></h3>
   </div>
   <form class="form-horizontal compose-mark-form">
+    <input type="hidden" name="markId" />
     <div class="modal-body">
       <div class="control-group">
         <div class="controls">
