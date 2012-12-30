@@ -14,7 +14,7 @@
   <div id="sidebar" class="yui3-u-1-8">
     <div id="logo">foxtrap</div>
     <div><a class="layout-toggle" href="#">status</a></div>
-    <div><a class="compose-mark-open btn btn-primary" href="#">add</a></div>
+    <div><a class="compose-mark-open btn btn-primary" href="#">+ Add</a></div>
     <div id="query-history" class="history-group search"></div>
   </div>
   <div class="yui3-u-7-8">
@@ -32,7 +32,7 @@
 <div id="compose-mark-modal" class="modal hide" tabindex="-1">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h3>Add Mark</h3>
+    <h3></h3>
   </div>
   <form class="form-horizontal compose-mark-form">
     <div class="modal-body">

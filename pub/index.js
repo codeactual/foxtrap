@@ -75,6 +75,8 @@ $(document).ready(function() {
         .append('<span class="viewer-dl-again mark-action-btn">' + dlBtnMsg + '</span>');
     }
 
+    viewerToggle.append('<span class="viewer-delete mark-action-btn mark-delete-btn">Delete</span>')
+
     ft.append(viewerToggle);
 
     a.attr('href', item.uri);
@@ -154,9 +156,26 @@ $(document).ready(function() {
 
     var editBtn = $(this);
     var linkWrap = editBtn.parents('.link-wrap');
-    $('.compose-mark-form input[name="uri"]').val(linkWrap.attr('href')).prop('readonly', 'readonly');
+    $('.compose-mark-form input[name="uri"]').val(linkWrap.attr('href')).attr('readonly', 'readonly');
+    $('.compose-mark-form input[name="title"]').val($('div.title', linkWrap).text()).removeAttr('readonly');
+    $('.compose-mark-form input[name="tags"]').val($('span.tags', linkWrap).text()).removeAttr('readonly');
+    $('#compose-mark-modal h3').text('Edit Mark');
+    $('#compose-mark-modal button[type="submit"]').text('Edit');
+    openComposeMarkModal();
+  });
+
+  // Open Delete Mark modal.
+  acOutput.on('click', '.viewer-delete', function(e) {
+    event.preventDefault();
+    e.stopImmediatePropagation();
+    var delBtn = $(this);
+    var linkWrap = delBtn.parents('.link-wrap');
+    $('.compose-mark-form input[name="uri"]').val(linkWrap.attr('href'));
     $('.compose-mark-form input[name="title"]').val($('div.title', linkWrap).text());
     $('.compose-mark-form input[name="tags"]').val($('span.tags', linkWrap).text());
+    $('.compose-mark-form input[type="text"]').attr('readonly', 'readonly');
+    $('#compose-mark-modal h3').text('Delete Mark');
+    $('#compose-mark-modal button[type="submit"]').text('Delete');
     openComposeMarkModal();
   });
 
@@ -214,6 +233,8 @@ $(document).ready(function() {
   body.on('click', '.compose-mark-open', function(event) {
     event.preventDefault();
     $('.compose-mark-form input[type="text"]').val('').removeAttr('readonly');
+    $('#compose-mark-modal h3').text('Add Mark');
+    $('#compose-mark-modal button[type="submit"]').text('Add');
     openComposeMarkModal();
   });
 
