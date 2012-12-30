@@ -44,6 +44,8 @@ $(document).ready(function() {
       }
     },
     source: function(request, response) {
+      pushQueryState(request.term);
+
       $.ajax({
         url: '/q.php',
         dataType: 'jsonp',
