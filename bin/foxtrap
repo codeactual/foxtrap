@@ -8,26 +8,6 @@ require __DIR__ . '/../src/LoadClasses.php';
 $factory = new Factory();
 $foxtrap = $factory->createInstance();
 
-// Extract bookmarks from JSON --file
-$opts = getopt('', array('file:'));
-if (!is_readable($opts['file'])) {
-  exit("Usage: foxtrap --file <JSON>\n");
-}
-
-$json = file_get_contents($opts['file']);
-
-if ($foxtrap->isLastRunInputSame($json)) {
-  exit("Database is up-to-date.\n");
-}
-
-$imported = $foxtrap->jsonToArray($json);
-
-// Add/update their details
-$pruneIds = $foxtrap->registerMarks($imported);
-
-// Avoid unnecessary downloads
-$foxtrap->cleanup($pruneIds);
-
 // Download any recently added or retry those with cleared error states
 $foxtrap->download();
 
@@ -36,6 +16,3 @@ $config = $factory->getConfigFromFile();
 if ($config['sphinx']['autoindex']) {
   passthru(__DIR__ . '/foxtrap-indexer');
 }
-
-// Avoid future processing of the same data.
-$foxtrap->writeLastRunHash($json);
