@@ -52,12 +52,14 @@ $config = array(
     'index' => array(
       'HTML.TidyLevel' => 'none',
       'HTML.Allowed' => '',
-      'Cache.SerializerPath' => '/tmp'
+      'Cache.SerializerPath' => '/tmp',
+      'Cache.SerializerPermissions' => 0765
     ),
     'viewer' => array(
       'HTML.TidyLevel' => 'none',
       'HTML.AllowedAttributes' => '',
-      'Cache.SerializerPath' => '/tmp'
+      'Cache.SerializerPath' => '/tmp',
+      'Cache.SerializerPermissions' => 0765
     )
   ),
   'log' => array(
