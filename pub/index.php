@@ -14,7 +14,7 @@
   <div id="sidebar" class="yui3-u-1-8">
     <div id="logo">foxtrap</div>
     <div><a class="layout-toggle" href="#">status</a></div>
-    <div><a class="add-mark btn btn-primary" href="#">add</a></div>
+    <div><a class="add-mark-open btn btn-primary" href="#">add</a></div>
     <div id="query-history" class="history-group search"></div>
   </div>
   <div class="yui3-u-7-8">
@@ -29,33 +29,33 @@
     <ul id="error-log" class="status"></ul>
   </div>
 </div>
-<div id="add-modal" class="modal hide" tabindex="-1">
+<div id="add-mark-modal" class="modal hide" tabindex="-1">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
     <h3>Add Mark</h3>
   </div>
-  <div class="modal-body">
-    <form class="form-horizontal">
+  <form class="form-horizontal add-mark-form">
+    <div class="modal-body">
       <div class="control-group">
         <div class="controls">
-          <input type="text" id="add-mark-uri" placeholder="URI">
+          <input type="text" name="uri" placeholder="URI" value="http://twitter.github.com/bootstrap/base-css.html#forms" />
         </div>
       </div>
       <div class="control-group">
         <div class="controls">
-          <input type="text" id="add-mark-title" placeholder="Title">
+          <input type="text" name="title" placeholder="Title" value="bootstram forms" />
         </div>
       </div>
       <div class="control-group">
         <div class="controls">
-          <input type="text" id="add-mark-tags" placeholder="Tags">
+          <input type="text" name="tags" placeholder="Tags" value="tag1 tag2" />
         </div>
       </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <a href="#" class="btn btn-primary">Add</a>
-  </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary add-mark-submit">Add</button>
+    </div>
+  </form>
 </div>
 <script src="jquery.min.js" charset="utf-8"></script>
 <script src="jquery-ui.min.js" charset="utf-8"></script>

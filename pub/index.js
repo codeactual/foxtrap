@@ -4,10 +4,10 @@ $(document).ready(function() {
   var acOutput = $('#results-ac-output'),
       qHistory = $('#query-history'),
       q = $('#q'),
+      body = $('body'),
       search = $('.search'),
       status = $('.status'),
       layoutToggle = $('.layout-toggle'),
-      addMark = $('.add-mark'),
       lastPushState = null,
       pushQueryState = function(query) {
         var state = {q: query};
@@ -188,10 +188,20 @@ $(document).ready(function() {
   });
 
   // Swap search/status elements.
-  addMark.on('click', function(event) {
+  body.on('click', '.add-mark-open', function(event) {
     event.preventDefault();
-    $('#add-modal').modal();
-    $('#add-mark-uri').focus();
+    $('#add-mark-modal').modal();
+    $('#add-mark-modal input:first').focus();
+  });
+
+  body.on('submit', '.add-mark-form', function(event) {
+    event.preventDefault();
+    $.ajax({
+      url: '/add_mark.php',
+      type: 'POST',
+      dataType: 'jsonp',
+      data: $(this).serialize()
+    });
   });
 
   // Populate history.
