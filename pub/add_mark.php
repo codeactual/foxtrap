@@ -19,8 +19,8 @@ if ($title && $uri) {
   $mark['added'] = $now;
   $mark['last_err'] = '';
   $lastInsertId = $factory->createInstance()->getDb()->register($mark);
-}
 
-$foxtrap = $factory->createInstance();
-$foxtrap->jsonpHeader();
-echo $foxtrap->jsonpCallback(json_encode($lastInsertId), $_GET['callback']);
+  $foxtrap = $factory->createInstance();
+  $foxtrap->jsonpHeader();
+  echo $foxtrap->jsonpCallback(json_encode($lastInsertId), $_GET['callback']);
+}
