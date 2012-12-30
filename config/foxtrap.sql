@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.8, for linux2.6 (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.28, for linux2.6 (x86_64)
 --
--- Host: localhost    Database: foxtrap
+-- Host: 127.0.0.1    Database: foxtrap
 -- ------------------------------------------------------
--- Server version	5.5.8-log
+-- Server version	5.5.28
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -26,17 +26,18 @@ CREATE TABLE `marks` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(512) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `uri` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `uri_hash` char(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `tags` varchar(128) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `hash` char(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT 'title + uri + tags + added',
+  `tags` varchar(128) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT 'comma separated',
   `body` mediumtext COLLATE utf8_unicode_ci NOT NULL,
-  `body_clean` mediumtext COLLATE utf8_unicode_ci NOT NULL,
-  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `saved` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '0=saved 1=not saved',
+  `body_clean` mediumtext COLLATE utf8_unicode_ci NOT NULL COMMENT 'markup-free for sphinx indexing',
+  `modified` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'time of last mod in browser',
+  `downloaded` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'time of last completed',
+  `added` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'time of add to browser',
   `last_err` varchar(1024) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `version` int(11) unsigned NOT NULL DEFAULT '0',
+  `deleted` tinyint(1) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uri_hash` (`uri_hash`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=COMPRESSED;
+  UNIQUE KEY `hash` (`hash`)
+) ENGINE=InnoDB AUTO_INCREMENT=6334 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=COMPRESSED;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -51,10 +52,10 @@ CREATE TABLE `searches` (
   `query` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `query_hash` char(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `uses` smallint(5) unsigned NOT NULL DEFAULT '1',
+  `uses` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `query_hash` (`query_hash`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
