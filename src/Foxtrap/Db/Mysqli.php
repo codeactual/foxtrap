@@ -89,7 +89,8 @@ class Mysqli implements Api
         `body_clean`,
         `last_err`,
         `modified`,
-        `added`
+        `added`,
+        `deleted`
       )
       VALUES
       (
@@ -101,7 +102,8 @@ class Mysqli implements Api
         '',
         ?,
         ?,
-        ?
+        ?,
+        0
       )
       ON DUPLICATE KEY UPDATE
         `tags` = VALUES(`tags`),
