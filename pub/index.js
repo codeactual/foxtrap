@@ -187,11 +187,19 @@ $(document).ready(function() {
     search.toggle();
   });
 
+  var openAddMarkModal = function() {
+    $('#add-mark-modal').modal();
+    $('#add-mark-modal input:first').focus();
+  };
+
+  var focusSearch = function() {
+    q.focus();
+  };
+
   // Swap search/status elements.
   body.on('click', '.add-mark-open', function(event) {
     event.preventDefault();
-    $('#add-mark-modal').modal();
-    $('#add-mark-modal input:first').focus();
+    openAddMarkModal();
   });
 
   body.on('submit', '.add-mark-form', function(event) {
@@ -200,8 +208,26 @@ $(document).ready(function() {
       url: '/add_mark.php',
       type: 'POST',
       dataType: 'jsonp',
-      data: $(this).serialize()
+      data: $(this).serialize(),
+      success: function() {
+        $('#add-mark-modal').modal('hide');
+        focusSearch();
+      }
     });
+  });
+
+  body.on('keydown', function(e) {
+    if (e.ctrlKey) {
+      if (65 === e.keyCode) { // ctrl-a
+        openAddMarkModal();
+      } else if (83 === e.keyCode) { // ctrl-s
+        focusSearch();
+      }
+    }
+  });
+
+  $('#add-mark-modal').on('hidden', function() {
+    focusSearch();
   });
 
   // Populate history.
@@ -285,5 +311,5 @@ $(document).ready(function() {
     }
   };
 
-  q.focus();
+  focusSearch();
 });
