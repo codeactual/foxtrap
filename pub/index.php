@@ -14,7 +14,7 @@
   <div id="sidebar" class="yui3-u-1-8">
     <div id="logo">foxtrap</div>
     <div><a class="layout-toggle" href="#">status</a></div>
-    <div><a class="add-mark" href="#">add</a></div>
+    <div><a class="add-mark btn btn-primary" href="#">add</a></div>
     <div id="query-history" class="history-group search"></div>
   </div>
   <div class="yui3-u-7-8">
