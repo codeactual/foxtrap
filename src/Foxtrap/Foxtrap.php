@@ -272,4 +272,36 @@ class Foxtrap
   {
     return "{$callback}({$json});";
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function seedFtIndex($table, $index)
+  {
+    $selectSql = "
+      SELECT `id`, `title`, `uri`, `tags`, `body_clean`
+      FROM `{$table}`";
+
+    $result = $this->db->query($selectSql);
+    if ($result) {
+      while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+        $replaceSql = sprintf("
+          REPLACE INTO `%s`
+          (`id`, `title`, `uri`, `tags`, `body_clean`)
+          VALUES
+          ('%s', '%s', '%s', '%s', '%s')",
+          $index,
+          $this->db->escape($row['id']),
+          $this->db->escape($row['title']),
+          $this->db->escape($row['uri']),
+          $this->db->escape($row['tags']),
+          $this->db->escape($row['body_clean'])
+        );
+
+        if (!$this->ftDb->query($replaceSql)) {
+          throw new Exception($this->link->sqlstate);
+        }
+      }
+    }
+  }
 }

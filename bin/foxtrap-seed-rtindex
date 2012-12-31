@@ -10,5 +10,8 @@ $foxtrap = $factory->createInstance();
 
 $config = $factory->getConfigFromFile();
 if ($config['db']['ftConnect']) {
-  $foxtrap->getFtDb()->seedFtIndex();
+  $foxtrap->seedFtIndex(
+    $config['db']['table'],
+    $config['sphinx']['connect']['index']
+  );
 }

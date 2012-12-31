@@ -74,6 +74,22 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
+  public function query($sql)
+  {
+    return $this->link->query($sql);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function escape($str)
+  {
+    return $this->link->real_escape_string($str);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function register(array $mark)
   {
     // Add the URI for the first time OR update its tags/title
@@ -468,37 +484,5 @@ class Mysqli implements Api
     }
 
     return $stmt->affected_rows;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function seedFtIndex($index)
-  {
-    $selectSql = "
-      SELECT `id`, `title`, `uri`, `tags`, `body_clean`
-      FROM `{$this->table}`";
-
-    $result = $this->link->query($selectSql);
-    if ($result) {
-      while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
-        $insertSql = sprintf("
-          INSERT INTO `%s`
-          (`id`, `title`, `uri`, `tags`, `body_clean`)
-          VALUES
-          ('%s', '%s', '%s', '%s', '%s')",
-          $index,
-          $this->link->real_escape_string($row['id']),
-          $this->link->real_escape_string($row['title']),
-          $this->link->real_escape_string($row['uri']),
-          $this->link->real_escape_string($row['tags']),
-          $this->link->real_escape_string($row['body_clean'])
-        );
-
-        if (!$this->db->query($insertSql)) {
-          throw new Exception($this->link->sqlstate);
-        }
-      }
-    }
   }
 }
