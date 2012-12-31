@@ -305,40 +305,44 @@ $(document).ready(function() {
     }
   });
 
-  // Populate error log.
-  $.ajax({
-    url: 'get_error_log.php',
-    dataType: 'jsonp',
-    success: function(data) {
-      var ul = $('#error-log');
+  var populateErrorLog = function() {
+    // Populate error log.
+    $.ajax({
+      url: 'get_error_log.php',
+      dataType: 'jsonp',
+      success: function(data) {
+        var ul = $('#error-log');
 
-      if (!data.length) {
-        ul.append('<li>No errors.</li>');
-        return;
+        ul.empty();
+
+        if (!data.length) {
+          ul.append('<li>No errors.</li>');
+          return;
+        }
+
+        $.each(data, function(pos, item) {
+          var matches = item.last_err.match(/^([^\{]+)(.*)$/),
+            message = matches[1].replace(/: $/, ''),
+            detail = JSON.parse(matches[2]),
+            li = $('<li id="error-log-' + item.id + '" class="error-log" />');
+
+            message = message || 'HTTP code: ' + detail.http_code;
+
+            li.append(
+              $('<div class="title" data-id="' + item.id + '" data-title="' + item.title + '" data-uri="' + item.uri + '" data-tags="' + item.tags + '" data-deleted="' + item.deleted + '" />')
+              .append('<a class="retry mark-action-btn" href="#">Retry</a>')
+              .append('<a class="edit mark-action-btn" href="#">Edit</a>')
+              .append('<a class="delete mark-action-btn mark-delete-btn" href="#">' + (item.deleted ? 'Cancel Deletion' : 'Delete') + '</a>')
+              .append('<a class="uri" href="' + item.uri + '">' + item.title + '</a>')
+              .append(' <span class="tags">' + item.tags + '</span>')
+            );
+            li.append('<div><a class="uri" href="' + item.uri + '">' + item.uri + '</a></div>')
+            li.append('<div class="message">' + message + '</div>')
+            ul.append(li);
+        });
       }
-
-      $.each(data, function(pos, item) {
-        var matches = item.last_err.match(/^([^\{]+)(.*)$/),
-          message = matches[1].replace(/: $/, ''),
-          detail = JSON.parse(matches[2]),
-          li = $('<li id="error-log-' + item.id + '" class="error-log" />');
-
-          message = message || 'HTTP code: ' + detail.http_code;
-
-          li.append(
-            $('<div class="title" data-id="' + item.id + '" data-title="' + item.title + '" data-uri="' + item.uri + '" data-tags="' + item.tags + '" data-deleted="' + item.deleted + '" />')
-            .append('<a class="retry mark-action-btn" href="#">Retry</a>')
-            .append('<a class="edit mark-action-btn" href="#">Edit</a>')
-            .append('<a class="delete mark-action-btn mark-delete-btn" href="#">' + (item.deleted ? 'Cancel Deletion' : 'Delete') + '</a>')
-            .append('<a class="uri" href="' + item.uri + '">' + item.title + '</a>')
-            .append(' <span class="tags">' + item.tags + '</span>')
-          );
-          li.append('<div><a class="uri" href="' + item.uri + '">' + item.uri + '</a></div>')
-          li.append('<div class="message">' + message + '</div>')
-          ul.append(li);
-      });
-    }
-  });
+    });
+  };
 
   // Allow mark editing from the error log.
   $('#error-log').on('click', '.edit', function(event) {
@@ -411,6 +415,7 @@ $(document).ready(function() {
       q.autocomplete('search', e.state.q);
     }
   };
-
+;
+  populateErrorLog();
   focusSearch();
 });
