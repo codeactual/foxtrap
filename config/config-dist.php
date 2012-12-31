@@ -38,10 +38,7 @@ $config = array(
       'chunk_separator'	=> ' ... ',
       'limit'	=> 750,
       'around' => 10
-    ),
-
-    // bin/foxtrap always ends by running bin/foxtrap-indexer
-    'autoindex' => true
+    )
   ),
   'curl' => array(
     CURLOPT_CONNECTTIMEOUT => 10,

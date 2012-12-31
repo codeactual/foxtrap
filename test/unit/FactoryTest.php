@@ -33,8 +33,7 @@ class FactoryTest extends PHPUnit_Framework_TestCase
           'chunk_separator'	=> ' ... ',
           'limit'	=> 750,
           'around' => 10
-        ),
-        'autoindex' => true
+        )
       ),
       'curl' => array(
         CURLOPT_CONNECTTIMEOUT => 2,
