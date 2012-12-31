@@ -23,6 +23,15 @@ $(document).ready(function() {
       },
       reDownloadMsg = 'Will download in next cycle.';
 
+  var refreshCurrentView = function() {
+    var view = $('#error-log:visible');
+    if (view.length) {
+      populateErrorLog();
+    } else {
+      q.autocomplete('search', q.val());
+    }
+  };
+
   var openComposeMarkModal = function() {
     $('#compose-mark-modal').modal();
 
@@ -261,6 +270,7 @@ $(document).ready(function() {
         data: $(this).serialize(),
         success: function() {
           $('#compose-mark-modal').modal('hide');
+          refreshCurrentView();
           focusSearch();
         }
       });
@@ -272,6 +282,7 @@ $(document).ready(function() {
         data: $(this).serialize(),
         success: function() {
           $('#compose-mark-modal').modal('hide');
+          refreshCurrentView();
           focusSearch();
         }
       });
