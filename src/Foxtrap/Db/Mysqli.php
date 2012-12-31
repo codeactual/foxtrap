@@ -438,7 +438,7 @@ class Mysqli implements Api
   public function getErrorLog($limit)
   {
     $sql = "
-      SELECT `id`, `last_err`, `title`, `uri`
+      SELECT `id`, `last_err`, `title`, `uri`, `tags`, `deleted`
       FROM `{$this->table}`
       WHERE `last_err` NOT IN ('', 'nosave')
       ORDER BY `id` DESC
@@ -458,7 +458,9 @@ class Mysqli implements Api
           'id' => $row['id'],
           'last_err' => utf8_decode($row['last_err']),
           'title' => utf8_decode($row['title']),
-          'uri' => utf8_decode($row['uri'])
+          'uri' => utf8_decode($row['uri']),
+          'tags' => utf8_decode($row['tags']),
+          'deleted' => $row['deleted']
         );
       }
     }

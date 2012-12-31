@@ -326,9 +326,12 @@ $(document).ready(function() {
           message = message || 'HTTP code: ' + detail.http_code;
 
           li.append(
-            $('<div class="title"/>')
-            .append('<a class="retry mark-action-btn" href="#" data-id="' + item.id + '">retry</a>')
+            $('<div class="title" data-id="' + item.id + '" data-title="' + item.title + '" data-uri="' + item.uri + '" data-tags="' + item.tags + '" data-deleted="' + item.deleted + '" />')
+            .append('<a class="retry mark-action-btn" href="#">Retry</a>')
+            .append('<a class="edit mark-action-btn" href="#">Edit</a>')
+            .append('<a class="delete mark-action-btn mark-delete-btn" href="#">' + (item.deleted ? 'Cancel Deletion' : 'Delete') + '</a>')
             .append('<a class="uri" href="' + item.uri + '">' + item.title + '</a>')
+            .append(' <span class="tags">' + item.tags + '</span>')
           );
           li.append('<div><a class="uri" href="' + item.uri + '">' + item.uri + '</a></div>')
           li.append('<div class="message">' + message + '</div>')
@@ -337,11 +340,47 @@ $(document).ready(function() {
     }
   });
 
+  // Allow mark editing from the error log.
+  $('#error-log').on('click', '.edit', function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    var title = $(this).parents('.title');
+
+    $('.compose-mark-form input[name="uri"]').val(title.data('uri')).attr('readonly', 'readonly');
+    $('.compose-mark-form input[name="title"]').val(title.data('title')).removeAttr('readonly');
+    $('.compose-mark-form input[name="tags"]').val(title.data('tags')).removeAttr('readonly');
+    $('#compose-mark-modal h3').text('Edit Mark');
+    $('#compose-mark-modal button[type="submit"]').text('Edit');
+    openComposeMarkModal();
+  });
+
+  // Allow mark deleting from the error log.
+  $('#error-log').on('click', '.delete', function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    var title = $(this).parents('.title');
+
+    $('.compose-mark-form input[name="markId"]').val(title.data('id'));
+    $('.compose-mark-form input[name="uri"]').val(title.data('uri')).attr('readonly', 'readonly');
+    $('.compose-mark-form input[name="title"]').val(title.data('title')).removeAttr('readonly');
+    $('.compose-mark-form input[name="tags"]').val(title.data('tags')).removeAttr('readonly');
+    if (title.data('deleted')) {
+      $('#compose-mark-modal h3').text('Cancel Mark Deletion');
+      $('#compose-mark-modal button[type="submit"]').text('Cancel');
+    } else {
+      $('#compose-mark-modal h3').text('Delete Mark');
+      $('#compose-mark-modal button[type="submit"]').text('Delete');
+    }
+    openComposeMarkModal();
+  });
+
   // Remove an mark's error state.
   $('#error-log').on('click', '.retry', function(event) {
     event.preventDefault();
 
-    var markId = $(this).data('id'),
+    var markId = $(this).parents('.title').data('id'),
         logItem = $('#error-log-' + markId),
         logBtn = $('.mark-action-btn', logItem);
 
