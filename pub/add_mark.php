@@ -21,6 +21,7 @@ if ($title && $uri) {
   $lastInsertId = $factory->createInstance()->getDb()->register($mark);
 
   $foxtrap = $factory->createInstance();
+  $foxtrap->getFtIndex()->updateById($foxtrap->getDb()->getMarkIdByHash($mark['hash']));
   $foxtrap->jsonpHeader();
   echo $foxtrap->jsonpCallback(json_encode($lastInsertId), $_GET['callback']);
 }

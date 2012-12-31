@@ -9,9 +9,4 @@ $factory = new Factory();
 $foxtrap = $factory->createInstance();
 
 $config = $factory->getConfigFromFile();
-if ($config['db']['ftConnect']) {
-  $foxtrap->seedFtIndex(
-    $config['db']['table'],
-    $config['sphinx']['connect']['index']
-  );
-}
+$foxtrap->getFtIndex()->seed();

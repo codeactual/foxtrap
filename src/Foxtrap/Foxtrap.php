@@ -12,6 +12,7 @@ use \Exception;
 use \Flow\Flow;
 use \Foxtrap\Db\Api as DbApi;
 use \Foxtrap\Log\Api as LogApi;
+use \Foxtrap\FtIndex;
 use \Foxtrap\Query;
 use \HTMLPurifier;
 
@@ -23,9 +24,9 @@ class Foxtrap
   protected $db;
 
   /**
-   * @var DbApi Implementation interface, e.g. Db\Mysqli.
+   * @var FtIndex instance.
    */
-  protected $ftDb;
+  protected $ftIndex;
 
   /**
    * @var LogApi Implementation interface, e.g. Log\Stdout.
@@ -57,7 +58,7 @@ class Foxtrap
    */
   protected $uriDownloaded;
 
-  public function __construct(CurlyQueue $queue, DbApi $db, HTMLPurifier $purifier, LogApi $log, Query $query, DbApi $ftDb)
+  public function __construct(CurlyQueue $queue, DbApi $db, HTMLPurifier $purifier, LogApi $log, Query $query, FtIndex $ftIndex)
   {
     $this->db = $db;
     $this->purifier = $purifier;
@@ -66,13 +67,13 @@ class Foxtrap
     $this->queue->setErrorCallback(array($this, 'onDownloadError'));
     $this->log = $log;
     $this->query = $query;
-    $this->ftDb = $ftDb;
+    $this->ftIndex = $ftIndex;
   }
 
   /**
    * Download HTML of any new or retry-eligible marks.
    *
-   * @return int Download count.
+   * @return array Downloaded marks. Each element is an array w/ 'id' and 'uri'.
    */
   public function download()
   {
@@ -90,10 +91,10 @@ class Foxtrap
 
       $this->queue->exec();
 
-      return $this->uriDownloaded;
+      return $marks;
     }
 
-    return 0;
+    return $marks;
   }
 
   /**
@@ -202,13 +203,13 @@ class Foxtrap
   }
 
   /**
-   * Access to $this->ftDb.
+   * Access to $this->ftIndex.
    *
-   * @return \Foxtrap\Db\Api
+   * @return \Foxtrap\FtIndex
    */
-  public function getFtDb()
+  public function getFtIndex()
   {
-    return $this->ftDb;
+    return $this->ftIndex;
   }
 
   /**
@@ -271,37 +272,5 @@ class Foxtrap
   public function jsonpCallback($json, $callback)
   {
     return "{$callback}({$json});";
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function seedFtIndex($table, $index)
-  {
-    $selectSql = "
-      SELECT `id`, `title`, `uri`, `tags`, `body_clean`
-      FROM `{$table}`";
-
-    $result = $this->db->query($selectSql);
-    if ($result) {
-      while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
-        $replaceSql = sprintf("
-          REPLACE INTO `%s`
-          (`id`, `title`, `uri`, `tags`, `body_clean`)
-          VALUES
-          ('%s', '%s', '%s', '%s', '%s')",
-          $index,
-          $this->db->escape($row['id']),
-          $this->db->escape($row['title']),
-          $this->db->escape($row['uri']),
-          $this->db->escape($row['tags']),
-          $this->db->escape($row['body_clean'])
-        );
-
-        if (!$this->ftDb->query($replaceSql)) {
-          throw new Exception($this->link->sqlstate);
-        }
-      }
-    }
   }
 }

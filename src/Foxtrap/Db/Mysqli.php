@@ -90,6 +90,14 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
+  public function getError()
+  {
+    return "{$this->link->error} ({$this->link->errno})";
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function register(array $mark)
   {
     // Add the URI for the first time OR update its tags/title
@@ -301,6 +309,28 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
+  public function getMarkIdByHash($hash)
+  {
+    $sql = "
+      SELECT `id`
+      FROM `{$this->table}`
+      WHERE `hash` = ?";
+
+    $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('s', $hash);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$stmt->error} ({$stmt->errno})");
+    }
+
+    $result = $stmt->get_result();
+    $mark = $result->fetch_array(MYSQLI_ASSOC);
+    return $mark['id'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function resetTestDb()
   {
     if ($this->testDbName) {
@@ -471,10 +501,10 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
-  public function deleteMarksFlaggedForDeletion()
+  public function getMarksFlaggedForDeletion()
   {
     $sql = "
-      DELETE FROM `{$this->table}`
+      SELECT `id` FROM `{$this->table}`
       WHERE `deleted` = 1";
 
     $stmt = $this->link->prepare($sql);
@@ -483,6 +513,14 @@ class Mysqli implements Api
       throw new Exception("{$stmt->error} ({$stmt->errno})");
     }
 
-    return $stmt->affected_rows;
+    $ids = array();
+    $result = $stmt->get_result();
+    if ($result) {
+      while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+        $ids[] = $row['id'];
+      }
+    }
+
+    return $ids;
   }
 }

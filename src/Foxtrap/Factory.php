@@ -10,6 +10,7 @@ namespace Foxtrap;
 use \CurlyQueue\CurlyQueue;
 use \Foxtrap\Foxtrap;
 use \Foxtrap\Query;
+use \Foxtrap\FtIndex;
 use \HTMLPurifier;
 use \HTMLPurifier_Config;
 use \SphinxClient;
@@ -95,6 +96,13 @@ class Factory
     );
     $ftDb = new $dbClass($ftDbLink, $config);
 
+    $ftIndex = new FtIndex(
+      $db,
+      $config['db']['table'],
+      $ftDb,
+      $config['sphinx']['connect']['index']
+    );
+
     $purifier = $this->createPurifier($config['htmlpurifier']['index']);
 
     if (!$config['log']['class']) {
@@ -116,6 +124,6 @@ class Factory
       $config['sphinx']
     );
 
-    return new Foxtrap($queue, $db, $purifier, $log, $query, $ftDb);
+    return new Foxtrap($queue, $db, $purifier, $log, $query, $ftIndex);
   }
 }
