@@ -303,6 +303,15 @@ $(document).ready(function() {
     focusSearch();
   });
 
+  // Populate count.
+  $.ajax({
+    url: 'get_marks_count.php',
+    dataType: 'jsonp',
+    success: function(data) {
+      $('#marks-count').text(data);
+    }
+  });
+
   // Populate history.
   $.ajax({
     url: 'get_history.php',

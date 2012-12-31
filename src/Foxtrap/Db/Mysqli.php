@@ -253,6 +253,25 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
+  public function getMarksCount()
+  {
+    $sql = "
+      SELECT COUNT(*) AS `count`
+      FROM `{$this->table}`";
+
+    $stmt = $this->link->prepare($sql);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$stmt->error} ({$stmt->errno})");
+    }
+
+    $result = $stmt->get_result();
+    return $result->fetch_array(MYSQLI_ASSOC)['count'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getMarksToDownload()
   {
     $sql = "
