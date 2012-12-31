@@ -15,11 +15,13 @@ $config = array(
     'connect' => array(
       'host' => 'localhost',
       'port' => 9312,
+      'mysql41Port' => 9306,
       'index' => 'foxtrap'
     ),
     'testConnect' => array(
       'host' => 'localhost',
       'port' => 9313,
+      'mysql41Port' => 9307,
       'index' => 'foxtrap_test'
     ),
 
