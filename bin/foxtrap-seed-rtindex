@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+use \Foxtrap\Factory;
+
+require __DIR__ . '/../src/LoadClasses.php';
+
+$factory = new Factory();
+$foxtrap = $factory->createInstance();
+
+$config = $factory->getConfigFromFile();
+if ($config['db']['ftConnect']) {
+  $foxtrap->getFtDb()->seedFtIndex();
+}

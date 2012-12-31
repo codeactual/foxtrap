@@ -7,6 +7,8 @@ $config = array(
     // Passed to mysqli_connect()
     'connect' => array('localhost', 'user', 'pass', 'foxtrap'),
     'testConnect' => array('localhost', 'user', 'pass', 'foxtrap'),
+    'ftConnect' => array('localhost:9306'),
+    'testFtConnect' => array('localhost:9307'),
     // Pairs specific to the DB class
     'table' => 'marks',
     'historyTable' => 'searches'
@@ -15,13 +17,11 @@ $config = array(
     'connect' => array(
       'host' => 'localhost',
       'port' => 9312,
-      'mysql41Port' => 9306,
       'index' => 'foxtrap'
     ),
     'testConnect' => array(
       'host' => 'localhost',
       'port' => 9313,
-      'mysql41Port' => 9307,
       'index' => 'foxtrap_test'
     ),
 

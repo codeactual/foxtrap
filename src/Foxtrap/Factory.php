@@ -89,6 +89,12 @@ class Factory
     );
     $db = new $dbClass($dbLink, $config);
 
+    $ftDbLink = call_user_func_array(
+      array($dbClass, 'createLink'),
+      $config['db']['ftConnect']
+    );
+    $ftDb = new $dbClass($ftDbLink, $config);
+
     $purifier = $this->createPurifier($config['htmlpurifier']['index']);
 
     if (!$config['log']['class']) {
@@ -110,6 +116,6 @@ class Factory
       $config['sphinx']
     );
 
-    return new Foxtrap($queue, $db, $purifier, $log, $query);
+    return new Foxtrap($queue, $db, $purifier, $log, $query, $ftDb);
   }
 }

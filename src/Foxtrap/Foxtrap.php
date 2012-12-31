@@ -23,6 +23,11 @@ class Foxtrap
   protected $db;
 
   /**
+   * @var DbApi Implementation interface, e.g. Db\Mysqli.
+   */
+  protected $ftDb;
+
+  /**
    * @var LogApi Implementation interface, e.g. Log\Stdout.
    */
   protected $log;
@@ -52,7 +57,7 @@ class Foxtrap
    */
   protected $uriDownloaded;
 
-  public function __construct(CurlyQueue $queue, DbApi $db, HTMLPurifier $purifier, LogApi $log, Query $query)
+  public function __construct(CurlyQueue $queue, DbApi $db, HTMLPurifier $purifier, LogApi $log, Query $query, DbApi $ftDb)
   {
     $this->db = $db;
     $this->purifier = $purifier;
@@ -61,6 +66,7 @@ class Foxtrap
     $this->queue->setErrorCallback(array($this, 'onDownloadError'));
     $this->log = $log;
     $this->query = $query;
+    $this->ftDb = $ftDb;
   }
 
   /**
@@ -193,6 +199,16 @@ class Foxtrap
   public function getDb()
   {
     return $this->db;
+  }
+
+  /**
+   * Access to $this->ftDb.
+   *
+   * @return \Foxtrap\Db\Api
+   */
+  public function getFtDb()
+  {
+    return $this->ftDb;
   }
 
   /**
