@@ -20,7 +20,6 @@ if ($ids) {
 // Download any recently added or retry those with cleared error states
 $marks = $foxtrap->download();
 if ($marks) {
-  var_export($marks);
   foreach ($marks as $mark) {
     $ftIndex->updateById($mark['id']);
   }
