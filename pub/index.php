@@ -45,11 +45,6 @@
       </div>
       <div class="control-group">
         <div class="controls">
-          <input type="text" name="title" placeholder="Title" />
-        </div>
-      </div>
-      <div class="control-group">
-        <div class="controls">
           <input type="text" name="tags" placeholder="Tags" />
         </div>
       </div>
