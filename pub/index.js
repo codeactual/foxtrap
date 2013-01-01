@@ -315,6 +315,7 @@ $(document).ready(function() {
         data: $(this).serialize(),
         success: function() {
           $('#compose-mark-modal').modal('hide');
+          populateMarksCount();
           refreshCurrentView();
           focusSearch();
         }
@@ -337,14 +338,16 @@ $(document).ready(function() {
     focusSearch();
   });
 
-  // Populate count.
-  $.ajax({
-    url: 'get_marks_count.php',
-    dataType: 'jsonp',
-    success: function(data) {
-      $('#marks-count').text(data);
-    }
-  });
+  var populateMarksCount = function() {
+    // Populate count.
+    $.ajax({
+      url: 'get_marks_count.php',
+      dataType: 'jsonp',
+      success: function(data) {
+        $('#marks-count').text(data);
+      }
+    });
+  };
 
   // Populate history.
   $.ajax({
@@ -469,7 +472,8 @@ $(document).ready(function() {
       q.autocomplete('search', e.state.q);
     }
   };
-;
+
+  populateMarksCount();
   populateErrorLog();
   focusSearch();
 });
