@@ -36,7 +36,7 @@ $(document).ready(function() {
     $('#compose-mark-modal').modal();
 
     // Appending ":first" to selector will select the title input for some reason.
-    $('#compose-mark-modal input[type="text"]:enabled')[0].focus();
+    $('#compose-mark-modal input[type="text"]:not([readonly="readonly"])')[0].focus();
   };
 
   q.autocomplete({
