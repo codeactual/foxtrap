@@ -275,17 +275,23 @@ $(document).ready(function() {
     q.focus();
   };
 
-  // Swap search/status elements.
-  body.on('click', '.compose-mark-open', function(event) {
-    event.preventDefault();
+  var openMarkModalForAdd = function() {
     $('.compose-mark-form input[type="text"]').val('').removeAttr('readonly');
     $('#compose-mark-modal h3').text('Add Mark');
     $('#compose-mark-modal button[type="submit"]').text('Add');
     openComposeMarkModal();
+  };
+
+  // Swap search/status elements.
+  body.on('click', '.compose-mark-open', function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openMarkModalForAdd();
   });
 
   body.on('submit', '.compose-mark-form', function(event) {
     event.preventDefault();
+    event.stopImmediatePropagation();
 
     var mode = $('.compose-mark-submit', $(this)).text();
 
@@ -319,7 +325,7 @@ $(document).ready(function() {
   body.on('keydown', function(e) {
     if (e.ctrlKey) {
       if (65 === e.keyCode) { // ctrl-a
-        openComposeMarkModal();
+        openMarkModalForAdd();
       } else if (83 === e.keyCode) { // ctrl-s
         $('#compose-mark-modal').modal('hide');
         focusSearch();
