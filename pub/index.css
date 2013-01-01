@@ -91,6 +91,7 @@ iframe {
 }
 .tags {
   color: #D14836;
+  font-size: 0.8em;
 }
 .status {
   display: none;
