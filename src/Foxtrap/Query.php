@@ -120,6 +120,10 @@ class Query
     // returns results in original sort order.
     $docBodies = array();
     foreach ($rankToId as $id) {
+      // Detect IDs from FT index that are no longer in the DB.
+      if (!array_key_exists($idToRank[$id], $docs)) {
+        continue;
+      }
       $docBodies[] = $docs[$idToRank[$id]]->indexed;
       unset($docs[$idToRank[$id]]->indexed);
     }
@@ -132,13 +136,22 @@ class Query
     );
     if ($res) {
       foreach ($res as $rank => $r) {
+        // Detect IDs from FT index that are no longer in the DB.
+        if (!array_key_exists($rank, $docs)) {
+          continue;
+        }
         $docs[$rank]->excerpt = $r;
       }
     } else {
       error_log($this->cl->GetLastError());
     }
 
-    return $docs;
+    // Prevent eventual json_encode() from interpreting the array as associative.
+    $desparsed = array();
+    foreach ($docs as $d) {
+      $desparsed[] = $d;
+    }
+    return $desparsed;
   }
 
   /**
