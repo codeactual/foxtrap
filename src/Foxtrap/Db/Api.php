@@ -42,11 +42,12 @@ interface Api
    * @param string $raw Unsanitized HTML.
    * @param string $clean Ssanitized HTML.
    * @param int $id
+   * @param string $title Extract HTML title.
    * @return void
    * @throws Exception
    * - on write error
    */
-  public function saveSuccess($raw, $clean, $id);
+  public function saveSuccess($raw, $clean, $id, $title);
 
   /**
    * Update a URI's error state.
