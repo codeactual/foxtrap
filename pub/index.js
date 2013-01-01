@@ -168,6 +168,7 @@ $(document).ready(function() {
     var editBtn = $(this);
     var linkWrap = editBtn.parents('.link-wrap');
     $('.compose-mark-form input[name="uri"]').val(linkWrap.attr('href')).attr('readonly', 'readonly');
+    $('.compose-mark-form input[name="title"]').val($('div.title', linkWrap).text()).removeAttr('readonly');
     $('.compose-mark-form input[name="tags"]').val($('span.tags', linkWrap).text()).removeAttr('readonly');
     $('#compose-mark-modal h3').text('Edit Mark');
     $('#compose-mark-modal button[type="submit"]').text('Edit');
@@ -184,6 +185,7 @@ $(document).ready(function() {
     var markId = ft.data('id');
     $('.compose-mark-form input[name="markId"]').val(markId);;
     $('.compose-mark-form input[name="uri"]').val(linkWrap.attr('href'));
+    $('.compose-mark-form input[name="title"]').val($('div.title', linkWrap).text());
     $('.compose-mark-form input[name="tags"]').val($('span.tags', linkWrap).text());
     $('.compose-mark-form input[type="text"]').attr('readonly', 'readonly');
     if (ft.data('deleted')) {
@@ -370,6 +372,7 @@ $(document).ready(function() {
     var title = $(this).parents('.title');
 
     $('.compose-mark-form input[name="uri"]').val(title.data('uri')).attr('readonly', 'readonly');
+    $('.compose-mark-form input[name="title"]').val(title.data('title')).removeAttr('readonly');
     $('.compose-mark-form input[name="tags"]').val(title.data('tags')).removeAttr('readonly');
     $('#compose-mark-modal h3').text('Edit Mark');
     $('#compose-mark-modal button[type="submit"]').text('Edit');
@@ -385,6 +388,7 @@ $(document).ready(function() {
 
     $('.compose-mark-form input[name="markId"]').val(title.data('id'));
     $('.compose-mark-form input[name="uri"]').val(title.data('uri')).attr('readonly', 'readonly');
+    $('.compose-mark-form input[name="title"]').val(title.data('title')).removeAttr('readonly');
     $('.compose-mark-form input[name="tags"]').val(title.data('tags')).removeAttr('readonly');
     if (title.data('deleted')) {
       $('#compose-mark-modal h3').text('Cancel Mark Deletion');
