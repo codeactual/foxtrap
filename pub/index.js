@@ -319,8 +319,9 @@ $(document).ready(function() {
   body.on('keydown', function(e) {
     if (e.ctrlKey) {
       if (65 === e.keyCode) { // ctrl-a
-        openAddMarkModal();
+        openComposeMarkModal();
       } else if (83 === e.keyCode) { // ctrl-s
+        $('#compose-mark-modal').modal('hide');
         focusSearch();
       }
     }
