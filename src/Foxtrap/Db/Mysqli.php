@@ -159,7 +159,7 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
-  public function saveSuccess($body, $bodyClean, $id, $title)
+  public function saveSuccess($body, $bodyClean, $id)
   {
     $sql = "
       UPDATE `{$this->table}`
@@ -167,14 +167,13 @@ class Mysqli implements Api
         `body` = ?,
         `body_clean` = ?,
         `downloaded` = UNIX_TIMESTAMP(),
-        `last_err` = '',
-        `title` = ?
+        `last_err` = ''
       WHERE `id` = ?";
 
     $stmt = $this->link->prepare($sql);
     $body = utf8_encode($body);
     $bodyClean = utf8_encode($bodyClean);
-    $stmt->bind_param('sssd', $body, $bodyClean, $title, $id);
+    $stmt->bind_param('ssd', $body, $bodyClean, $id);
     $stmt->execute();
     if ($stmt->error) {
       throw new Exception("id {$id}: {$stmt->error} ({$stmt->errno})");

@@ -32,6 +32,31 @@ $(document).ready(function() {
     }
   };
 
+  var populateMarkTitleInModal = function() {
+    var uri = $('.compose-mark-form input[name="uri"]').val();
+    if (!uri) {
+      return;
+    }
+
+    $('.compose-mark-form input[name="title"]').val('Fetching ...');
+    $('.compose-mark-form input[name="tags"]').focus();
+
+    $.ajax({
+      url: '/get_page_title.php',
+      dataType: 'jsonp',
+      data: {
+        uri: uri
+      },
+      success: function(data) {
+        $('.compose-mark-form input[name="title"]').val(data);
+      },
+      error: function() {
+        $('.compose-mark-form input[name="title"]').val('title not found');
+      }
+    });
+  };
+  $('.compose-mark-form input[name="uri"]').on('change', populateMarkTitleInModal);
+
   var openComposeMarkModal = function() {
     $('#compose-mark-modal').modal();
 

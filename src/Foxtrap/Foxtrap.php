@@ -15,8 +15,6 @@ use \Foxtrap\Log\Api as LogApi;
 use \Foxtrap\FtIndex;
 use \Foxtrap\Query;
 use \HTMLPurifier;
-use \DOMDocument;
-use \DOMXPath;
 
 class Foxtrap
 {
@@ -135,22 +133,10 @@ class Foxtrap
     if (0 === $errno) {
       $info = curl_getinfo($ch);
       if (200 == $info['http_code'] && strlen($content)) {
-        // Extract HTML title to avoid having to manually input from UI.
-        $doc = new DOMDocument();
-        @$doc->loadHTML($content);
-        $xpath = new DOMXPath($doc);
-        $title = $xpath->query('//title');
-        if ($title) {
-          $title = $title->item(0)->nodeValue;
-        } else {
-          $title = 'untitled page';
-        }
-
         $this->db->saveSuccess(
           $content,
           $this->cleanResponseBody($content),
-          $context['id'],
-          $title
+          $context['id']
         );
       } else {
         $error = json_encode($info);
