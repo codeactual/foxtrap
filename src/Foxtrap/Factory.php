@@ -121,7 +121,8 @@ class Factory
       $cl,
       $db,
       $config['sphinx']['connect']['index'],
-      $config['sphinx']
+      $config['sphinx'],
+      $ftIndex
     );
 
     return new Foxtrap($queue, $db, $purifier, $log, $query, $ftIndex);

@@ -8,6 +8,7 @@
 namespace Foxtrap;
 
 use \Foxtrap\Db\Api as DbApi;
+use \Foxtrap\FtIndex;
 use \SphinxClient;
 
 /**
@@ -35,12 +36,18 @@ class Query
    */
   protected $index;
 
-  public function __construct(SphinxClient $cl, DbApi $db, $index, array $config)
+  /**
+   * @var \Foxtrap\FtIndex
+   */
+  protected $ftIndex;
+
+  public function __construct(SphinxClient $cl, DbApi $db, $index, array $config, FtIndex $ftIndex)
   {
     $this->cl = $cl;
     $this->db = $db;
     $this->config = $config;
     $this->index = $index;
+    $this->ftIndex = $ftIndex;
 
     $this->cl->SetFieldWeights($this->config['weights']);
   }
@@ -122,6 +129,7 @@ class Query
     foreach ($rankToId as $id) {
       // Detect IDs from FT index that are no longer in the DB.
       if (!array_key_exists($idToRank[$id], $docs)) {
+        $this->ftIndex->deleteById($id);
         continue;
       }
       $docBodies[] = $docs[$idToRank[$id]]->indexed;
