@@ -115,11 +115,13 @@ $(document).ready(function() {
 
     ft.append(viewerToggle);
 
+    var relModified = moment(item.modified * 1000).fromNow();
+
     a.attr('href', item.uri);
     a.appendTo(li);
     a.data('item.autocomplete', item)
       .append('<div class="hd title">' + item.title + '</div>')
-      .append('<div class="bd uri">' + item.domain + ' <span class="tags">' + item.tags + '</span></div>')
+      .append('<div class="bd"><span class="date">' + relModified + '</span> <span class="uri">' + item.domain + '</span> <span class="tags">' + item.tags + '</span></div>')
       .append(ft);
 
     li.appendTo(acOutput);

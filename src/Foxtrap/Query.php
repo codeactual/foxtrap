@@ -182,6 +182,7 @@ class Query
 
     return (object) array(
       'id' => $row['id'],
+      'modified' => $row['modified'],
       'downloaded' => (boolean) $row['downloaded'],
       'deleted' => (boolean) $row['deleted'],
       'indexed' =>

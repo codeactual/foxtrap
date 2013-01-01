@@ -104,6 +104,10 @@ iframe {
   color: #0E774A;
   font-size: 0.8em;
 }
+.date {
+  color: #aaa;
+  font-size: 0.8em;
+}
 
 #error-log {
   padding: 1em 1em 1em 0;

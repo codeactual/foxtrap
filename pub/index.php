@@ -62,6 +62,7 @@
 <script src="jquery.min.js" charset="utf-8"></script>
 <script src="jquery-ui.min.js" charset="utf-8"></script>
 <script src="bootstrap.js" charset="utf-8"></script>
+<script src="moment.min.js" charset="utf-8"></script>
 <script src="index.js" charset="utf-8"></script>
 </body>
 </html>
