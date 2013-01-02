@@ -11,7 +11,7 @@ if ($title && $uri) {
   $mark = [
     'title' => $title,
     'uri' => $uri,
-    'tags' => $tags
+    'tags' => str_replace(',', ' ', $tags)
   ];
   $mark = array_map('stripslashes', $mark);
   $mark['hash'] = md5($mark['uri']);
