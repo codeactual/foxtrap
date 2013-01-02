@@ -98,8 +98,20 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
+  public function start()
+  {
+    if (!$this->link->query('START TRANSACTION')) {
+      throw new Exception('Could not start transaction');
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function register(array $mark)
   {
+    $this->start();
+
     // Add the URI for the first time OR update its tags/title
     // (ex. 'nosave' tag added).
     $sql = "
@@ -151,9 +163,32 @@ class Mysqli implements Api
     );
     $stmt->execute();
     if ($stmt->error) {
+      $this->link->rollback();
       throw new Exception("{$mark['uri']}: {$stmt->error} ({$stmt->errno})");
     }
-    return $stmt->insert_id;
+
+    $insertId = $stmt->insert_id;
+
+    if ($insertId) {
+      $tags = array_diff(explode(' ', $mark['tags']), ['']);
+      if ($tags) {
+        $sql = "
+          INSERT INTO `tags`
+          (`name`, `uses`)
+          VALUES ('" . implode("', 1),('", $tags) . "', 1)
+          ON DUPLICATE KEY UPDATE `uses` = `uses` + 1";
+        $stmt = $this->link->prepare($sql);
+        $stmt->execute();
+        if ($stmt->error) {
+          $this->link->rollback();
+          throw new Exception("{$q}: {$stmt->error} ({$stmt->errno})");
+        }
+      }
+    }
+
+    $this->link->commit();
+
+    return $insertId;
   }
 
   /**
