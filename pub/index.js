@@ -49,16 +49,17 @@ $(document).ready(function() {
     $('.compose-mark-form input[name="tags"]').focus();
 
     $.ajax({
-      url: '/get_page_title.php',
+      url: '/get_page_by_uri.php',
       dataType: 'jsonp',
       data: {
         uri: uri
       },
       success: function(data) {
-        $('.compose-mark-form input[name="title"]').val(data);
+        $('.compose-mark-form input[name="title"]').val(data.title);
+        $('.compose-mark-form input[name="tags"]').val(data.tags);
       },
       error: function() {
-        $('.compose-mark-form input[name="title"]').val('title not found');
+        $('.compose-mark-form input[name="title"]').val('page not found');
       }
     });
   };

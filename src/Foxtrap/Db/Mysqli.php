@@ -363,10 +363,10 @@ class Mysqli implements Api
   /**
    * {@inheritdoc}
    */
-  public function getMarkIdByHash($hash)
+  public function getMarkByHash($hash)
   {
     $sql = "
-      SELECT `id`
+      SELECT `id`, `title`, `tags`
       FROM `{$this->table}`
       WHERE `hash` = ?";
 
@@ -377,9 +377,14 @@ class Mysqli implements Api
       throw new Exception("{$stmt->error} ({$stmt->errno})");
     }
 
-    $result = $stmt->get_result();
-    $mark = $result->fetch_array(MYSQLI_ASSOC);
-    return $mark['id'];
+    $mark = $stmt->get_result()->fetch_array(MYSQLI_ASSOC);
+    if (!$mark) {
+      return $mark;
+    }
+
+    $mark['title'] = utf8_decode($mark['title']);
+    $mark['tags'] = utf8_decode($mark['tags']);
+    return $mark;
   }
 
   /**
