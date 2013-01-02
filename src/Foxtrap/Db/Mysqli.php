@@ -588,6 +588,7 @@ class Mysqli implements Api
     $sql = "
       SELECT `id`, `name`
       FROM `tags`
+      WHERE `name` NOT IN ('nosave', 'resave')
       ORDER BY `modified` DESC, `uses` DESC
       LIMIT ?";
     $stmt = $this->link->prepare($sql);
