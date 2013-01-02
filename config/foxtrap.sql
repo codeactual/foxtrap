@@ -67,10 +67,10 @@ DROP TABLE IF EXISTS `tags`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tags` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
-  `tag` char(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `name` char(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `uses` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `tag` (`tag`)
+  UNIQUE KEY `tag` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
