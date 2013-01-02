@@ -35,5 +35,6 @@ if ($uri) {
 
   $foxtrap = $factory->createInstance();
   $foxtrap->jsonpHeader();
+  $title = utf8_decode($title);
   echo $foxtrap->jsonpCallback(json_encode($title), $_GET['callback']);
 }
