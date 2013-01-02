@@ -33,6 +33,12 @@ $(document).ready(function() {
     }
   };
 
+  var refreshMarkStats = function() {
+    populateTags();
+    populateHistory();
+    populateMarksCount();
+  };
+
   var populateMarkTitleInModal = function() {
     var uri = $('.compose-mark-form input[name="uri"]').val();
     if (!uri) {
@@ -133,6 +139,7 @@ $(document).ready(function() {
     var a = $(this),
         openUri = function() {
           pushQueryState(q.val());
+          populateHistory();
         };
 
     $.ajax({
@@ -330,7 +337,7 @@ $(document).ready(function() {
         data: $(this).serialize(),
         success: function() {
           $('#compose-mark-modal').modal('hide');
-          populateMarksCount();
+          refreshMarkStats();
           refreshCurrentView();
           focusSearch();
         }
@@ -364,31 +371,35 @@ $(document).ready(function() {
     });
   };
 
-  // Populate history.
-  $.ajax({
-    url: 'get_history.php',
-    dataType: 'jsonp',
-    success: function(data) {
-      if (data.length) {
-        $.each(data, function(pos, item) {
-          qHistory.append('<a class="past-query" href="#query-' + item.id + '">' + item.query + '</a>');
-        });
+  var populateHistory = function() {
+    $.ajax({
+      url: 'get_history.php',
+      dataType: 'jsonp',
+      success: function(data) {
+        if (data.length) {
+          qHistory.empty();
+          $.each(data, function(pos, item) {
+            qHistory.append('<a class="past-query" href="#query-' + item.id + '">' + item.query + '</a>');
+          });
+        }
       }
-    }
-  });
+    });
+  };
 
-  // Populate tags.
-  $.ajax({
-    url: 'get_tags.php',
-    dataType: 'jsonp',
-    success: function(data) {
-      if (data.length) {
-        $.each(data, function(pos, item) {
-          qTags.append('<a class="taglist-item" href="#tag-' + item.id + '">' + item.name + '</a>');
-        });
+  var populateTags = function() {
+    $.ajax({
+      url: 'get_tags.php',
+      dataType: 'jsonp',
+      success: function(data) {
+        if (data.length) {
+          qTags.empty();
+          $.each(data, function(pos, item) {
+            qTags.append('<a class="taglist-item" href="#tag-' + item.id + '">' + item.name + '</a>');
+          });
+        }
       }
-    }
-  });
+    });
+  };
 
   var populateErrorLog = function() {
     // Populate error log.
@@ -501,7 +512,7 @@ $(document).ready(function() {
     }
   };
 
-  populateMarksCount();
-  populateErrorLog();
   focusSearch();
+  refreshMarkStats();
+  populateErrorLog();
 });
