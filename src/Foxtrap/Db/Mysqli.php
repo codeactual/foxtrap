@@ -579,4 +579,34 @@ class Mysqli implements Api
 
     return $ids;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTags($limit)
+  {
+    $sql = "
+      SELECT `id`, `name`
+      FROM `tags`
+      ORDER BY `modified` DESC, `uses` DESC
+      LIMIT ?";
+    $stmt = $this->link->prepare($sql);
+    $stmt->bind_param('d', $limit);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$q}: {$stmt->error} ({$stmt->errno})");
+    }
+
+    $result = $stmt->get_result();
+    $data = array();
+    if ($result) {
+      while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+        $data[] = (object) array(
+          'id' => $row['id'],
+          'name' => utf8_decode($row['name'])
+        );
+      }
+    }
+    return $data;
+  }
 }

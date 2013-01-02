@@ -69,6 +69,7 @@ CREATE TABLE `tags` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `name` char(32) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `uses` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `tag` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

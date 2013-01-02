@@ -16,6 +16,9 @@
     <div><a class="layout-toggle" href="#">status</a></div>
     <div id="marks-count"></div>
     <div><a class="compose-mark-open btn btn-primary" href="#">+ Add</a></div>
+    <div class="sidebar-head">Tags</div>
+    <div id="taglist" class="taglist-group search"></div>
+    <div class="sidebar-head">History</div>
     <div id="query-history" class="history-group search"></div>
   </div>
   <div class="yui3-u-7-8">

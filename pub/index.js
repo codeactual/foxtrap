@@ -3,6 +3,7 @@
 $(document).ready(function() {
   var acOutput = $('#results-ac-output'),
       qHistory = $('#query-history'),
+      qTags = $('#taglist'),
       q = $('#q'),
       body = $('body'),
       search = $('.search'),
@@ -256,6 +257,7 @@ $(document).ready(function() {
   // Populate and submit the search box with a prior query.
   $('#query-history').on('click', '.past-query', function(event) {
     event.preventDefault();
+    event.stopImmediatePropagation();
 
     var query = $(this),
         qText = query.text();
@@ -264,9 +266,22 @@ $(document).ready(function() {
     pushQueryState(qText);
   });
 
+  // Populate and submit the search box with a tag.
+  $('#taglist').on('click', '.taglist-item', function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    var query = $(this),
+        qText = '@tags ' + query.text();
+    q.val(qText);
+    q.autocomplete('search', qText);
+    pushQueryState(qText);
+  });
+
   // Swap search/status elements.
   layoutToggle.on('click', function(event) {
     event.preventDefault();
+    event.stopImmediatePropagation();
     status.toggle();
     search.toggle();
   });
@@ -357,6 +372,19 @@ $(document).ready(function() {
       if (data.length) {
         $.each(data, function(pos, item) {
           qHistory.append('<a class="past-query" href="#query-' + item.id + '">' + item.query + '</a>');
+        });
+      }
+    }
+  });
+
+  // Populate tags.
+  $.ajax({
+    url: 'get_tags.php',
+    dataType: 'jsonp',
+    success: function(data) {
+      if (data.length) {
+        $.each(data, function(pos, item) {
+          qTags.append('<a class="taglist-item" href="#tag-' + item.id + '">' + item.name + '</a>');
         });
       }
     }

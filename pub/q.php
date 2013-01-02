@@ -6,7 +6,7 @@ use \Foxtrap\Query;
 require __DIR__ . '/../src/LoadClasses.php';
 
 $q = empty($_GET['q']) ? '' : $_GET['q'];
-$match = empty($_GET['match']) ? '' : $_GET['match'];
+$match = empty($_GET['match']) ? 'SPH_MATCH_EXTENDED' : $_GET['match'];
 $sortMode = empty($_GET['sortMode']) ? '' : $_GET['sortMode'];
 $sortAttr = empty($_GET['sortAttr']) ? '' : $_GET['sortAttr'];
 
