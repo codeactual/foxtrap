@@ -125,11 +125,15 @@ $(document).ready(function() {
 
     var relModified = moment(item.modified * 1000).fromNow();
 
+    var tags = item.tags.split(' ').reduce(function(memo, tag) {
+      return memo + '<a class="tag" href="#">' + tag + '</a> ';
+    }, '');
+
     a.attr('href', item.uri);
     a.appendTo(li);
     a.data('item.autocomplete', item)
       .append('<div class="hd title">' + item.title + '</div>')
-      .append('<div class="bd"><span class="date">' + relModified + '</span> <span class="uri">' + item.domain + '</span> <span class="tags">' + item.tags + '</span></div>')
+      .append('<div class="bd"><span class="date">' + relModified + '</span> <span class="uri">' + item.domain + '</span> '+ tags + '</div>')
       .append(ft);
 
     li.appendTo(acOutput);
@@ -275,7 +279,7 @@ $(document).ready(function() {
   });
 
   // Populate and submit the search box with a tag.
-  $('#taglist').on('click', '.taglist-item', function(event) {
+  body.on('click', '.tag', function(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
 
@@ -395,7 +399,7 @@ $(document).ready(function() {
         if (data.length) {
           qTags.empty();
           $.each(data, function(pos, item) {
-            qTags.append('<a class="taglist-item" href="#tag-' + item.id + '">' + item.name + '</a>');
+            qTags.append('<a class="tag taglist-item" href="#tag-' + item.id + '">' + item.name + '</a>');
           });
         }
       }
