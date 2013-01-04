@@ -13,6 +13,10 @@ class FactoryTest extends PHPUnit_Framework_TestCase
       'db' => array(
         'class' => 'Blackhole',
         'connect' => array('event', 'horizon'),
+        'ftConnect' => array('localhost:9306'),
+        'testFtConnect' => array('localhost:9307'),
+        'table' => 'marks',
+        'historyTable' => 'searches'
       ),
       'sphinx' => array(
         'connect' => array(

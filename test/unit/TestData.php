@@ -14,12 +14,13 @@ function registerRandomMark(Foxtrap $foxtrap, array $overrides = array())
   $expected = array(
     'title' => 'Title ¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹',
     'uri' => $uri,
-    'tags' => '¥£€$,¢₡₢₣,₤₥₦₧,₨₩₪₫,₭₮₯₹',
+    'tags' => '¥£€$,¢₡₢,₭₮₯₹',
     'last_err' => '',
     'added' => time() - mt_rand(1, 3600),
-    'modified' => time()
+    'modified' => time(),
+    'deleted' => 0
   );
-  $expected['hash'] = $foxtrap->generateMarkHash($expected['title'], $expected['uri'], $expected['tags'], $expected['added']);
+  $expected['hash'] = md5($expected['uri']);
   $expected = array_merge($expected, $overrides);
   $expected['id'] = $foxtrap->getDb()->register($expected);
   return $expected;

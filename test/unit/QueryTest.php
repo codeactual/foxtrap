@@ -14,22 +14,6 @@ class QueryTest extends PHPUnit_Framework_TestCase
     $config = $factory->getConfigFromFile();
     self::$foxtrap = $factory->createTestInstance();
     self::$query = self::$foxtrap->getQuery();
-
-    $db = self::$foxtrap->getDb();
-    $db->resetTestDb();
-    $json = file_get_contents(__DIR__ . '/../fixture/bookmarks.json');
-    self::$foxtrap->registerMarks(self::$foxtrap->jsonToArray($json));
-
-    $body = file_get_contents(__DIR__ . '/../fixture/twitter.html');
-    $db->saveSuccess($body, self::$foxtrap->cleanResponseBody($body), 1);
-    $body = file_get_contents(__DIR__ . '/../fixture/yahoo.html');
-    $db->saveSuccess($body, self::$foxtrap->cleanResponseBody($body), 2);
-    $body = file_get_contents(__DIR__ . '/../fixture/amazon.html');
-    $db->saveSuccess($body, self::$foxtrap->cleanResponseBody($body), 3);
-    $body = file_get_contents(__DIR__ . '/../fixture/google.html');
-    $db->saveSuccess($body, self::$foxtrap->cleanResponseBody($body), 4);
-
-    exec(__DIR__ . '/../../bin/foxtrap-test-indexer');
   }
 
   /**
@@ -41,6 +25,8 @@ class QueryTest extends PHPUnit_Framework_TestCase
     $row = array(
       'id' => uniqid(),
       'downloaded' => false,
+      'deleted' => false,
+      'modified' => time(),
       'title' => uniqid(),
       'tags' => uniqid(),
       'body_clean' => uniqid(),
@@ -79,61 +65,5 @@ class QueryTest extends PHPUnit_Framework_TestCase
       0,
       self::$query->sphinxModeNameToValue('SPH_DOES_NOT_EXIST')
     );
-  }
-
-  public function providesRunData()
-  {
-    return array(
-      array(
-        'search yahoo',
-        SPH_MATCH_ANY,
-        SPH_SORT_RELEVANCE,
-        '',
-        array('www.yahoo.com', 'www.google.com', 'www.amazon.com'),
-      ),
-      array(
-        'search yahoo',
-        SPH_MATCH_ALL,
-        SPH_SORT_RELEVANCE,
-        '',
-        array('www.yahoo.com'),
-      ),
-      array(
-        'web',
-        SPH_MATCH_ANY,
-        SPH_SORT_RELEVANCE,
-        '',
-        array('www.yahoo.com', 'www.amazon.com', 'www.google.com'),
-      ),
-      array(
-        'web',
-        SPH_MATCH_ANY,
-        SPH_SORT_ATTR_ASC,
-        'modified',
-        array('www.google.com', 'www.yahoo.com', 'www.amazon.com'),
-      ),
-      array(
-        'web',
-        SPH_MATCH_ANY,
-        SPH_SORT_ATTR_DESC,
-        'modified',
-        array('www.amazon.com', 'www.yahoo.com', 'www.google.com'),
-      )
-    );
-  }
-
-  /**
-   * @group runsQuery
-   * @test
-   * @dataProvider providesRunData
-   */
-  public function runsQuery($q, $matchMode, $sortMode, $sortAttr, $expected)
-  {
-    $results = self::$query->run($q, $matchMode, $sortMode, $sortAttr);
-    $actual = array();
-    foreach ($results as $res) {
-      $actual[] = $res->domain;
-    }
-    $this->assertSame($expected, $actual);
   }
 }

@@ -211,13 +211,17 @@ class MysqliTest extends PHPUnit_Framework_TestCase
         'id' => $mark4['id'],
         'last_err' => 'mark4 error',
         'title' => $mark4['title'],
-        'uri' => $mark4['uri']
+        'uri' => $mark4['uri'],
+        'tags' => $mark4['tags'],
+        'deleted' => $mark4['deleted']
       ),
       array(
         'id' => $mark1['id'],
         'last_err' => 'mark1 error',
         'title' => $mark1['title'],
-        'uri' => $mark1['uri']
+        'uri' => $mark1['uri'],
+        'tags' => $mark1['tags'],
+        'deleted' => $mark1['deleted']
       )
     );
 
