@@ -181,7 +181,7 @@ class Mysqli implements Api
         $stmt->execute();
         if ($stmt->error) {
           $this->link->rollback();
-          throw new Exception("{$q}: {$stmt->error} ({$stmt->errno})");
+          throw new Exception("{$sql}: {$stmt->error} ({$stmt->errno})");
         }
       }
     }
