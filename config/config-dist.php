@@ -50,6 +50,7 @@ $config = array(
   'htmlpurifier' => array(
     'index' => array(
       'HTML.TidyLevel' => 'none',
+      'HTML.Allowed' => '',
       'Cache.SerializerPath' => '/tmp',
       'Cache.SerializerPermissions' => 0765
     ),
