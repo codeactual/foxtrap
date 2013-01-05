@@ -93,6 +93,9 @@ iframe {
   color: #D14836;
   font-size: 0.8em;
 }
+.tag:hover {
+  text-decoration: underline;
+}
 .status {
   display: none;
 }

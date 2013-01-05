@@ -146,7 +146,7 @@ $(document).ready(function() {
     a.appendTo(li);
     a.data('item.autocomplete', item)
       .append('<div class="hd title">' + item.title + '</div>')
-      .append('<div class="bd"><span class="date">' + relModified + '</span> <span class="uri">' + item.domain + '</span> '+ tags + '</div>')
+      .append('<div class="bd"><span class="date">' + relModified + '</span> <span class="uri">' + item.domain + '</span> <span class="tags">' + tags + '</span></div>')
       .append(ft);
 
     li.appendTo(acOutput);
@@ -222,7 +222,7 @@ $(document).ready(function() {
     var linkWrap = editBtn.parents('.link-wrap');
     $('.compose-mark-form input[name="uri"]').val(linkWrap.attr('href')).attr('readonly', 'readonly');
     $('.compose-mark-form input[name="title"]').val($('div.title', linkWrap).text()).removeAttr('readonly');
-    $('.compose-mark-form input[name="tags"]').val($('span.tags', linkWrap).text()).removeAttr('readonly');
+    $('.compose-mark-form input[name="tags"]').val($('span.tags', linkWrap).text().trim()).removeAttr('readonly');
     $('#compose-mark-modal h3').text('Edit Mark');
     $('#compose-mark-modal button[type="submit"]').text('Edit');
     openComposeMarkModal();
