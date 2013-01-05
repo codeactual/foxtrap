@@ -90,8 +90,8 @@ $(document).ready(function() {
       // as an intention to add it as a mark.
       if (/^\s?https?:\/\//.test(request.term)) {
         $('.compose-mark-form input[name="uri"]').val(request.term.trim()).attr('readonly', 'readonly');
-        $('#compose-mark-modal h3').text('Edit Mark');
-        $('#compose-mark-modal button[type="submit"]').text('Edit');
+        $('#compose-mark-modal h3').text('Add Mark');
+        $('#compose-mark-modal button[type="submit"]').text('Add');
         populateMarkTitleInModal();
         openComposeMarkModal();
         return;
