@@ -86,6 +86,17 @@ $(document).ready(function() {
       }
     },
     source: function(request, response) {
+      // For convenience, allow a URI to be dropped the search box and interpreted
+      // as an intention to add it as a mark.
+      if (/^\s?https?:\/\//.test(request.term)) {
+        $('.compose-mark-form input[name="uri"]').val(request.term.trim()).attr('readonly', 'readonly');
+        $('#compose-mark-modal h3').text('Edit Mark');
+        $('#compose-mark-modal button[type="submit"]').text('Edit');
+        populateMarkTitleInModal();
+        openComposeMarkModal();
+        return;
+      }
+
       pushQueryState(request.term);
 
       $.ajax({
