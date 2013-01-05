@@ -134,6 +134,9 @@ iframe {
   padding-top: 0.5em;
   text-align: center;
 }
+#logo a {
+  color: black;
+}
 #q {
   font-size: 1.25em;
   font-weight: bold;

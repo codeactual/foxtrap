@@ -12,7 +12,7 @@
 <body>
 <div class="yui3-g">
   <div id="sidebar" class="yui3-u-1-8">
-    <div id="logo">foxtrap</div>
+    <div id="logo"><a href="/">foxtrap</a></div>
     <div><a class="layout-toggle" href="#">status</a></div>
     <div id="marks-count"></div>
     <div><a class="compose-mark-open btn btn-primary" href="#">+ Add</a></div>
