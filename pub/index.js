@@ -89,6 +89,7 @@ $(document).ready(function() {
       // For convenience, allow a URI to be dropped the search box and interpreted
       // as an intention to add it as a mark.
       if (/^\s?https?:\/\//.test(request.term)) {
+        q.val('');
         $('.compose-mark-form input[name="uri"]').val(request.term.trim()).attr('readonly', 'readonly');
         $('#compose-mark-modal h3').text('Add Mark');
         $('#compose-mark-modal button[type="submit"]').text('Add');
