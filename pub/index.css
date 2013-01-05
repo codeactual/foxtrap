@@ -155,6 +155,11 @@ iframe {
 #sidebar {
   text-align: center;
 }
-#marks-count {
+#marks-count,
+#last-download-age {
   margin-top: 1em;
+}
+#last-download-age {
+  color: #aaa;
+  font-size: 0.75em;
 }

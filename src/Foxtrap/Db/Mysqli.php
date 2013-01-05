@@ -292,7 +292,8 @@ class Mysqli implements Api
   {
     $sql = "
       SELECT COUNT(*) AS `count`
-      FROM `{$this->table}`";
+      FROM `{$this->table}`
+      USE INDEX (downloaded)";
 
     $stmt = $this->link->prepare($sql);
     $stmt->execute();
@@ -614,5 +615,24 @@ class Mysqli implements Api
       }
     }
     return $data;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLatestDownloadTime()
+  {
+    $sql = "
+      SELECT `downloaded` FROM `{$this->table}`
+      ORDER BY `downloaded` DESC
+      LIMIT 1";
+    $stmt = $this->link->prepare($sql);
+    $stmt->execute();
+    if ($stmt->error) {
+      throw new Exception("{$stmt->error} ({$stmt->errno})");
+    }
+
+    $result = $stmt->get_result();
+    return $result->fetch_array(MYSQLI_ASSOC)['downloaded'];
   }
 }

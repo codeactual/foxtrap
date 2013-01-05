@@ -389,6 +389,17 @@ $(document).ready(function() {
     });
   };
 
+  var populateLastDownloadAge = function() {
+    // Populate count.
+    $.ajax({
+      url: 'get_last_download_time.php',
+      dataType: 'jsonp',
+      success: function(data) {
+        $('#last-download-age').html('<div>Last DL:</div>' + moment(data * 1000).fromNow());
+      }
+    });
+  };
+
   var populateHistory = function() {
     $.ajax({
       url: 'get_history.php',
@@ -533,4 +544,5 @@ $(document).ready(function() {
   focusSearch();
   refreshMarkStats();
   populateErrorLog();
+  populateLastDownloadAge();
 });
