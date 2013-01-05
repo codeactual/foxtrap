@@ -28,11 +28,17 @@ if ($uri) {
       exit;
     }
     $doc = new DOMDocument();
+
+    // Uses:
+    // - utf8 encoding
+    // - Ex. <title> contains a real quotation mark defined as an HTML entity.
+    $content =  mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8');
+
     @$doc->loadHTML($content);
     $xpath = new DOMXPath($doc);
     $mark['title'] = $xpath->query('//title');
     if ($mark['title']) {
-      $mark['title'] = utf8_decode($mark['title']->item(0)->nodeValue);
+      $mark['title'] = $mark['title']->item(0)->nodeValue;
     } else {
       $mark['title'] = 'untitled page';
     }
