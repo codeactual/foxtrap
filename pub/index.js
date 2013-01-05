@@ -114,9 +114,10 @@ $(document).ready(function() {
     viewerToggle.append('<span class="viewer-edit mark-action-btn">Edit</span>')
 
     if (!/nosave/.test(item.tags)) {
-      viewerToggle
-        .append('<span class="viewer-view-copy mark-action-btn">View Saved Copy</span>')
-        .append('<span class="viewer-dl-again mark-action-btn">' + dlBtnMsg + '</span>');
+      if (item.downloaded) {
+        viewerToggle.append('<span class="viewer-view-copy mark-action-btn">View Saved Copy</span>');
+      }
+      viewerToggle.append('<span class="viewer-dl-again mark-action-btn">' + dlBtnMsg + '</span>');
     }
 
     viewerToggle.append('<span class="viewer-delete mark-action-btn mark-delete-btn">' + (item.deleted ? 'Cancel Deletion' : 'Delete') + '</span>');
