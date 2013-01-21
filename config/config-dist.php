@@ -45,7 +45,9 @@ $config = array(
   'curl' => array(
     CURLOPT_CONNECTTIMEOUT => 10,
     CURLOPT_MAXREDIRS => 5,
-    CURLOPT_FOLLOWLOCATION => 1
+    CURLOPT_FOLLOWLOCATION => 1,
+    CURLOPT_COOKIEJAR => '/tmp/foxtrap-curl-cookiejar',
+    CURLOPT_ENCODING => 'gzip,deflate'
   ),
   'htmlpurifier' => array(
     'index' => array(
