@@ -37,3 +37,11 @@ foxtrap imports Firefox bookmark backup files and downloads all pages for full-t
 1. Copy `config/sphinx-test-dist.conf` to `config/sphinx-test.conf` and replace the placeholders.
 1. Start Sphinx (w/ test config):`bin/foxtrap-test-searchd-start`
 1. `phpunit -c test/unit/phpunit.xml test/unit`
+
+## Altering the real-time index
+
+1. Remove old index files.
+1. Stop `searchd`.
+1. Update sphinx configuration files, ex. new `rt_attr_timestamp` attribute.
+1. Start `searchd`.
+1. `bin/foxtrap-seed-rtindex`
