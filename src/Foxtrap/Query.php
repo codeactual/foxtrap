@@ -74,6 +74,7 @@ class Query
    * @param int $match Sphinx match mode.
    * @param int $sortMode Sphinx sort mode.
    * @param string $sortAttr (Optional, '') Sphinx sort-by attribute.
+   * @param int $maxAge Maximum `downloaded` age.
    * - Only optional for SPH_SORT_RELEVANCE
    * @return array Search result arrays, each with:
    * - mixed 'id'
@@ -85,13 +86,18 @@ class Query
    * @see http://www.php.net/manual/en/sphinxclient.setmatchmode.php
    * @see http://www.php.net/manual/en/sphinxclient.setsortmode.php
    */
-  public function run($q, $match, $sortMode, $sortAttr = '')
+  public function run($q, $match, $sortMode, $sortAttr = '', $maxAge = 0)
   {
     // In Sphinx sort order
     $docs = array();
 
     $this->cl->SetMatchMode($match);
     $this->cl->SetSortMode($sortMode, $sortAttr);
+
+    if ($maxAge) {
+      $now = time();
+      $this->cl->SetFilterRange('downloaded', $now - $maxAge, $now);
+    }
 
     $results = $this->cl->Query($q, $this->index);
 
