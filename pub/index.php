@@ -16,6 +16,7 @@
     <div><a class="layout-toggle" href="#">status</a></div>
     <div id="marks-count"></div>
     <div id="last-download-age"></div>
+    <div id="sort">Sorting by <a href="#" id="sort-attr">Relevance</a></div>
     <div><a class="compose-mark-open btn btn-primary" href="#">+ Add</a></div>
     <div class="sidebar-head">Tags</div>
     <div id="taglist" class="taglist-group search"></div>

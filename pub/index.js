@@ -9,6 +9,7 @@ $(document).ready(function() {
       search = $('.search'),
       status = $('.status'),
       layoutToggle = $('.layout-toggle'),
+      sortToggle = $('#sort-attr'),
       lastPushState = null,
       pushQueryState = function(query) {
         var state = {q: query};
@@ -22,7 +23,12 @@ $(document).ready(function() {
         lastPushState = $.extend({}, state);
         history.pushState(lastPushState, '', '?q=' + encodeURIComponent(query));
       },
-      reDownloadMsg = 'Will download in next cycle.';
+      reDownloadMsg = 'Will download in next cycle.',
+      sortAttrKey = 'rel',
+      sortAttrMap = {
+        rel: '@relevance DESC, downloaded DESC',
+        date: 'downloaded DESC, @relevance DESC'
+      };
 
   var refreshCurrentView = function() {
     var view = $('#error-log:visible');
@@ -104,7 +110,9 @@ $(document).ready(function() {
         url: '/q.php',
         dataType: 'jsonp',
         data: {
-          q: request.term
+          q: request.term,
+          sortMode: 'SPH_SORT_EXTENDED',
+          sortAttr: sortAttrMap[sortAttrKey]
         },
         success: function(data) {
           acOutput.empty();
@@ -309,6 +317,22 @@ $(document).ready(function() {
     event.stopImmediatePropagation();
     status.toggle();
     search.toggle();
+  });
+
+  sortToggle.on('click', function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (sortAttrKey === 'rel') {
+      sortToggle.text('Date');
+      sortAttrKey = 'date';
+    } else {
+      sortToggle.text('Relevance');
+      sortAttrKey = 'rel';
+    }
+    var query = q.val();
+    if (query) {
+      q.autocomplete('search', query);
+    }
   });
 
   var focusSearch = function() {
