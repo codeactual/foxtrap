@@ -57,15 +57,16 @@ class FtIndex
 
     $replaceSql = sprintf("
       REPLACE INTO `%s`
-      (`id`, `title`, `uri`, `tags`, `body_clean`)
+      (`id`, `title`, `uri`, `tags`, `body_clean`, `downloaded`)
       VALUES
-      ('%s', '%s', '%s', '%s', '%s')",
+      (%d, '%s', '%s', '%s', '%s', %d)",
       $this->index,
-      $this->db->escape($mark['id']),
+      $mark['id'],
       $this->db->escape($mark['title']),
       $this->db->escape($mark['uri']),
       $this->db->escape($mark['tags']),
-      $this->db->escape($mark['body_clean'])
+      $this->db->escape($mark['body_clean']),
+      $mark['downloaded']
     );
 
     if (!$this->ftDb->query($replaceSql)) {
@@ -77,15 +78,16 @@ class FtIndex
   {
     $replaceSql = sprintf("
       REPLACE INTO `%s`
-      (`id`, `title`, `uri`, `tags`, `body_clean`)
+      (`id`, `title`, `uri`, `tags`, `body_clean`, `downloaded`)
       VALUES
-      ('%s', '%s', '%s', '%s', '%s')",
+      (%d, '%s', '%s', '%s', '%s', %d)",
       $this->index,
-      $this->db->escape($mark['id']),
+      $mark['id'],
       $this->db->escape($mark['title']),
       $this->db->escape($mark['uri']),
       $this->db->escape($mark['tags']),
-      $this->db->escape($mark['body_clean'])
+      $this->db->escape($mark['body_clean']),
+      $mark['downloaded']
     );
 
     if (!$this->ftDb->query($replaceSql)) {
@@ -99,7 +101,7 @@ class FtIndex
   public function seed()
   {
     $selectSql = "
-      SELECT `id`, `title`, `uri`, `tags`, `body_clean`
+      SELECT `id`, `title`, `uri`, `tags`, `body_clean`, `downloaded`
       FROM `{$this->table}`";
 
     $result = $this->db->query($selectSql);
