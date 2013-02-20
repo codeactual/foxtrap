@@ -38,7 +38,7 @@ if ($uri) {
     $xpath = new DOMXPath($doc);
     $mark['title'] = $xpath->query('//title');
     if ($mark['title']) {
-      $mark['title'] = $mark['title']->item(0)->nodeValue;
+      $mark['title'] = trim($mark['title']->item(0)->nodeValue);
     } else {
       $mark['title'] = 'untitled page';
     }
