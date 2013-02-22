@@ -74,7 +74,7 @@ class Query
    * @param int $match Sphinx match mode.
    * @param int $sortMode Sphinx sort mode.
    * @param string $sortAttr (Optional, '') Sphinx sort-by attribute.
-   * @param int $maxAge Maximum `downloaded` age.
+   * @param int $maxAge Maximum `modified` age.
    * - Only optional for SPH_SORT_RELEVANCE
    * @return array Search result arrays, each with:
    * - mixed 'id'
@@ -96,7 +96,7 @@ class Query
 
     if ($maxAge) {
       $now = time();
-      $this->cl->SetFilterRange('downloaded', $now - $maxAge, $now);
+      $this->cl->SetFilterRange('modified', $now - $maxAge, $now);
     }
 
     $results = $this->cl->Query($q, $this->index);

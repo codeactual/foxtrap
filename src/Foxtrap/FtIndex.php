@@ -57,7 +57,7 @@ class FtIndex
 
     $replaceSql = sprintf("
       REPLACE INTO `%s`
-      (`id`, `title`, `uri`, `tags`, `body_clean`, `downloaded`)
+      (`id`, `title`, `uri`, `tags`, `body_clean`, `modified`)
       VALUES
       (%d, '%s', '%s', '%s', '%s', %d)",
       $this->index,
@@ -66,7 +66,7 @@ class FtIndex
       $this->db->escape($mark['uri']),
       $this->db->escape($mark['tags']),
       $this->db->escape($mark['body_clean']),
-      $mark['downloaded']
+      $mark['modified']
     );
 
     if (!$this->ftDb->query($replaceSql)) {
@@ -78,7 +78,7 @@ class FtIndex
   {
     $replaceSql = sprintf("
       REPLACE INTO `%s`
-      (`id`, `title`, `uri`, `tags`, `body_clean`, `downloaded`)
+      (`id`, `title`, `uri`, `tags`, `body_clean`, `modified`)
       VALUES
       (%d, '%s', '%s', '%s', '%s', %d)",
       $this->index,
@@ -87,7 +87,7 @@ class FtIndex
       $this->db->escape($mark['uri']),
       $this->db->escape($mark['tags']),
       $this->db->escape($mark['body_clean']),
-      $mark['downloaded']
+      $mark['modified']
     );
 
     if (!$this->ftDb->query($replaceSql)) {
@@ -101,7 +101,7 @@ class FtIndex
   public function seed()
   {
     $selectSql = "
-      SELECT `id`, `title`, `uri`, `tags`, `body_clean`, `downloaded`
+      SELECT `id`, `title`, `uri`, `tags`, `body_clean`, `modified`
       FROM `{$this->table}`";
 
     $result = $this->db->query($selectSql);

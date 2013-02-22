@@ -26,8 +26,8 @@ $(document).ready(function() {
       reDownloadMsg = 'Will download in next cycle.',
       sortAttrKey = 'rel',
       sortAttrMap = {
-        rel: '@relevance DESC, downloaded DESC',
-        date: 'downloaded DESC, @relevance DESC'
+        rel: '@relevance DESC, modified DESC',
+        date: 'modified DESC, @relevance DESC'
       };
 
   var refreshCurrentView = function() {
