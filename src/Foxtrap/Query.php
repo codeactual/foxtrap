@@ -99,6 +99,9 @@ class Query
       $this->cl->SetFilterRange('modified', $now - $maxAge, $now);
     }
 
+    // Ex. "/dev/null" will log error "index foxtrap: syntax error, unexpected '/' near '/dev/null'"
+    $q = preg_replace('/\//', '\/', $q);
+
     $results = $this->cl->Query($q, $this->index);
 
     $lastError = $this->cl->GetLastError();
